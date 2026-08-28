@@ -1,0 +1,122 @@
+# ==============================================================================
+# PRJ_111 - .gitignore
+# Development of a Software Application for Analysis and Processing of DVB-S2 Receiver Output Stream
+# ==============================================================================
+
+# Python Environments & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+
+# IDE & Editor Configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Build, Packaging & Distribution Artifacts
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Code Coverage
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints
+
+# Processed / Feature Cache Data (Generated locally during execution)
+02_PROCESSED_DATA/*
+!02_PROCESSED_DATA/README.md
+!02_PROCESSED_DATA/.gitkeep
+
+03_FEATURE_DATA/*
+!03_FEATURE_DATA/README.md
+!03_FEATURE_DATA/.gitkeep
+
+04_AI_MODELS/*
+!04_AI_MODELS/README.md
+!04_AI_MODELS/.gitkeep
+
+06_RESULTS/*
+!06_RESULTS/README.md
+!06_RESULTS/.gitkeep
+
+# ------------------------------------------------------------------------------
+# Explicitly Tracked Documentation & Media Assets (DO NOT IGNORE)
+# ------------------------------------------------------------------------------
+!07_DOCUMENTATION/
+!07_DOCUMENTATION/*
+
+# ==============================================================================
+# PRJ_111 - Large Raw DVB-S2 Dataset Files
+# Keep large datasets locally; do not commit them to GitHub
+# ==============================================================================
+
+# Transport Stream files
+*.ts
+
+# Packet Capture files
+*.pcap
+*.pcapng
+
+# Dataset archives
+*.zip
+*.7z
+*.rar
+
+# Raw / binary dataset files
+*.raw
+*.bin
+
+# Temporary files
+*.tmp
+*.temp
