@@ -4,7 +4,7 @@
 [![Phase: Review-2](https://img.shields.io/badge/Status-Review--2%20Functional%20Prototype%20Verified-success.svg)](#current-project-status)
 [![Track: B.Tech CSE Mini-Project](https://img.shields.io/badge/Track-B.Tech%20CSE%20Mini--Project-orange.svg)](#team-members)
 [![Tests: 240 Passing](https://img.shields.io/badge/Tests-240%2F240%20Passing-brightgreen.svg)](#verification--testing)
-[![Frontend: Next.js 15](https://img.shields.io/badge/Frontend-Next.js%2015%20%7C%20React%2019%20%7C%20Tailwind%20v4-black?logo=next.js)](05_CODE/web)
+[![Frontend: HTML5 / Vanilla CSS](https://img.shields.io/badge/Frontend-HTML5%20%7C%20Vanilla%20CSS%20%7C%20ES6%20SPA-E34F26?logo=html5)](05_CODE/dvbs2_analyzer/frontend/static)
 [![Repository: GitHub](https://img.shields.io/badge/GitHub-PRJ__111--DVB--S2--Analysis-black?logo=github)](https://github.com/rakesh0709/PRJ_111_DVB-S2_Analysis.git)
 
 ---
@@ -84,53 +84,59 @@ The application supports three distinct, alternative input formats produced at v
 
 | Layer | Technology | Version | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Frontend Framework** | Next.js (App Router) | 15.5+ | High-performance industrial engineering workstation & hybrid showcase |
-| **UI Component Core** | React | 19.3+ | Component-driven declarative UI with zero 3rd-party component libraries |
-| **Styling & Design Tokens** | Tailwind CSS | v4.3+ | Strict Swiss typography scale, industrial 0px radius, zero box-shadows |
-| **Type Safety** | TypeScript | 5.9+ | End-to-end schema validation for all F1-F7 API responses |
+| **Frontend Framework** | HTML5 Single-Page Application (SPA) | HTML5 / Vanilla CSS3 / ES6 | Zero-dependency interactive workstation with tabbed stream inspection & telemetry views |
+| **Visualization Engine** | Chart.js (Vendored) | v4.4.x | Client-side spatial timelines, rolling health score tracking, and payload density charts |
 | **Analysis Backend** | Python | 3.12+ | Bit-level stream parsers, feature extraction, health check |
-| **HTTP / REST API** | ThreadingHTTPServer | Python stdlib | High-throughput local REST API on port 8080 |
+| **HTTP / REST API** | ThreadingHTTPServer | Python stdlib | High-throughput local REST API & static file server on port 8080 |
 | **Machine Learning** | scikit-learn | 1.5+ | Feature F2 unsupervised Isolation Forest anomaly detection |
 | **Numerical Processing** | NumPy | 1.26+ | Rolling window feature aggregation and bounded Z-scores |
-| **Backend Testing** | Python unittest | 3.12 stdlib | 240 automated tests (207 unit/pipeline + 33 REST API & coordinator integration) |
-| **Frontend Testing** | Node test runner | Node 24+ | 9 automated offline data & design token verification tests |
+| **Verification & Testing** | Python unittest | 3.12 stdlib | 240 automated tests (207 unit/pipeline + 33 REST API & coordinator integration) |
 
 ---
 
-## 8. Dual-Mode Operation
+## 8. Operational Model
 
-The redesigned workstation operates seamlessly across two operational modes:
+The application operates as a unified, full-stack stream analysis platform served directly by Python's built-in `ThreadingHTTPServer` on `http://127.0.0.1:8080`:
 
-* **Mode A — Live Backend Workstation:** When the Python backend is active at `http://127.0.0.1:8080`, users can upload custom `.ts`, `.pcap`, or `.bin` binary dumps, execute content-aware stream detection, configure analysis windows, run live F1-F7 pipelines, and export generated reports.
-* **Mode B — Offline Technical Showcase:** When the backend is offline, the interface displays an explicit `BACKEND OFFLINE (OFFLINE SHOWCASE)` status indicator and renders verified, precompiled empirical telemetries from `06_RESULTS/` across MPEG-TS (`sample.ts`), GSE (`sample.ts`), and BBFrame (`dvb-s2_bb_example.pcap`) with zero broken states and zero fabricated values.
+* **Zero External Dependencies:** The client interface is a responsive, lightweight single-page application built using pure HTML5, vanilla CSS, and vanilla ES6 JavaScript with locally vendored Chart.js—requiring no external CDN connections, npm packages, or external build steps.
+* **Direct REST API Integration:** The UI communicates with the backend via local JSON endpoints (`/api/status`, `/api/presets`, `/api/analyze`, `/api/compare`, `/api/upload`, `/api/export`).
+* **Multi-Format Ingestion:** Users can upload custom `.ts`, `.pcap`, or `.bin` binary dumps, execute content-aware stream detection, configure analysis windows, run live F1–F7 pipelines, and export diagnostic reports in real time.
 
 ---
 
 ## 9. System Architecture
 
 ```
-BROWSER (CLIENT WORKSTATION)
+BROWSER (HTML5 / VANILLA CSS / ES6 SPA DASHBOARD)
    |
+   | HTTP / REST API (PORT 8080)
    ↓
-NEXT.JS 15 APPLICATION (PORT 3000)
-   ├── App Router & React 19 Components
-   ├── Tailwind CSS v4 Design System (0px radius, strict 12/14/16/24/48/96px typography)
-   ├── Live Analyzer & File Uploader
-   ├── Horizontal Activity Timeline (F4) & Anomaly Inspector (F2 & F5)
-   ├── Semantic Comparison Matrix (F6)
-   └── Precompiled Empirical Offline Data Engine
-   |
-   ↓ HTTP REST API (PORT 8080)
-PYTHON ANALYSIS BACKEND (PRJ_111 ENGINE)
-   ├── Stream Ingestion & Content-Aware Format Detector
-   ├── Format Decoders (TSParser, GSEParser, BBFrameParser)
-   ├── Unified Feature Extractor
-   ├── F1: Stream Health Analyzer (ETSI TR 101 290 principles)
-   ├── F2: Isolation Forest Anomaly Detector
-   ├── F3: Multiplex Pattern & Entropy Extractor
-   ├── F5: Diagnostic Explanation Engine (|Z| <= 20.0 sigma)
-   ├── F6: Stream Comparison Engine & Semantic Shield
-   └── F7: Multi-Format Automatic Report Synthesizer
+PYTHON FULL-STACK SERVER (run_frontend.py)
+   ├── Static Web Server (05_CODE/dvbs2_analyzer/frontend/static/)
+   │   ├── index.html (Tabbed Workstation: Dashboard, Anomaly, Timeline, Compare, Report)
+   │   ├── styles.css (Pure Vanilla CSS Dark Industrial Theme)
+   │   ├── app.js (REST API Client, UI Controller, State Management)
+   │   └── chart.umd.min.js (Vendored Offline Chart Engine)
+   │
+   ├── REST API Endpoints
+   │   ├── GET  /api/status   - Server health and pipeline state
+   │   ├── GET  /api/presets  - Pre-configured dataset metadata
+   │   ├── POST /api/analyze  - Run full F1-F5 analysis pipeline
+   │   ├── POST /api/compare  - Run F6 cross-stream semantic audit
+   │   ├── POST /api/upload   - Stream chunking & ingestion
+   │   └── GET  /api/export   - F7 multi-format report generator
+   │
+   └── Python Analytical Core (dvbs2_analyzer)
+       ├── Stream Ingestion & Content-Aware Format Detector
+       ├── Format Decoders (TSParser, GSEParser, BBFrameParser)
+       ├── Unified Feature Extractor
+       ├── F1: Stream Health Analyzer (ETSI TR 101 290 principles)
+       ├── F2: Isolation Forest Anomaly Detector
+       ├── F3: Multiplex Pattern & Entropy Extractor
+       ├── F4: Timeline & Activity Visualizer
+       ├── F5: Diagnostic Explanation Engine (|Z| <= 20.0 sigma)
+       ├── F6: Stream Comparison Engine & Semantic Shield
+       └── F7: Multi-Format Automatic Report Synthesizer
 ```
 
 ---
@@ -140,10 +146,8 @@ PYTHON ANALYSIS BACKEND (PRJ_111 ENGINE)
 ```
 PRJ_111_DVB-S2_Analysis/
 ├── README.md                       # Main project repository documentation (this file)
-├── RUN_PROJECT.bat                 # One-click dual-stack startup script (Backend + Workstation + Browser)
-├── START_BACKEND.bat               # Python analysis REST API backend launcher (Port 8080)
-├── START_WEB_WORKSTATION.bat       # Next.js 15 Web Workstation launcher (Port 3000)
-├── RUN_TESTS.bat                   # Full automated test verification runner (240 Python + 9 Next.js)
+├── RUN_PROJECT.bat                 # One-click startup script (Launches backend & opens browser at port 8080)
+├── RUN_TESTS.bat                   # Full automated test verification runner (240 Python tests)
 ├── 01_RAW_DATA/                    # Real collected raw datasets (kept locally & immutable)
 │   ├── 01_BBFRAME_GSE/             # DVB-S2 Baseband frame and GSE captures (.pcap)
 │   ├── 02_GSE/                     # GSE extraction sample streams (.ts)
@@ -155,9 +159,9 @@ PRJ_111_DVB-S2_Analysis/
 ├── 04_AI_MODELS/                   # Serialized Isolation Forest model configurations
 ├── 05_CODE/                        # Full production source code
 │   ├── dvbs2_analyzer/             # Python analytical engines, parsers, and HTTP server
-│   ├── web/                        # Next.js 15 + React 19 + Tailwind v4 Web Workstation
+│   │   └── frontend/static/        # Pure HTML5, vanilla CSS, JavaScript SPA & vendored Chart.js
 │   ├── tests/                      # 240 Automated Python unit and integration tests
-│   └── run_frontend.py             # Python REST API server entrypoint (port 8080)
+│   └── run_frontend.py             # Python REST API and static server entrypoint (port 8080)
 ├── 06_RESULTS/                     # Authoritative empirical experiment outputs & reports
 │   ├── reports/                    # Generated Markdown, HTML, JSON, TXT reports
 │   ├── timelines/                  # Full spatial window JSON timelines
@@ -176,44 +180,38 @@ PRJ_111_DVB-S2_Analysis/
 The project maintains a strict 100% pass verification invariant:
 
 * **Backend Unit & Pipeline Suite:** 207 tests passing (`tests/test_*.py`)
-* **HTTP REST API & Coordinator Integration Suite:** 33 tests passing (`tests/test_frontend.py`)
-* **Total Automated Python Suite:** **240 / 240 Tests Passing (0 failures, 0 errors)**
-* **Next.js Workstation Test Suite:** 9 / 9 tests passing (`web/tests/frontend.test.mjs` via `npm test`)
-* **Production Build:** `npm run build` inside `05_CODE/web/` compiles cleanly with zero TypeScript or CSS warnings.
+* **HTTP REST API & Static Server Integration Suite:** 33 tests passing (`tests/test_frontend.py`)
+* **Total Automated Regression Suite:** **240 / 240 Tests Passing (0 failures, 0 errors)**
 
 ---
 
 ## 12. Quick Start Guide
 
 ### Prerequisites
-* Windows 11 / Linux / macOS
+* Windows 10/11, Linux, or macOS
 * Python 3.12+ (virtual environment located in `05_CODE/.venv`)
-* Node.js 20+ / 24+ and npm 10+ / 11+
+* Modern web browser (Chrome, Edge, Firefox, Safari)
 
-### Step 1: Start Python REST Backend
+### Option A: One-Click Launch (Windows)
+Double-click `RUN_PROJECT.bat` in the project root directory. This activates the virtual environment, starts the Python HTTP server on port 8080, and automatically launches your default browser to `http://127.0.0.1:8080`.
+
+### Option B: Manual Command-Line Launch
 ```powershell
+# Navigate to code directory
 cd 05_CODE
-.venv\Scripts\python.exe run_frontend.py
-# Server binds to http://127.0.0.1:8080
+
+# Start the full-stack server
+.\.venv\Scripts\python.exe run_frontend.py --host 127.0.0.1 --port 8080
+
+# Open browser at:
+# http://127.0.0.1:8080
 ```
 
-### Step 2: Start Next.js 15 Web Workstation
+### Option C: Run Automated Test Suites
 ```powershell
-cd 05_CODE/web
-npm install
-npm run dev
-# Workstation accessible at http://localhost:3000
-```
-
-### Step 3: Run Automated Test Suites
-```powershell
-# Python regression suite (240 tests):
 cd 05_CODE
-.venv\Scripts\python.exe -m unittest discover -s tests
-
-# Frontend verification suite:
-cd 05_CODE/web
-npm test
+.\.venv\Scripts\python.exe -m unittest discover -s tests
+# Expected result: Ran 240 tests in ~30s — OK
 ```
 
 ---
@@ -231,11 +229,11 @@ npm test
 * [x] **F1 Stream Health Assessment:** Stream integrity ratio calculation (100.0%) and priority checks.
 * [x] **F2 Unsupervised Anomaly Detection:** Isolation Forest baseline with upper 5% contamination boundary.
 * [x] **F3 Pattern & Entropy Analysis:** Multiplex Shannon entropy, PID allocations, and modal DFL dispersion.
-* [x] **F4 Activity & Spatial Timeline:** Window-segmented timeline with byte offset indexing.
+* [x] **F4 Activity & Spatial Timeline:** Window-segmented timeline with byte offset indexing and interactive Chart.js graphs.
 * [x] **F5 Diagnostic Explanations:** Bounded z-scores ($|Z| \le 20.0\,\sigma$) for stable attribution.
 * [x] **F6 Semantic Comparison Shield:** Enforces mathematical boundaries between incompatible stream types.
 * [x] **F7 Automatic Multi-Format Reporting:** Generates Markdown, HTML5, plain text, and JSON summaries.
-* [x] **Next.js 15 + React 19 Frontend Workstation:** High-density industrial terminal adhering strictly to Swiss typography and zero-rounding constraints.
+* [x] **Interactive SPA Frontend Dashboard:** Pure HTML5, vanilla CSS, and JavaScript single-page application with tabbed stream analysis, rolling telemetry timelines, anomaly inspectors, comparison shields, and report exports.
 * [x] **240/240 Test Verification Invariant:** Fully verified regression suite with zero failures.
 
 ---
@@ -244,9 +242,10 @@ npm test
 
 | Name | Role | Primary Responsibilities |
 | :--- | :--- | :--- |
-| **Rakeshwar** | **Core Development & Technical Lead** | Backend architecture, Next.js workstation integration, AI/ML model development, stream processing, parser implementation, feature extraction, system integration. |
+| **Rakeshwar** | **Core Development & Technical Lead** | Backend architecture, full-stack pipeline integration, AI/ML model development, stream processing, parser implementation, feature extraction, system integration. |
 | **Samad** | **Testing, Validation & Documentation Lead** | Testing lead, validation protocols, literature review, technical documentation lead, experimental report preparation, supporting development. |
 | **Vengal Rao** | **Frontend, Visualization & Development** | Frontend UI architecture, interactive data visualization, dashboard styling, presentation preparation, supporting development. |
+
 
 ---
 

@@ -156,7 +156,7 @@ The overall architecture of the PRJ_111 DVB-S2 Receiver Output Stream Analyzer i
        +-------------------------------------------------------------+
        |            STAGE 6C: Engineering Workstation UI             |
        |  - RESTful Backend Gateway (Python ThreadingHTTPServer)     |
-       |  - Engineering Workstation UI (Next.js 15 / React 19 / Tailwind) |
+       |  - Interactive SPA Dashboard (HTML5 / Vanilla CSS / ES6 JS) |
        +-------------------------------------------------------------+
 ```
 

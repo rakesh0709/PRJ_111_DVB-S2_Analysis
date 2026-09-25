@@ -71,7 +71,7 @@ def main() -> None:
     print(" PRJ_111: DVB-S2 STREAM ANALYZER - FUNCTIONAL FRONTEND MVP")
     print(" Review-2 Milestone (~50%+ Functional Prototype)")
     print(f" Serving Frontend & API at: {url}")
-    print(" Backend Status: F1-F7 Frozen & Verified (207 Tests Passing)")
+    print(" Backend Status: F1-F7 Frozen & Verified (240 Tests Passing)")
     print("=" * 78)
 
     server = create_server(host=args.host, port=args.port)

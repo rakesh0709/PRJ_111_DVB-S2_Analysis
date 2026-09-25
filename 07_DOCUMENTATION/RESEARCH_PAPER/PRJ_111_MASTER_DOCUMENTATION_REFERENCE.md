@@ -5,7 +5,7 @@
 **Document Classification:** Master Technical Reference & Implementation Evidence Base  
 **Target Milestone:** Review-2 (~50%+ Functional Prototype Milestone, 26 September 2026)  
 **Creation Date:** 19 September 2026  
-**System Status:** Full Stack Implemented (Features F1–F7 + Next.js 15 Web Workstation), Audited, Reconciled, and Frozen (240/240 Tests Passing)  
+**System Status:** Full Stack Implemented (Features F1–F7 + Review-2 Interactive HTML5/CSS SPA Dashboard), Audited, Reconciled, and Frozen (240/240 Tests Passing)  
 **Notice:** *This document serves as the single authoritative source of truth for preparing Review-2 documentation, the final project thesis, research paper drafts, presentation slide decks (PPT), viva defense notes, and technical demonstration scripts. It preserves the Review-1 historical baseline without rewriting history while establishing verified implementation evidence.*
 
 ---
@@ -59,7 +59,7 @@
     - *Primary Responsibilities:* Frontend user interface development, interactive data visualization, dashboard components, presentation slide authoring, and supporting development activities.
 - **Review-1 Milestone Checkpoint:** 29 August 2026 (11:00 AM – 2:00 PM | Total Marks: 20). Phase 1 foundation and early Phase 2 parser design checkpoint.
 - **Review-2 Target Checkpoint:** 26 September 2026 (~50%+ Functional Prototype Milestone).
-- **Current Technical State:** Full system implementation across both backend and frontend is 100% completed, verified, and frozen. Backend Features F1 through F7 are fully implemented and verified across 11 test modules (207 passing tests), reconciled against 5 real-data validation experiments, and audited for epistemic safety. The frontend engineering workstation is implemented using Next.js 15, React 19, TypeScript, and Tailwind CSS v4 in `05_CODE/web/` with dual-mode operational support (Mode A: Live Backend via `http://127.0.0.1:8080`, Mode B: Offline Showcase via verified empirical telemetries), integrated via 33 automated HTTP/API integration tests, achieving 240/240 tests passing overall (0 failures, 0 errors).
+- **Current Technical State:** Full system implementation across both backend and frontend is 100% completed, verified, and frozen. Backend Features F1 through F7 are fully implemented and verified across 11 test modules (207 passing tests), reconciled against 5 real-data validation experiments, and audited for epistemic safety. The frontend is implemented as a lightweight, zero-dependency interactive Single-Page Application (SPA) using HTML5, vanilla CSS3, and ES6 JavaScript with offline vendored Chart.js (v4.4.x) in `05_CODE/dvbs2_analyzer/frontend/static/`, served directly by the Python HTTP server on port 8080 (`run_frontend.py`), integrated via 33 automated HTTP/API integration tests, achieving 240/240 tests passing overall (0 failures, 0 errors).
 
 ---
 
@@ -229,31 +229,25 @@ Baseband Frames (BBFrame), Generic Stream Encapsulation (GSE), and MPEG Transpor
 3. **Core Analytical Layer (`dvbs2_analyzer/analysis/`):** Houses F1 (Health), F2 (Isolation Forest), and F3 (Patterns). Executes statistical modeling without external system dependencies.
 4. **Timeline & Diagnostic Layer (`analysis/timeline.py`, `analysis/explanation.py`):** Correlates analytical outputs over physical spatial windows and generates diagnostic attributions for detected outliers.
 5. **Comparative & Executive Reporting Layer (`analysis/comparison.py`, `analysis/report.py`):** Performs multi-stream differential auditing and multi-format report synthesis.
-6. **Presentation Layer (`visualization/dashboard.py`, `05_CODE/web/`):** Renders interactive standalone HTML dashboards and provides the Next.js 15 + React 19 engineering workstation for Review-2 live demonstrations.
+6. **Presentation Layer (`visualization/dashboard.py`, `dvbs2_analyzer/frontend/`):** Renders interactive standalone HTML dashboards and provides the zero-dependency Review-2 HTML5/CSS SPA dashboard for live demonstrations.
 
-### 4.4 Application & Workstation Architecture (Next.js 15 + React 19 + Python REST Backend)
+### 4.4 Application & Dashboard Architecture (HTML5 + Vanilla CSS + Python REST Backend)
 
-To deliver an industrial satellite engineering terminal experience for the Review-2 milestone, the frontend has been redesigned and implemented as a high-density, type-safe Next.js 15 web application (`05_CODE/web/`).
+The Review-2 frontend is implemented as a zero-dependency, high-performance Single-Page Application (SPA) located at `05_CODE/dvbs2_analyzer/frontend/static/`, served directly by the Python HTTP server (`run_frontend.py`) on port 8080.
 
 ```
-BROWSER (OPERATOR WORKSTATION)
+BROWSER (OPERATOR DASHBOARD)
    │
-   ▼
-NEXT.JS 15 APPLICATION (PORT 3000)
-   ├── App Router & React 19 Components (Zero 3rd-party component libraries)
-   ├── Tailwind CSS v4 Design Tokens (0px radius, 1px #262626 border, #0A0A0A bg, single #FF6B35 accent)
-   ├── Strict Typography Hierarchy (12 / 14 / 16 / 24 / 48 / 96px scale)
-   ├── Live Analyzer & File Uploader (Binary chunk streaming)
-   ├── Horizontal Activity Timeline (F4) & Window Offset Inspector
-   ├── Isolation Forest Anomaly Panel (F2) & Bounded Z-Score Explanations (F5, |Z| <= 20.0 sigma)
-   ├── Semantic Comparison Matrix (F6) with Enforced Comparability Barrier
-   └── Offline Fallback Engine (Authoritative empirical telemetries from 06_RESULTS/)
-   │
-   ▼ HTTP REST API (PORT 8080)
+   ▼ HTTP (PORT 8080)
 PYTHON ANALYSIS BACKEND (`dvbs2_analyzer.frontend.server`)
-   ├── ThreadingHTTPServer (Standard Library HTTP server)
+   ├── Static File Server (`05_CODE/dvbs2_analyzer/frontend/static/`)
+   │   ├── index.html (Responsive HTML5 Single-Page Application)
+   │   ├── styles.css (Pure Vanilla CSS3, zero external CSS frameworks)
+   │   ├── app.js (Native ES6 JavaScript dashboard controller)
+   │   └── vendor/chart.umd.min.js (Offline vendored Chart.js v4.4.x)
+   ├── ThreadingHTTPServer (Standard Library HTTP server on port 8080)
    ├── AnalysisCoordinator (Thin integration layer calling frozen F1–F7 engines)
-   └── Endpoints:
+   └── REST API Endpoints:
        ├── GET  /api/status   --> Real-time backend status & test suite verification
        ├── GET  /api/presets  --> Authoritative broadcast preset datasets
        ├── POST /api/upload   --> Raw stream binary chunk buffer
@@ -262,9 +256,9 @@ PYTHON ANALYSIS BACKEND (`dvbs2_analyzer.frontend.server`)
        └── GET  /api/export   --> Direct report download (.md, .html, .json, .txt)
 ```
 
-### 4.5 Dual-Mode Operational Model (Hybrid Workstation + Showcase)
-1. **Mode A — Live Backend Workstation:** When the Python backend is active at `http://127.0.0.1:8080`, the workstation performs dynamic stream uploads, automatic format detection, user-configured window partitioning, live F1–F7 pipeline execution, and dynamic report export.
-2. **Mode B — Offline Technical Showcase:** When the Python backend is unreachable, the application displays an explicit `BACKEND OFFLINE (OFFLINE SHOWCASE)` status indicator and seamlessly renders verified, precompiled empirical telemetries from `06_RESULTS/` across MPEG-TS (`sample.ts`), GSE (`sample.ts`), and BBFrame (`dvb-s2_bb_example.pcap`) with zero broken states, zero UI degradations, and zero fabricated metrics.
+### 4.5 Operational Model & Standalone Verification
+1. **Interactive Review-2 Dashboard:** Operating directly on `http://127.0.0.1:8080`, the SPA provides separate dedicated tabs for each feature: Dashboard, Anomaly Analysis (F2+F5), Timeline (F4), Comparison (F6), and Automatic Report (F7).
+2. **Zero External Dependencies:** Built with pure HTML5, vanilla CSS3, and ES6 JavaScript, with Chart.js vendored locally in `static/vendor/chart.umd.min.js`, ensuring 100% offline air-gapped reproducibility with zero CDN reliance.
 
 ---
 
@@ -723,12 +717,13 @@ The PRJ_111 automated test suite executes under Python's native `unittest` frame
 | `tests/test_frontend.py` | `AnalysisCoordinator` & `Server` | 33 | 100% (33/33) | Multi-format REST endpoints, upload chunking, preset loading, report export, security paths |
 | **TOTAL** | **Full System Pipeline** | **240** | **100% (240/240)** | **Complete End-to-End Functional Verification (0 Failures, 0 Errors)** |
 
-### 19.2 Next.js 15 Web Workstation Verification Suite
-In addition to the 240 Python automated regression tests, the Next.js 15 + React 19 workstation includes automated Node.js test runner suites (`web/tests/frontend.test.mjs`):
-- **Empirical Telemetry Verification:** Asserts that precompiled datasets for MPEG-TS (`sample.ts`), GSE (`sample.ts`), and BBFrame (`dvb-s2_bb_example.pcap`) strictly match frozen ground-truth values from `06_RESULTS/`.
-- **Semantic Comparison Barrier Verification:** Verifies that exactly 2 metrics are marked comparable while 9 format-specific metrics are masked, and confirms presence of the 5 physical-layer safety guards.
-- **Production Build Invariant:** Verifies that `npm run build` compiles with 0 TypeScript/CSS errors and generates all static optimization pages cleanly.
-- **Result:** 9 / 9 Passing (100% Pass Rate in ~100ms).
+### 19.2 Frontend Server & Integration Test Suite
+In addition to the core pipeline unit tests, the zero-dependency HTML5 / Vanilla CSS / ES6 JavaScript Single-Page Application (SPA) dashboard is verified by an extensive automated Python integration test suite (`tests/test_frontend.py`):
+- **REST API Endpoint Contract Verification:** Confirms all endpoints (`/api/status`, `/api/presets`, `/api/analyze`, `/api/compare`, `/api/upload`, `/api/export`) respond with exact schema envelopes and standard HTTP status codes.
+- **Multipart Upload & Chunk Processing:** Verifies that raw stream file uploads (MPEG-TS, GSE, BBFrame) are received and parsed without memory leaks or buffer truncation.
+- **Static Asset Delivery & Security:** Confirms that `index.html`, `styles.css`, `app.js`, and vendored `chart.umd.min.js` are served with correct MIME types and strict path-traversal security boundaries.
+- **Report Export & Preset Integration:** Validates on-the-fly report generation across all 4 output formats (Markdown, HTML, JSON, Plaintext) directly through the HTTP interface.
+- **Result:** 33 / 33 Passing (100% Pass Rate).
 
 ---
 
