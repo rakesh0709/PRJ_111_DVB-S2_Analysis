@@ -9,11 +9,13 @@ import { Tooltip } from "@/components/Tooltip";
 interface TelemetrySectionProps {
   currentAnalysis: AnalysisResponse | null;
   onSelectFormatKey: (key: "mpeg_ts" | "gse" | "bbframe") => void;
+  onNavigateTab?: (tab: "dashboard" | "anomalies" | "timeline" | "comparison" | "architecture" | "docs") => void;
 }
 
 export const TelemetrySection: React.FC<TelemetrySectionProps> = ({
   currentAnalysis,
   onSelectFormatKey,
+  onNavigateTab,
 }) => {
   const [activeTab, setActiveTab] = useState<"mpeg_ts" | "gse" | "bbframe">("mpeg_ts");
 
@@ -29,14 +31,16 @@ export const TelemetrySection: React.FC<TelemetrySectionProps> = ({
       <div className="max-w-[1440px] mx-auto px-4">
         {/* Section Header */}
         <div className="border-b border-[var(--border-main)] pb-4 mb-8">
-          <div className="font-mono text-[12px] text-[var(--text-muted)] uppercase mb-1 flex items-center gap-2">
-            <span>SECTION [02]</span>
-            <span>//</span>
+          <div className="text-xs font-semibold text-[var(--text-muted)] tracking-wider uppercase mb-1 flex items-center gap-2">
+            <span>EMPIRICAL BENCHMARKS</span>
+            <span>•</span>
             <Tooltip content="Empirical broadcast captures from European direct-to-home satellite transmissions and reference PCAP baseband streams">
-              <span>VERIFIED EMPIRICAL TELEMETRY</span>
+              <span className="text-[var(--text-main)] font-mono cursor-help underline decoration-dotted underline-offset-2">
+                MULTI-FORMAT CAPTURES
+              </span>
             </Tooltip>
           </div>
-          <h2 className="text-[24px] md:text-[48px] font-bold uppercase tracking-tight text-[var(--text-main)]">
+          <h2 className="text-[24px] md:text-[44px] font-bold uppercase tracking-tight text-[var(--text-main)]">
             MULTI-FORMAT BENCHMARK DATASETS
           </h2>
           <p className="text-[14px] text-[var(--text-muted)] max-w-[800px] mt-2 leading-relaxed">
@@ -48,8 +52,8 @@ export const TelemetrySection: React.FC<TelemetrySectionProps> = ({
 
         {/* Dense Comparative Telemetry Table */}
         <div className="mb-10">
-          <div className="font-mono text-[12px] text-[var(--text-muted)] uppercase mb-2">
-            CROSS-DATASET EXECUTIVE COMPARISON TABLE:
+          <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2.5">
+            Cross-Dataset Executive Telemetry Table:
           </div>
           <TelemetryTable />
         </div>
@@ -146,9 +150,11 @@ export const TelemetrySection: React.FC<TelemetrySectionProps> = ({
 
               {/* F1 Stream Health Indicators */}
               <div className="mt-6 pt-4 border-t border-[var(--border-dim)]">
-                <div className="font-mono text-[12px] text-[var(--text-muted)] uppercase mb-3 flex items-center justify-between">
-                  <span>[F1_STREAM_HEALTH_INSPECTION]</span>
-                  <span className="text-[var(--text-main)] font-bold">HEALTH SCORE: 100.0% [HEALTHY]</span>
+                <div className="flex items-center justify-between mb-3 border-b border-[var(--border-dim)] pb-2">
+                  <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                    F1 Stream Health Inspection
+                  </span>
+                  <span className="font-mono text-xs font-bold text-[#FF6B35]">HEALTH SCORE: 100.0% [HEALTHY]</span>
                 </div>
 
                 <div className="space-y-2 font-mono text-[12px]">
@@ -220,6 +226,30 @@ export const TelemetrySection: React.FC<TelemetrySectionProps> = ({
               be quantitatively equated to 4,309 BBFrames (~7.2KB) or 14 GSE PDUs. Only extracted
               user payload bytes and framing integrity ratio remain commensurable.
             </div>
+
+            {/* Quick Page-Shift Shortcuts */}
+            {onNavigateTab && (
+              <div className="pt-2 border-t border-[var(--border-dim)] flex flex-wrap gap-3 font-mono text-xs">
+                <button
+                  onClick={() => onNavigateTab("timeline")}
+                  className="px-3 py-2 border border-[#FF6B35] bg-[var(--bg-surface)] text-[var(--text-main)] hover:bg-[#FF6B35] hover:text-[#0A0A0A] transition-colors font-bold cursor-pointer"
+                >
+                  [03] SHIFT TO TIMELINE (F4) &rarr;
+                </button>
+                <button
+                  onClick={() => onNavigateTab("anomalies")}
+                  className="px-3 py-2 border border-[var(--border-main)] bg-[var(--bg-surface)] text-[var(--text-main)] hover:border-[#FF6B35] transition-colors cursor-pointer"
+                >
+                  [02] SHIFT TO ANOMALY ANALYSIS (F2+F5) &rarr;
+                </button>
+                <button
+                  onClick={() => onNavigateTab("comparison")}
+                  className="px-3 py-2 border border-[var(--border-main)] bg-[var(--bg-surface)] text-[var(--text-main)] hover:border-[#FF6B35] transition-colors cursor-pointer"
+                >
+                  [04] SHIFT TO STREAM COMPARISON (F6) &rarr;
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ interface LiveAnalyzerProps {
   currentAnalysis: AnalysisResponse | null;
   onAnalysisComplete: (result: AnalysisResponse) => void;
   onSelectOfflinePreset: (formatKey: "mpeg_ts" | "gse" | "bbframe") => void;
+  onNavigateTab?: (tab: "dashboard" | "anomalies" | "timeline" | "comparison" | "architecture" | "docs") => void;
 }
 
 export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
@@ -23,6 +24,7 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
   currentAnalysis,
   onAnalysisComplete,
   onSelectOfflinePreset,
+  onNavigateTab,
 }) => {
   const isOnline = backendStatus.status === "ONLINE";
   const { showToast } = useToast();
@@ -104,7 +106,7 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
 
     try {
       setIsUploading(true);
-      setLoadingStep("1/3 UPLOADING_STREAM_CHUNKS...");
+      setLoadingStep("Uploading stream capture...");
 
       const resp = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
         method: "POST",
@@ -138,59 +140,60 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
 
     // If Offline Mode: switch to verified precompiled datasets
     if (!isOnline) {
-      if (selectedPresetId.includes("gse") || selectedPresetId.includes("GSE")) {
-        onSelectOfflinePreset("gse");
-        showToast("Switched to verified GSE capture (14 PDUs)", "info");
-      } else if (
-        selectedPresetId.includes("pcap") ||
-        selectedPresetId.includes("bbframe") ||
-        selectedPresetId.includes("bb_example")
-      ) {
-        onSelectOfflinePreset("bbframe");
-        showToast("Switched to verified BBFrame capture (4,309 frames)", "info");
-      } else {
-        onSelectOfflinePreset("mpeg_ts");
-        showToast("Switched to verified MPEG-TS capture (18,176 pkts)", "info");
+      let key: "mpeg_ts" | "gse" | "bbframe" = "mpeg_ts";
+      if (selectedPresetId === "gse" || selectedFormat === "GSE") {
+        key = "gse";
+      } else if (selectedPresetId === "bbframe" || selectedFormat === "BB_FRAME") {
+        key = "bbframe";
       }
+
+      onSelectOfflinePreset(key);
+      showToast(`Loaded precompiled empirical dataset: ${key.toUpperCase()}`, "success");
       return;
     }
 
-    // Live Backend Execution
+    // Online Mode: Trigger analysis via REST API
     let targetFilePath = uploadedFilePath;
     if (!targetFilePath && selectedPresetId) {
-      const found = presets.find((p) => p.id === selectedPresetId);
-      if (found) targetFilePath = found.absolute_path;
+      const p = presets.find((item) => item.id === selectedPresetId);
+      if (p) targetFilePath = p.absolute_path;
     }
 
     if (!targetFilePath) {
-      const msg = "Please select a preset dataset or upload a stream capture first.";
-      setErrorMsg(msg);
-      showToast(msg, "warning");
+      setErrorMsg("Please select a preset or upload a valid stream file.");
+      showToast("Please select a preset or upload a file", "warning");
       return;
     }
 
-    setIsAnalyzing(true);
-    setLoadingStep("1/5 DETECTING_CONTAINER_FORMAT...");
-    setProgressPercent(15);
-
     try {
-      // Step simulator for industrial terminal feel
+      setIsAnalyzing(true);
+      setProgressPercent(10);
+      setLoadingStep("Detecting format...");
+
       const stepTimer1 = setTimeout(() => {
-        setLoadingStep("2/5 PARSING_FRAMING_UNITS...");
-        setProgressPercent(35);
-      }, 250);
+        setProgressPercent(28);
+        setLoadingStep("Parsing stream...");
+      }, 350);
+
       const stepTimer2 = setTimeout(() => {
-        setLoadingStep("3/5 EXTRACTING_UNIFIED_FEATURES...");
-        setProgressPercent(60);
-      }, 550);
+        setProgressPercent(50);
+        setLoadingStep("Extracting features...");
+      }, 750);
+
       const stepTimer3 = setTimeout(() => {
-        setLoadingStep("4/5 EXECUTING_ISOLATION_FOREST_F2...");
-        setProgressPercent(80);
-      }, 900);
+        setProgressPercent(70);
+        setLoadingStep("Detecting anomalies...");
+      }, 1200);
+
       const stepTimer4 = setTimeout(() => {
-        setLoadingStep("5/5 SYNTHESIZING_F7_DIAGNOSTICS...");
+        setProgressPercent(88);
+        setLoadingStep("Building diagnostics...");
+      }, 1600);
+
+      const stepTimer5 = setTimeout(() => {
         setProgressPercent(95);
-      }, 1250);
+        setLoadingStep("Generating report...");
+      }, 1900);
 
       const resp = await fetch("/api/analyze", {
         method: "POST",
@@ -206,6 +209,7 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
       clearTimeout(stepTimer2);
       clearTimeout(stepTimer3);
       clearTimeout(stepTimer4);
+      clearTimeout(stepTimer5);
 
       const resJson = await resp.json();
       if (!resp.ok || !resJson.success) {
@@ -232,14 +236,16 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-[var(--border-main)] pb-4 mb-6">
           <div>
-            <div className="font-mono text-[12px] text-[var(--text-muted)] uppercase mb-1 flex items-center gap-2">
+            <div className="text-xs font-semibold text-[var(--text-muted)] tracking-wider uppercase mb-1 flex items-center gap-2">
               <span>WORKSTATION CONTROLLER</span>
-              <span>//</span>
+              <span>•</span>
               <Tooltip content="Deterministic framing (F1), Isolation Forest (F2), cross-window tracking (F4), bounded Z-score explanations (F5), semantic comparison (F6), and automated reports (F7)">
-                <span>F1-F7 PIPELINE</span>
+                <span className="text-[var(--text-main)] font-mono cursor-help underline decoration-dotted underline-offset-2">
+                  F1-F7 PIPELINE
+                </span>
               </Tooltip>
             </div>
-            <h2 className="text-[24px] md:text-[48px] font-bold uppercase tracking-tight text-[var(--text-main)]">
+            <h2 className="text-[24px] md:text-[44px] font-bold uppercase tracking-tight text-[var(--text-main)]">
               STREAM INGESTION &amp; ANALYSIS
             </h2>
           </div>
@@ -259,48 +265,48 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
         </div>
 
         {/* 4-Step Visual Workflow Sequence Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 font-mono text-[12px]">
-          <div className="p-3 border border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-[#FF6B35]">01</span>
-              <span className="font-semibold text-[var(--text-main)]">SELECT INPUT</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          <div className="p-3.5 border border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="font-mono font-bold text-sm text-[#FF6B35]">01</span>
+              <span className="text-xs font-semibold uppercase text-[var(--text-main)] tracking-wide">SELECT INPUT</span>
             </div>
-            <span className="text-[10px] text-[var(--text-muted)]">PRESET / FILE</span>
+            <span className="font-mono text-[11px] text-[var(--text-muted)]">PRESET / FILE</span>
           </div>
-          <div className="p-3 border border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-[#FF6B35]">02</span>
-              <span className="font-semibold text-[var(--text-main)]">DETECT FORMAT</span>
+          <div className="p-3.5 border border-[var(--border-main)] bg-[var(--bg-surface)] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="font-mono font-bold text-sm text-[#FF6B35]">02</span>
+              <span className="text-xs font-semibold uppercase text-[var(--text-main)] tracking-wide">DETECT FORMAT</span>
             </div>
-            <span className="text-[10px] text-[#FF6B35]">{selectedFormat}</span>
+            <span className="font-mono text-[11px] text-[#FF6B35] font-semibold">{selectedFormat}</span>
           </div>
           <div
-            className={`p-3 border ${
+            className={`p-3.5 border ${
               isAnalyzing
                 ? "border-[#FF6B35] bg-[var(--bg-surface-elevated)]"
                 : "border-[var(--border-main)] bg-[var(--bg-surface)]"
             } flex items-center justify-between transition-colors`}
           >
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-[#FF6B35]">03</span>
-              <span className="font-semibold text-[var(--text-main)]">EXECUTE F1-F7</span>
+            <div className="flex items-center gap-2.5">
+              <span className="font-mono font-bold text-sm text-[#FF6B35]">03</span>
+              <span className="text-xs font-semibold uppercase text-[var(--text-main)] tracking-wide">ANALYZE STREAM</span>
             </div>
-            <span className="text-[10px] text-[var(--text-muted)]">
+            <span className="font-mono text-[11px] text-[var(--text-muted)]">
               {isAnalyzing ? "ACTIVE" : "READY"}
             </span>
           </div>
           <div
-            className={`p-3 border ${
+            className={`p-3.5 border ${
               currentAnalysis
                 ? "border-[#FF6B35] bg-[var(--bg-surface)]"
                 : "border-[var(--border-main)] bg-[var(--bg-surface)]"
             } flex items-center justify-between`}
           >
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-[#FF6B35]">04</span>
-              <span className="font-semibold text-[var(--text-main)]">INSPECT RESULTS</span>
+            <div className="flex items-center gap-2.5">
+              <span className="font-mono font-bold text-sm text-[#FF6B35]">04</span>
+              <span className="text-xs font-semibold uppercase text-[var(--text-main)] tracking-wide">INSPECT RESULTS</span>
             </div>
-            <span className="text-[10px] text-[var(--text-muted)]">
+            <span className="font-mono text-[11px] text-[var(--text-muted)]">
               {currentAnalysis ? "SYNCED" : "AWAITING"}
             </span>
           </div>
@@ -310,7 +316,7 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
         {isAnalyzing && (
           <div className="mb-6 p-4 border border-[#FF6B35] bg-[var(--bg-surface)] font-mono text-[12px] animate-in fade-in">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-[#FF6B35] font-bold">&gt; {loadingStep || "RUNNING PIPELINE..."}</span>
+              <span className="text-[#FF6B35] font-bold">&gt; {loadingStep || "Analyzing stream..."}</span>
               <span className="text-[var(--text-main)] font-bold">{progressPercent}%</span>
             </div>
             <div className="w-full bg-[var(--bg-main)] h-2 border border-[var(--border-main)] overflow-hidden">
@@ -328,16 +334,20 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
           <div className="lg:col-span-8 space-y-6">
             {/* Source Selection Panel */}
             <div className="border border-[var(--border-main)] bg-[var(--bg-surface)] p-6">
-              <div className="font-mono text-[12px] text-[var(--text-muted)] uppercase border-b border-[var(--border-main)] pb-2 mb-4 flex justify-between">
-                <span>[INPUT_CONFIGURATION]</span>
-                <span className="text-[#FF6B35]">CONTENT-AWARE DETECTION ENABLED</span>
+              <div className="flex items-center justify-between border-b border-[var(--border-dim)] pb-3 mb-5">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  Stream Source Selection
+                </h3>
+                <span className="text-xs font-medium text-[#FF6B35]">
+                  Content-Aware Detection Enabled
+                </span>
               </div>
 
               {/* Preset Selector */}
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
-                  <label className="block font-mono text-[12px] text-[var(--text-main)] uppercase mb-2">
-                    SELECT AUTHORITATIVE BROADCAST PRESET:
+                  <label className="block text-xs font-medium text-[var(--text-main)] uppercase tracking-wider mb-2">
+                    Authoritative Broadcast Capture:
                   </label>
                   {isOnline && presets.length > 0 ? (
                     <select
@@ -353,7 +363,7 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                     </select>
                   ) : (
                     /* Offline Preset Selection Buttons */
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <button
                         onClick={() => {
                           setSelectedPresetId("mpeg_ts");
@@ -362,15 +372,15 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                           onSelectOfflinePreset("mpeg_ts");
                           showToast("Loaded authoritative MPEG-TS capture (18,176 pkts)", "info");
                         }}
-                        className={`p-3 text-left border font-mono text-[12px] transition-all cursor-pointer ${
+                        className={`p-3.5 text-left border font-mono text-[12px] transition-all cursor-pointer ${
                           selectedPresetId === "mpeg_ts" || !selectedPresetId
-                            ? "border-[#FF6B35] bg-[var(--bg-surface-elevated)] text-[var(--text-main)]"
+                            ? "border-[#FF6B35] bg-[var(--bg-surface-elevated)] text-[var(--text-main)] ring-1 ring-[#FF6B35]/30"
                             : "border-[var(--border-main)] bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-[var(--text-muted)]"
                         }`}
                       >
-                        <div className="font-bold text-[var(--text-main)]">[MPEG-TS]</div>
-                        <div>sample.ts (3.4 MB)</div>
-                        <div className="text-[11px] text-[var(--text-muted)]">18,176 pkts // w=200</div>
+                        <div className="font-bold text-[var(--text-main)] text-sm mb-0.5">[MPEG-TS]</div>
+                        <div className="text-xs text-[var(--text-muted)]">sample.ts (3.4 MB)</div>
+                        <div className="text-[11px] text-[var(--text-muted)] mt-1">18,176 pkts • w=200</div>
                       </button>
 
                       <button
@@ -381,15 +391,15 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                           onSelectOfflinePreset("gse");
                           showToast("Loaded authoritative GSE capture (14 PDUs)", "info");
                         }}
-                        className={`p-3 text-left border font-mono text-[12px] transition-all cursor-pointer ${
+                        className={`p-3.5 text-left border font-mono text-[12px] transition-all cursor-pointer ${
                           selectedPresetId === "gse"
-                            ? "border-[#FF6B35] bg-[var(--bg-surface-elevated)] text-[var(--text-main)]"
+                            ? "border-[#FF6B35] bg-[var(--bg-surface-elevated)] text-[var(--text-main)] ring-1 ring-[#FF6B35]/30"
                             : "border-[var(--border-main)] bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-[var(--text-muted)]"
                         }`}
                       >
-                        <div className="font-bold text-[var(--text-main)]">[GSE]</div>
-                        <div>sample.ts (9.3 KB)</div>
-                        <div className="text-[11px] text-[var(--text-muted)]">14 PDUs // w=3</div>
+                        <div className="font-bold text-[var(--text-main)] text-sm mb-0.5">[GSE]</div>
+                        <div className="text-xs text-[var(--text-muted)]">sample.ts (9.3 KB)</div>
+                        <div className="text-[11px] text-[var(--text-muted)] mt-1">14 PDUs • w=3</div>
                       </button>
 
                       <button
@@ -400,15 +410,15 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                           onSelectOfflinePreset("bbframe");
                           showToast("Loaded authoritative BBFrame capture (4,309 frames)", "info");
                         }}
-                        className={`p-3 text-left border font-mono text-[12px] transition-all cursor-pointer ${
+                        className={`p-3.5 text-left border font-mono text-[12px] transition-all cursor-pointer ${
                           selectedPresetId === "bbframe"
-                            ? "border-[#FF6B35] bg-[var(--bg-surface-elevated)] text-[var(--text-main)]"
+                            ? "border-[#FF6B35] bg-[var(--bg-surface-elevated)] text-[var(--text-main)] ring-1 ring-[#FF6B35]/30"
                             : "border-[var(--border-main)] bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-[var(--text-muted)]"
                         }`}
                       >
-                        <div className="font-bold text-[var(--text-main)]">[BBFRAME]</div>
-                        <div>dvb-s2_bb_example.pcap (2.3 MB)</div>
-                        <div className="text-[11px] text-[var(--text-muted)]">4,309 frames // w=50</div>
+                        <div className="font-bold text-[var(--text-main)] text-sm mb-0.5">[BBFRAME]</div>
+                        <div className="text-xs text-[var(--text-muted)]">dvb-s2_bb_example.pcap</div>
+                        <div className="text-[11px] text-[var(--text-muted)] mt-1">4,309 frames • w=50</div>
                       </button>
                     </div>
                   )}
@@ -417,12 +427,12 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                 {/* Upload Stream Alternative */}
                 <div className="pt-2">
                   <div className="flex items-center justify-between mb-2">
-                    <label className="font-mono text-[12px] text-[var(--text-muted)] uppercase">
-                      OR UPLOAD BINARY RECEIVER DUMP (.ts, .pcap, .bin):
+                    <label className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                      Or Upload Custom Stream Dump (.ts, .pcap, .bin):
                     </label>
                     {uploadedFile && (
                       <span className="font-mono text-[12px] text-[var(--text-main)] font-semibold">
-                        UPLOADED: {uploadedFile.name} ({(uploadedFile.size / 1024).toFixed(1)} KB)
+                        {uploadedFile.name} ({(uploadedFile.size / 1024).toFixed(1)} KB)
                       </span>
                     )}
                   </div>
@@ -432,23 +442,25 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                     onChange={handleFileUpload}
                     className="w-full bg-[var(--bg-main)] border border-[var(--border-main)] text-[var(--text-muted)] file:mr-4 file:py-2.5 file:px-4 file:border-0 file:bg-[var(--bg-surface-elevated)] file:text-[var(--text-main)] file:font-mono file:text-[12px] cursor-pointer hover:border-[var(--text-muted)] transition-colors"
                   />
-                  <div className="font-mono text-[11px] text-[var(--text-muted)] mt-1">
-                    * Note: .ts extension does not force MPEG-TS. Backend detects GSE payload automatically.
+                  <div className="text-xs text-[var(--text-muted)] mt-1.5">
+                    * Note: File extension does not force format. Content-aware heuristics detect GSE, BBFrame, or MPEG-TS payloads automatically.
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Analysis Parameters Bar */}
+            {/* Analysis Parameters Panel */}
             <div className="border border-[var(--border-main)] bg-[var(--bg-surface)] p-6">
-              <div className="font-mono text-[12px] text-[var(--text-muted)] uppercase border-b border-[var(--border-main)] pb-2 mb-4">
-                [PIPELINE_PARAMETERS]
+              <div className="flex items-center justify-between border-b border-[var(--border-dim)] pb-3 mb-5">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  Pipeline Configuration
+                </h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-mono text-[12px] text-[var(--text-main)] uppercase mb-1">
-                    STREAM FORMAT SELECTION:
+                  <label className="block text-xs font-medium text-[var(--text-main)] uppercase tracking-wider mb-1.5">
+                    Stream Format Selection:
                   </label>
                   <select
                     value={selectedFormat}
@@ -463,8 +475,8 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                 </div>
 
                 <div>
-                  <label className="block font-mono text-[12px] text-[var(--text-main)] uppercase mb-1">
-                    ANALYSIS WINDOW SIZE (UNITS):
+                  <label className="block text-xs font-medium text-[var(--text-main)] uppercase tracking-wider mb-1.5">
+                    Analysis Window Size (Units):
                   </label>
                   <input
                     type="number"
@@ -474,13 +486,13 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                     onChange={(e) => setWindowSize(Number(e.target.value))}
                     className="w-full bg-[var(--bg-main)] border border-[var(--border-main)] text-[var(--text-main)] font-mono text-[14px] p-2.5 focus:border-[#FF6B35] focus:outline-none transition-colors"
                   />
-                  <span className="font-mono text-[11px] text-[var(--text-muted)]">
-                    Default: 200 (TS) // 3 (GSE) // 50 (BBFrame)
+                  <span className="text-[11px] text-[var(--text-muted)] font-mono">
+                    Baseline: 200 (TS) // 3 (GSE) // 50 (BBFrame)
                   </span>
                 </div>
               </div>
 
-              {/* Execution CTA & Monospace Loading States */}
+              {/* Execution CTA & Status */}
               <div className="mt-6 pt-4 border-t border-[var(--border-dim)] flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button
                   onClick={handleExecuteAnalysis}
@@ -496,11 +508,11 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                     : isUploading
                     ? "[UPLOADING...]"
                     : isOnline
-                    ? "[EXECUTE F1-F7 PIPELINE]"
+                    ? "[ANALYZE STREAM]"
                     : "[LOAD PRECOMPILED CAPTURE]"}
                 </button>
 
-                {/* Monospace Loading Indicator */}
+                {/* Loading Indicator */}
                 {(isAnalyzing || isUploading) && (
                   <div className="font-mono text-[12px] text-[#FF6B35] animate-pulse">
                     &gt; {loadingStep || "RUNNING_ANALYSIS..."}
@@ -530,54 +542,73 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
           <div className="lg:col-span-4 flex flex-col gap-6">
             {/* Stream Execution Summary Card */}
             <div className="border border-[var(--border-main)] bg-[var(--bg-surface)] p-6">
-              <div className="font-mono text-[12px] text-[var(--text-muted)] uppercase border-b border-[var(--border-main)] pb-2 mb-4">
-                [ACTIVE_STREAM_INSPECTION]
+              <div className="flex items-center justify-between border-b border-[var(--border-dim)] pb-3 mb-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  Active Stream Telemetry
+                </h3>
               </div>
 
               {currentAnalysis ? (
                 <div className="space-y-3 font-mono text-[12px]">
                   <div className="flex justify-between border-b border-[var(--border-dim)] pb-1.5">
-                    <span className="text-[var(--text-muted)]">FILE:</span>
+                    <span className="text-[var(--text-muted)] font-sans text-xs">FILE:</span>
                     <span className="text-[var(--text-main)] font-semibold truncate max-w-[180px]">
                       {currentAnalysis.stream_info.file_name}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[var(--border-dim)] pb-1.5">
-                    <span className="text-[var(--text-muted)]">DETECTED FORMAT:</span>
+                    <span className="text-[var(--text-muted)] font-sans text-xs">DETECTED FORMAT:</span>
                     <span className="text-[#FF6B35] font-bold">
                       {currentAnalysis.stream_info.detected_format}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[var(--border-dim)] pb-1.5">
-                    <span className="text-[var(--text-muted)]">TOTAL UNITS:</span>
+                    <span className="text-[var(--text-muted)] font-sans text-xs">TOTAL UNITS:</span>
                     <span className="text-[var(--text-main)]">
                       {currentAnalysis.stream_info.total_units.toLocaleString("en-US")}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[var(--border-dim)] pb-1.5">
-                    <span className="text-[var(--text-muted)]">ANALYSIS WINDOWS:</span>
+                    <span className="text-[var(--text-muted)] font-sans text-xs">ANALYSIS WINDOWS:</span>
                     <span className="text-[var(--text-main)]">
                       {currentAnalysis.stream_info.total_windows} (w={currentAnalysis.stream_info.window_size})
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[var(--border-dim)] pb-1.5">
-                    <span className="text-[var(--text-muted)]">PAYLOAD BYTES:</span>
+                    <span className="text-[var(--text-muted)] font-sans text-xs">PAYLOAD BYTES:</span>
                     <span className="text-[var(--text-main)]">
                       {(currentAnalysis.stream_info.total_payload_bytes / 1024).toFixed(1)} KB
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[var(--border-dim)] pb-1.5">
-                    <span className="text-[var(--text-muted)]">INTEGRITY RATIO:</span>
+                    <span className="text-[var(--text-muted)] font-sans text-xs">INTEGRITY RATIO:</span>
                     <span className="text-[var(--text-main)] font-bold">
                       {currentAnalysis.f1_health.integrity_ratio.toFixed(1)}%
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[var(--text-muted)]">ANOMALIES (F2):</span>
+                    <span className="text-[var(--text-muted)] font-sans text-xs">ANOMALIES (F2):</span>
                     <span className="text-[#FF6B35] font-semibold">
                       {currentAnalysis.f2_anomalies.anomaly_window_count} windows
                     </span>
                   </div>
+
+                  {onNavigateTab && (
+                    <div className="pt-3 border-t border-[var(--border-dim)] flex flex-col sm:flex-row gap-2">
+                      <button
+                        onClick={() => onNavigateTab("timeline")}
+                        className="flex-1 py-1.5 px-2 bg-[var(--bg-main)] border border-[#FF6B35] text-[var(--text-main)] hover:bg-[#FF6B35] hover:text-[#0A0A0A] font-bold text-[11px] text-center transition-colors cursor-pointer"
+                      >
+                        [03] VIEW TIMELINE (F4) &rarr;
+                      </button>
+                      <button
+                        onClick={() => onNavigateTab("anomalies")}
+                        className="flex-1 py-1.5 px-2 bg-[var(--bg-main)] border border-[var(--border-main)] text-[var(--text-main)] hover:border-[#FF6B35] text-[11px] text-center transition-colors cursor-pointer"
+                      >
+                        [02] VIEW ANOMALIES &rarr;
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="font-mono text-[12px] text-[var(--text-muted)] py-8 text-center">
@@ -591,11 +622,13 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
             </div>
 
             {/* F7 Multi-Format Report Export Controls */}
-            <div className="border border-[var(--border-main)] bg-[var(--bg-main)] p-6">
-              <div className="font-mono text-[12px] text-[var(--text-muted)] uppercase border-b border-[var(--border-dim)] pb-2 mb-4">
-                [F7_AUTOMATIC_REPORTS]
+            <div className="border border-[var(--border-main)] bg-[var(--bg-surface)] p-6">
+              <div className="flex items-center justify-between border-b border-[var(--border-dim)] pb-3 mb-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  Export Diagnostics (F7 Engine)
+                </h3>
               </div>
-              <p className="text-[12px] text-[var(--text-muted)] mb-4 leading-normal">
+              <p className="text-xs text-[var(--text-muted)] mb-4 leading-normal">
                 Export comprehensive multi-page analytical summaries synthesized directly by the F7 report engine.
               </p>
 
@@ -603,28 +636,28 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                 <a
                   href="/api/export?format=markdown&mode=analysis"
                   download="PRJ_111_Report.md"
-                  className="p-2.5 border border-[var(--border-main)] hover:border-[#FF6B35] bg-[var(--bg-surface)] text-center text-[var(--text-main)] transition-colors active:translate-y-[1px]"
+                  className="p-2.5 border border-[var(--border-main)] hover:border-[#FF6B35] bg-[var(--bg-main)] text-center text-[var(--text-main)] transition-colors active:translate-y-[1px]"
                 >
                   .MD (MARKDOWN)
                 </a>
                 <a
                   href="/api/export?format=html&mode=analysis"
                   download="PRJ_111_Report.html"
-                  className="p-2.5 border border-[var(--border-main)] hover:border-[#FF6B35] bg-[var(--bg-surface)] text-center text-[var(--text-main)] transition-colors active:translate-y-[1px]"
+                  className="p-2.5 border border-[var(--border-main)] hover:border-[#FF6B35] bg-[var(--bg-main)] text-center text-[var(--text-main)] transition-colors active:translate-y-[1px]"
                 >
                   .HTML (HTML5)
                 </a>
                 <a
                   href="/api/export?format=json&mode=analysis"
                   download="PRJ_111_Report.json"
-                  className="p-2.5 border border-[var(--border-main)] hover:border-[#FF6B35] bg-[var(--bg-surface)] text-center text-[var(--text-main)] transition-colors active:translate-y-[1px]"
+                  className="p-2.5 border border-[var(--border-main)] hover:border-[#FF6B35] bg-[var(--bg-main)] text-center text-[var(--text-main)] transition-colors active:translate-y-[1px]"
                 >
                   .JSON (RAW DATA)
                 </a>
                 <a
                   href="/api/export?format=text&mode=analysis"
                   download="PRJ_111_Report.txt"
-                  className="p-2.5 border border-[var(--border-main)] hover:border-[#FF6B35] bg-[var(--bg-surface)] text-center text-[var(--text-main)] transition-colors active:translate-y-[1px]"
+                  className="p-2.5 border border-[var(--border-main)] hover:border-[#FF6B35] bg-[var(--bg-main)] text-center text-[var(--text-main)] transition-colors active:translate-y-[1px]"
                 >
                   .TXT (ASCII LOG)
                 </a>

@@ -59,45 +59,45 @@ export const AnomalyPanel: React.FC<AnomalyPanelProps> = ({
         {/* Executive F2 Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 font-mono text-[12px]">
           <div className="p-4 border border-[var(--border-main)] bg-[var(--bg-surface)] hover:border-[#FF6B35] transition-colors">
-            <div className="text-[var(--text-muted)] uppercase text-[11px]">FLAGGED ANOMALIES:</div>
-            <div className="text-[24px] font-bold text-[#FF6B35] mt-1">
+            <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">FLAGGED ANOMALIES:</div>
+            <div className="font-mono text-[24px] font-bold text-[#FF6B35] mt-1">
               {f2Anomalies.anomaly_window_count}
               <span className="text-[14px] text-[var(--text-muted)] font-normal">
                 {" "}
                 / {f2Anomalies.total_windows} windows
               </span>
             </div>
-            <div className="text-[11px] text-[var(--text-muted)] mt-1">
+            <div className="text-xs text-[var(--text-muted)] mt-1 font-mono">
               Anomaly Rate: {f2Anomalies.anomaly_rate_pct.toFixed(2)}%
             </div>
           </div>
 
           <div className="p-4 border border-[var(--border-main)] bg-[var(--bg-surface)] hover:border-[#FF6B35] transition-colors">
-            <div className="text-[var(--text-muted)] uppercase text-[11px]">PEAK ANOMALY SCORE:</div>
-            <div className="text-[24px] font-bold text-[var(--text-main)] mt-1">
+            <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">PEAK ANOMALY SCORE:</div>
+            <div className="font-mono text-[24px] font-bold text-[var(--text-main)] mt-1">
               {f2Anomalies.peak_anomaly_score.toFixed(4)}
             </div>
-            <div className="text-[11px] text-[var(--text-muted)] mt-1">
+            <div className="text-xs text-[var(--text-muted)] mt-1 font-mono">
               Threshold (&tau;): {f2Anomalies.decision_threshold.toFixed(4)}
             </div>
           </div>
 
           <div className="p-4 border border-[var(--border-main)] bg-[var(--bg-surface)] hover:border-[#FF6B35] transition-colors">
-            <div className="text-[var(--text-muted)] uppercase text-[11px]">DECISION BOUNDARY:</div>
-            <div className="text-[24px] font-bold text-[var(--text-main)] mt-1">
+            <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">DECISION BOUNDARY:</div>
+            <div className="font-mono text-[24px] font-bold text-[var(--text-main)] mt-1">
               &tau; = {f2Anomalies.decision_threshold.toFixed(4)}
             </div>
-            <div className="text-[11px] text-[var(--text-muted)] mt-1">
+            <div className="text-xs text-[var(--text-muted)] mt-1">
               Upper 5% Contamination Boundary
             </div>
           </div>
 
           <div className="p-4 border border-[var(--border-main)] bg-[var(--bg-surface)] hover:border-[#FF6B35] transition-colors">
-            <div className="text-[var(--text-muted)] uppercase text-[11px]">INFERENCE METHOD:</div>
-            <div className="text-[16px] font-bold text-[var(--text-main)] mt-1">
+            <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">INFERENCE METHOD:</div>
+            <div className="font-mono text-[16px] font-bold text-[var(--text-main)] mt-1">
               UNSUPERVISED IFOREST
             </div>
-            <div className="text-[11px] text-[var(--text-muted)] mt-1">
+            <div className="text-xs text-[var(--text-muted)] mt-1">
               Zero synthetic labels assumed
             </div>
           </div>
@@ -106,10 +106,10 @@ export const AnomalyPanel: React.FC<AnomalyPanelProps> = ({
         {/* Feature F5 Diagnostic Explanations Table */}
         <div className="border border-[var(--border-main)] bg-[var(--bg-surface)] p-6 mb-8 transition-colors duration-150">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--border-dim)] pb-3 mb-6">
-            <div className="font-mono text-[14px] text-[var(--text-main)] font-bold uppercase">
+            <div className="text-xs font-semibold text-[var(--text-main)] uppercase tracking-wider">
               F5 FEATURE ATTRIBUTIONS // BOUNDED Z-SCORE DIAGNOSTICS
             </div>
-            <div className="font-mono text-[11px] text-[var(--text-muted)] mt-1 sm:mt-0">
+            <div className="text-xs text-[var(--text-muted)] mt-1 sm:mt-0 font-mono">
               <Tooltip content="Bounded magnitude (|Z| <= 20.0 sigma) protects against numerical explosions on low-variance baseline features while preserving ranking">
                 <span>* Bounded magnitude (|Z| &le; 20.0&sigma;) for stable presentation</span>
               </Tooltip>
@@ -149,7 +149,7 @@ export const AnomalyPanel: React.FC<AnomalyPanelProps> = ({
                         </span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-[var(--text-muted)]">ANOMALY SCORE:</span>
+                        <span className="text-[var(--text-muted)] font-sans text-xs">ANOMALY SCORE:</span>
                         <span className="text-[var(--text-main)] font-bold text-[14px]">
                           {win.score.toFixed(4)}
                         </span>
@@ -157,9 +157,9 @@ export const AnomalyPanel: React.FC<AnomalyPanelProps> = ({
                     </div>
 
                     {/* Prominent Explanation Box */}
-                    <div className="border-l-2 border-[#FF6B35] pl-3 py-1 mb-4 bg-[var(--bg-surface)]">
-                      <p className="font-mono text-[12px] text-[var(--text-main)] leading-relaxed">
-                        <span className="text-[var(--text-muted)] font-semibold uppercase">EXPLANATION: </span>
+                    <div className="border-l-2 border-[#FF6B35] pl-3 py-1.5 mb-4 bg-[var(--bg-surface)]">
+                      <p className="text-[13px] text-[var(--text-main)] leading-relaxed">
+                        <span className="text-[var(--text-muted)] font-semibold uppercase text-xs">EXPLANATION: </span>
                         {win.explanation}
                       </p>
                     </div>
