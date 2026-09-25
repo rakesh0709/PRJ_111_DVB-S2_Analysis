@@ -11,6 +11,12 @@ All files in this directory represent verified project work prepared for academi
 
 | File Name | Description | Status |
 | :--- | :--- | :--- |
+| [`PRJ_111_Review2_Final_Documentation.docx`](./PRJ_111_Review2_Final_Documentation.docx) | Authoritative Review-2 project master documentation formatted according to institutional academic standards (~50%+ Functional Prototype). | **Completed (Review-2)** |
+| [`PRJ_111_Review2_Final_Documentation.pdf`](./PRJ_111_Review2_Final_Documentation.pdf) | Compiled high-fidelity PDF of the Review-2 project master documentation. | **Completed (Review-2)** |
+| [`PRJ_111_Review2_Documentation_Audit.md`](./PRJ_111_Review2_Documentation_Audit.md) | Exhaustive internal consistency, figure manifest, and empirical test verification audit report for Review-2. | **Completed (Review-2)** |
+| [`RESEARCH_PAPER/`](./RESEARCH_PAPER/) | Official IEEE two-column research paper package (`PRJ_111_Research_Paper_Final.docx`, `PRJ_111_Research_Paper_Final.pdf`), author portraits, high-resolution figures, and Master Documentation Reference. | **Completed (Final)** |
+| [`REVIEW2_EVIDENCE/`](./REVIEW2_EVIDENCE/) | Complete repository of all 35 high-resolution architectural diagrams, UI views, telemetry timelines, and syntax-highlighted code extracts. | **Completed (Review-2)** |
+| [`review2_slides_png/`](./review2_slides_png/) | High-resolution PNG slide exports (31 slides) of the official Review-2 presentation deck. | **Completed (Review-2)** |
 | [`PRJ_111_Review1_Documentation.docx`](./PRJ_111_Review1_Documentation.docx) | Comprehensive Review-1 project documentation covering problem formulation, literature review, proposed 7-feature system, architecture, multi-dataset strategy, AI/ML roadmap, and project planning. | **Completed (Review-1)** |
 | [`Review-1_ppt.pptx`](./Review-1_ppt.pptx) | Official presentation slide deck for Project Review-1. | **Completed (Review-1)** |
 | [`Review_0.pptx`](./Review_0.pptx) | Initial project proposal presentation slide deck (Review-0). | **Completed (Review-0)** |

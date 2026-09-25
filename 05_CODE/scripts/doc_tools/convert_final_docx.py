@@ -1,7 +1,7 @@
 import win32com.client, os, time, sys
 
 docx_path = os.path.abspath("PRJ_111_Research_Paper_Final.docx")
-pdf_path = os.path.abspath("PRJ_111_Research_Paper_Final_docx_rendered.pdf")
+pdf_path = os.path.abspath("PRJ_111_Research_Paper_Final.pdf")
 
 print(f"Opening Word to convert {docx_path} -> {pdf_path}...", flush=True)
 t0 = time.time()
