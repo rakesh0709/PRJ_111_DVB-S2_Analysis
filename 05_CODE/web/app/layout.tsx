@@ -16,6 +16,9 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ToastProvider } from "@/components/Toast";
+
 export const metadata: Metadata = {
   title: "PRJ_111 | DVB-S2 Receiver Output Stream Analyzer",
   description:
@@ -28,9 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${ibmPlexSans.variable} ${jetbrainsMono.variable}`}>
-      <body className="bg-[#0A0A0A] text-[#E8E8E8] antialiased selection:bg-[#FF6B35] selection:text-[#0A0A0A]">
-        {children}
+    <html lang="en" className={`${ibmPlexSans.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <body className="bg-[var(--bg-main)] text-[var(--text-main)] antialiased selection:bg-[#FF6B35] selection:text-[#0A0A0A]">
+        <ThemeProvider>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

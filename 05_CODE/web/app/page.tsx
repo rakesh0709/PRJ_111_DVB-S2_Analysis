@@ -76,7 +76,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#E8E8E8] flex flex-col font-sans selection:bg-[#FF6B35] selection:text-[#0A0A0A]">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col font-sans selection:bg-[#FF6B35] selection:text-[#0A0A0A] transition-colors duration-150">
       {/* 1. Terminal Header */}
       <Header
         backendStatus={backendStatus}

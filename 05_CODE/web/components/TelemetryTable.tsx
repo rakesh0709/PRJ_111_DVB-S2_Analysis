@@ -47,42 +47,42 @@ export const TelemetryTable: React.FC = () => {
   ];
 
   return (
-    <div className="w-full overflow-x-auto border border-[#262626] bg-[#141414]">
+    <div className="w-full overflow-x-auto border border-[var(--border-main)] bg-[var(--bg-surface)] transition-colors duration-150">
       <table className="w-full border-collapse text-left font-mono text-[12px]">
         <thead>
-          <tr className="border-b border-[#262626] bg-[#0A0A0A] text-[#737373]">
-            <th className="p-3 border-r border-[#262626]">FORMAT</th>
-            <th className="p-3 border-r border-[#262626]">RAW UNITS</th>
-            <th className="p-3 border-r border-[#262626]">WINDOW (w)</th>
-            <th className="p-3 border-r border-[#262626]">USER PAYLOAD</th>
-            <th className="p-3 border-r border-[#262626]">INTEGRITY</th>
-            <th className="p-3 border-r border-[#262626]">F2 ANOMALIES</th>
-            <th className="p-3 border-r border-[#262626]">PEAK SCORE</th>
-            <th className="p-3 border-r border-[#262626]">DOMINANT COMPONENT</th>
+          <tr className="border-b border-[var(--border-main)] bg-[var(--bg-main)] text-[var(--text-muted)]">
+            <th className="p-3 border-r border-[var(--border-main)]">FORMAT</th>
+            <th className="p-3 border-r border-[var(--border-main)]">RAW UNITS</th>
+            <th className="p-3 border-r border-[var(--border-main)]">WINDOW (w)</th>
+            <th className="p-3 border-r border-[var(--border-main)]">USER PAYLOAD</th>
+            <th className="p-3 border-r border-[var(--border-main)]">INTEGRITY</th>
+            <th className="p-3 border-r border-[var(--border-main)]">F2 ANOMALIES</th>
+            <th className="p-3 border-r border-[var(--border-main)]">PEAK SCORE</th>
+            <th className="p-3 border-r border-[var(--border-main)]">DOMINANT COMPONENT</th>
             <th className="p-3">ENTROPY / DISPERSION</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#1A1A1A] text-[#E8E8E8]">
+        <tbody className="divide-y divide-[var(--border-dim)] text-[var(--text-main)]">
           {formats.map((row) => (
-            <tr key={row.format} className="hover:bg-[#1a1a1a] transition-colors">
-              <td className="p-3 border-r border-[#262626] font-bold text-white whitespace-nowrap">
-                <span className="text-[#FF6B35] mr-1.5">&gt;</span>
+            <tr key={row.format} className="hover:bg-[var(--bg-surface-elevated)] transition-colors">
+              <td className="p-3 border-r border-[var(--border-main)] font-bold text-[var(--text-main)] whitespace-nowrap">
+                <span className="text-[#FF6B35] mr-1.5 font-bold">&gt;</span>
                 {row.format}
               </td>
-              <td className="p-3 border-r border-[#262626] whitespace-nowrap">{row.units}</td>
-              <td className="p-3 border-r border-[#262626] whitespace-nowrap">{row.window}</td>
-              <td className="p-3 border-r border-[#262626] whitespace-nowrap">{row.payload}</td>
-              <td className="p-3 border-r border-[#262626] font-semibold text-white whitespace-nowrap">
+              <td className="p-3 border-r border-[var(--border-main)] whitespace-nowrap">{row.units}</td>
+              <td className="p-3 border-r border-[var(--border-main)] whitespace-nowrap">{row.window}</td>
+              <td className="p-3 border-r border-[var(--border-main)] whitespace-nowrap">{row.payload}</td>
+              <td className="p-3 border-r border-[var(--border-main)] font-semibold text-[var(--text-main)] whitespace-nowrap">
                 {row.integrity}
               </td>
-              <td className="p-3 border-r border-[#262626] whitespace-nowrap text-[#FF6B35]">
+              <td className="p-3 border-r border-[var(--border-main)] whitespace-nowrap text-[#FF6B35] font-semibold">
                 {row.anomalies}
               </td>
-              <td className="p-3 border-r border-[#262626] whitespace-nowrap">{row.peakScore}</td>
-              <td className="p-3 border-r border-[#262626] whitespace-nowrap text-[#737373]">
+              <td className="p-3 border-r border-[var(--border-main)] whitespace-nowrap">{row.peakScore}</td>
+              <td className="p-3 border-r border-[var(--border-main)] whitespace-nowrap text-[var(--text-muted)]">
                 {row.dominant}
               </td>
-              <td className="p-3 whitespace-nowrap text-[#737373]">{row.entropy}</td>
+              <td className="p-3 whitespace-nowrap text-[var(--text-muted)]">{row.entropy}</td>
             </tr>
           ))}
         </tbody>
