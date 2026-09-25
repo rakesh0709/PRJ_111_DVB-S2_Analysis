@@ -244,7 +244,7 @@ cd 05_CODE
 | :--- | :--- | :--- |
 | **Rakeshwar** | **Core Development & Technical Lead** | Backend architecture, full-stack pipeline integration, AI/ML model development, stream processing, parser implementation, feature extraction, system integration. |
 | **Samad** | **Testing, Validation & Documentation Lead** | Testing lead, validation protocols, literature review, technical documentation lead, experimental report preparation, supporting development. |
-| **Vengal Rao** | **Frontend, Visualization & Development** | Frontend UI architecture, interactive data visualization, dashboard styling, presentation preparation, supporting development. |
+| **Vengala Rao** | **Frontend, Visualization & Development** | Frontend UI architecture, interactive data visualization, dashboard styling, presentation preparation, supporting development. |
 
 
 ---
