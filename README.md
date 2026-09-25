@@ -140,8 +140,10 @@ PYTHON ANALYSIS BACKEND (PRJ_111 ENGINE)
 ```
 PRJ_111_DVB-S2_Analysis/
 ├── README.md                       # Main project repository documentation (this file)
-├── RUN_PROJECT.bat                 # One-click dual-stack startup script
-├── RUN_TESTS.bat                   # One-click test runner
+├── RUN_PROJECT.bat                 # One-click dual-stack startup script (Backend + Workstation + Browser)
+├── START_BACKEND.bat               # Python analysis REST API backend launcher (Port 8080)
+├── START_WEB_WORKSTATION.bat       # Next.js 15 Web Workstation launcher (Port 3000)
+├── RUN_TESTS.bat                   # Full automated test verification runner (240 Python + 9 Next.js)
 ├── 01_RAW_DATA/                    # Real collected raw datasets (kept locally & immutable)
 │   ├── 01_BBFRAME_GSE/             # DVB-S2 Baseband frame and GSE captures (.pcap)
 │   ├── 02_GSE/                     # GSE extraction sample streams (.ts)
