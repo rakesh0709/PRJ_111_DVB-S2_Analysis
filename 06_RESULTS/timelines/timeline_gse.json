@@ -1,0 +1,1445 @@
+{
+  "stream_name": "sample.ts",
+  "format": "GSE",
+  "total_units": 14,
+  "total_bytes": 8910,
+  "window_size": 3,
+  "total_windows": 5,
+  "anomaly_threshold": 0.5,
+  "generation_timestamp": "2026-09-24T06:46:08.655400+00:00",
+  "summary_stats": {
+    "mean_health_score": 100.0,
+    "peak_anomaly_score": 0.5018,
+    "anomaly_window_count": 1,
+    "transition_count": 2,
+    "total_payload_kb": 8.56
+  },
+  "points": [
+    {
+      "window_index": 0,
+      "unit_offset_start": 0,
+      "unit_offset_end": 3,
+      "byte_offset_start": 0,
+      "byte_offset_end": 1450,
+      "unit_count": 3,
+      "valid_units": 3,
+      "invalid_units": 0,
+      "payload_bytes": 1417,
+      "payload_kb": 1.384,
+      "unit_density": 3,
+      "health_score": 100.0,
+      "health_status": "HEALTHY",
+      "error_count": 0,
+      "error_rate": 0.0,
+      "is_anomaly": false,
+      "anomaly_score": 0.3091,
+      "anomaly_severity": "NORMAL",
+      "anomaly_explanation": "Feature metrics within expected baseline bounds",
+      "top_deviations": [
+        {
+          "feature_name": "payload_ratio",
+          "observed_value": 0.977241,
+          "baseline_mean": 0.982677,
+          "baseline_std": 0.005096,
+          "z_score": 1.0668,
+          "direction": "BELOW_BASELINE",
+          "importance_rank": 1,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "mean_payload_kb",
+          "observed_value": 0.461263,
+          "baseline_mean": 0.621289,
+          "baseline_std": 0.166833,
+          "z_score": 0.9592,
+          "direction": "BELOW_BASELINE",
+          "importance_rank": 2,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "fragmentation_ratio",
+          "observed_value": 0.333333,
+          "baseline_mean": 0.6,
+          "baseline_std": 0.326599,
+          "z_score": 0.8165,
+          "direction": "BELOW_BASELINE",
+          "importance_rank": 3,
+          "interpretation": "Within typical baseline dispersion"
+        }
+      ],
+      "pattern_findings": [
+        {
+          "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+          "format": "GSE",
+          "description": "Protocol distribution dominated by GSE_EXT_NPA (100.0% of observed PDUs).",
+          "supporting_metrics": {
+            "protocol_counts": {
+              "GSE_EXT_NPA": 3
+            },
+            "dominant_protocol": "GSE_EXT_NPA",
+            "dominant_percentage": 100.0
+          },
+          "evidence": "3/3 PDUs match GSE_EXT_NPA",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 0
+        },
+        {
+          "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+          "format": "GSE",
+          "description": "PDU payload size spans 41 to 1056 bytes (mean: 472.3 B, std: 428.1 B). Modal size cluster: small_control (<128B).",
+          "supporting_metrics": {
+            "min_bytes": 41,
+            "max_bytes": 1056,
+            "mean_bytes": 472.33,
+            "std_bytes": 428.14,
+            "size_clusters": {
+              "small_control (<128B)": 1,
+              "medium_payload (128-576B)": 1,
+              "large_mtu (>576B)": 1
+            }
+          },
+          "evidence": "Computed across 3 GSE PDU lengths",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 0
+        },
+        {
+          "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+          "format": "GSE",
+          "description": "33.3% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 0 last, 2 unfragmented).",
+          "supporting_metrics": {
+            "fragmentation_ratio": 0.3333,
+            "fragmentation_counts": {
+              "unfragmented": 2,
+              "first": 1,
+              "intermediate": 0,
+              "last": 0,
+              "padding": 0
+            },
+            "is_burst": false
+          },
+          "evidence": "1/3 fragmented PDUs observed",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 0
+        },
+        {
+          "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+          "format": "GSE",
+          "description": "Addressing uses LABEL_6B on 100.0% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+          "supporting_metrics": {
+            "label_counts": {
+              "LABEL_6B": 3
+            },
+            "dominant_label": "LABEL_6B",
+            "extension_headers": [
+              "GSE_EXT_NPA"
+            ]
+          },
+          "evidence": "Label inspection on 3 PDUs",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 0
+        }
+      ],
+      "has_transition": false,
+      "transition_description": null,
+      "format_specific_metrics": {
+        "dominant_protocol": "GSE_EXT_NPA",
+        "fragmentation_ratio": 0.3333,
+        "mean_pdu_size_bytes": 472.33,
+        "padding_packets": 0
+      },
+      "events": [],
+      "explanation": null
+    },
+    {
+      "window_index": 1,
+      "unit_offset_start": 3,
+      "unit_offset_end": 6,
+      "byte_offset_start": 1450,
+      "byte_offset_end": 3285,
+      "unit_count": 3,
+      "valid_units": 3,
+      "invalid_units": 0,
+      "payload_bytes": 1808,
+      "payload_kb": 1.766,
+      "unit_density": 3,
+      "health_score": 100.0,
+      "health_status": "HEALTHY",
+      "error_count": 0,
+      "error_rate": 0.0,
+      "is_anomaly": false,
+      "anomaly_score": 0.425,
+      "anomaly_severity": "NORMAL",
+      "anomaly_explanation": "Feature metrics within expected baseline bounds",
+      "top_deviations": [
+        {
+          "feature_name": "fragmentation_ratio",
+          "observed_value": 1.0,
+          "baseline_mean": 0.6,
+          "baseline_std": 0.326599,
+          "z_score": 1.2247,
+          "direction": "ABOVE_BASELINE",
+          "importance_rank": 1,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "protocol_entropy",
+          "observed_value": 0.9183,
+          "baseline_mean": 0.38366,
+          "baseline_std": 0.470595,
+          "z_score": 1.1361,
+          "direction": "ABOVE_BASELINE",
+          "importance_rank": 2,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "payload_ratio",
+          "observed_value": 0.985286,
+          "baseline_mean": 0.982677,
+          "baseline_std": 0.005096,
+          "z_score": 0.512,
+          "direction": "ABOVE_BASELINE",
+          "importance_rank": 3,
+          "interpretation": "Within typical baseline dispersion"
+        }
+      ],
+      "pattern_findings": [
+        {
+          "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+          "format": "GSE",
+          "description": "Protocol distribution dominated by NONE (66.7% of observed PDUs).",
+          "supporting_metrics": {
+            "protocol_counts": {
+              "NONE": 2,
+              "GSE_EXT_NPA": 1
+            },
+            "dominant_protocol": "NONE",
+            "dominant_percentage": 66.67
+          },
+          "evidence": "2/3 PDUs match NONE",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 1
+        },
+        {
+          "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+          "format": "GSE",
+          "description": "PDU payload size spans 378 to 1045 bytes (mean: 602.7 B, std: 312.8 B). Modal size cluster: medium_payload (128-576B).",
+          "supporting_metrics": {
+            "min_bytes": 378,
+            "max_bytes": 1045,
+            "mean_bytes": 602.67,
+            "std_bytes": 312.79,
+            "size_clusters": {
+              "small_control (<128B)": 0,
+              "medium_payload (128-576B)": 2,
+              "large_mtu (>576B)": 1
+            }
+          },
+          "evidence": "Computed across 3 GSE PDU lengths",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 1
+        },
+        {
+          "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+          "format": "GSE",
+          "description": "100.0% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 2 last, 0 unfragmented).",
+          "supporting_metrics": {
+            "fragmentation_ratio": 1.0,
+            "fragmentation_counts": {
+              "unfragmented": 0,
+              "first": 1,
+              "intermediate": 0,
+              "last": 2,
+              "padding": 0
+            },
+            "is_burst": true
+          },
+          "evidence": "3/3 fragmented PDUs observed",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 1
+        },
+        {
+          "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+          "format": "GSE",
+          "description": "Addressing uses LABEL_NONE on 66.7% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+          "supporting_metrics": {
+            "label_counts": {
+              "LABEL_NONE": 2,
+              "LABEL_6B": 1
+            },
+            "dominant_label": "LABEL_NONE",
+            "extension_headers": [
+              "GSE_EXT_NPA"
+            ]
+          },
+          "evidence": "Label inspection on 3 PDUs",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 1
+        }
+      ],
+      "has_transition": true,
+      "transition_description": "Fragmentation burst: jumped from 33.3% to 100.0%",
+      "format_specific_metrics": {
+        "dominant_protocol": "NONE",
+        "fragmentation_ratio": 1.0,
+        "mean_pdu_size_bytes": 602.67,
+        "padding_packets": 0
+      },
+      "events": [
+        {
+          "event_id": "EV_GSE_TRANS_1",
+          "window_index": 1,
+          "unit_offset_start": 3,
+          "unit_offset_end": 6,
+          "byte_offset_start": 1450,
+          "byte_offset_end": 3285,
+          "event_type": "F3_TRANSITION",
+          "severity": "LOW",
+          "title": "Fragmentation Burst Event",
+          "description": "Fragmentation burst: jumped from 33.3% to 100.0%",
+          "metrics": {}
+        }
+      ],
+      "explanation": null
+    },
+    {
+      "window_index": 2,
+      "unit_offset_start": 6,
+      "unit_offset_end": 9,
+      "byte_offset_start": 3285,
+      "byte_offset_end": 4651,
+      "unit_count": 3,
+      "valid_units": 3,
+      "invalid_units": 0,
+      "payload_bytes": 1333,
+      "payload_kb": 1.302,
+      "unit_density": 3,
+      "health_score": 100.0,
+      "health_status": "HEALTHY",
+      "error_count": 0,
+      "error_rate": 0.0,
+      "is_anomaly": false,
+      "anomaly_score": 0.3497,
+      "anomaly_severity": "NORMAL",
+      "anomaly_explanation": "Feature metrics within expected baseline bounds",
+      "top_deviations": [
+        {
+          "feature_name": "payload_ratio",
+          "observed_value": 0.975842,
+          "baseline_mean": 0.982677,
+          "baseline_std": 0.005096,
+          "z_score": 1.3414,
+          "direction": "BELOW_BASELINE",
+          "importance_rank": 1,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "mean_payload_kb",
+          "observed_value": 0.433919,
+          "baseline_mean": 0.621289,
+          "baseline_std": 0.166833,
+          "z_score": 1.1231,
+          "direction": "BELOW_BASELINE",
+          "importance_rank": 2,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "log_total_payload",
+          "observed_value": 3.12483,
+          "baseline_mean": 3.229777,
+          "baseline_std": 0.106397,
+          "z_score": 0.9864,
+          "direction": "BELOW_BASELINE",
+          "importance_rank": 3,
+          "interpretation": "Within typical baseline dispersion"
+        }
+      ],
+      "pattern_findings": [
+        {
+          "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+          "format": "GSE",
+          "description": "Protocol distribution dominated by GSE_EXT_NPA (100.0% of observed PDUs).",
+          "supporting_metrics": {
+            "protocol_counts": {
+              "GSE_EXT_NPA": 3
+            },
+            "dominant_protocol": "GSE_EXT_NPA",
+            "dominant_percentage": 100.0
+          },
+          "evidence": "3/3 PDUs match GSE_EXT_NPA",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 2
+        },
+        {
+          "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+          "format": "GSE",
+          "description": "PDU payload size spans 43 to 1232 bytes (mean: 444.3 B, std: 557.0 B). Modal size cluster: small_control (<128B).",
+          "supporting_metrics": {
+            "min_bytes": 43,
+            "max_bytes": 1232,
+            "mean_bytes": 444.33,
+            "std_bytes": 557.0,
+            "size_clusters": {
+              "small_control (<128B)": 2,
+              "medium_payload (128-576B)": 0,
+              "large_mtu (>576B)": 1
+            }
+          },
+          "evidence": "Computed across 3 GSE PDU lengths",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 2
+        },
+        {
+          "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+          "format": "GSE",
+          "description": "33.3% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 0 last, 2 unfragmented).",
+          "supporting_metrics": {
+            "fragmentation_ratio": 0.3333,
+            "fragmentation_counts": {
+              "unfragmented": 2,
+              "first": 1,
+              "intermediate": 0,
+              "last": 0,
+              "padding": 0
+            },
+            "is_burst": false
+          },
+          "evidence": "1/3 fragmented PDUs observed",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 2
+        },
+        {
+          "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+          "format": "GSE",
+          "description": "Addressing uses LABEL_6B on 100.0% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+          "supporting_metrics": {
+            "label_counts": {
+              "LABEL_6B": 3
+            },
+            "dominant_label": "LABEL_6B",
+            "extension_headers": [
+              "GSE_EXT_NPA"
+            ]
+          },
+          "evidence": "Label inspection on 3 PDUs",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 2
+        }
+      ],
+      "has_transition": false,
+      "transition_description": null,
+      "format_specific_metrics": {
+        "dominant_protocol": "GSE_EXT_NPA",
+        "fragmentation_ratio": 0.3333,
+        "mean_pdu_size_bytes": 444.33,
+        "padding_packets": 0
+      },
+      "events": [],
+      "explanation": null
+    },
+    {
+      "window_index": 3,
+      "unit_offset_start": 9,
+      "unit_offset_end": 12,
+      "byte_offset_start": 4651,
+      "byte_offset_end": 7332,
+      "unit_count": 3,
+      "valid_units": 3,
+      "invalid_units": 0,
+      "payload_bytes": 2648,
+      "payload_kb": 2.586,
+      "unit_density": 3,
+      "health_score": 100.0,
+      "health_status": "HEALTHY",
+      "error_count": 0,
+      "error_rate": 0.0,
+      "is_anomaly": false,
+      "anomaly_score": 0.4926,
+      "anomaly_severity": "NORMAL",
+      "anomaly_explanation": "Elevated anomaly score driven by: log_total_payload=3.423 (above baseline, z=1.8)",
+      "top_deviations": [
+        {
+          "feature_name": "log_total_payload",
+          "observed_value": 3.422918,
+          "baseline_mean": 3.229777,
+          "baseline_std": 0.106397,
+          "z_score": 1.8153,
+          "direction": "ABOVE_BASELINE",
+          "importance_rank": 1,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "mean_payload_kb",
+          "observed_value": 0.861979,
+          "baseline_mean": 0.621289,
+          "baseline_std": 0.166833,
+          "z_score": 1.4427,
+          "direction": "ABOVE_BASELINE",
+          "importance_rank": 2,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "payload_ratio",
+          "observed_value": 0.987691,
+          "baseline_mean": 0.982677,
+          "baseline_std": 0.005096,
+          "z_score": 0.984,
+          "direction": "ABOVE_BASELINE",
+          "importance_rank": 3,
+          "interpretation": "Within typical baseline dispersion"
+        }
+      ],
+      "pattern_findings": [
+        {
+          "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+          "format": "GSE",
+          "description": "Protocol distribution dominated by GSE_EXT_NPA (100.0% of observed PDUs).",
+          "supporting_metrics": {
+            "protocol_counts": {
+              "GSE_EXT_NPA": 3
+            },
+            "dominant_protocol": "GSE_EXT_NPA",
+            "dominant_percentage": 100.0
+          },
+          "evidence": "3/3 PDUs match GSE_EXT_NPA",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 3
+        },
+        {
+          "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+          "format": "GSE",
+          "description": "PDU payload size spans 58 to 1423 bytes (mean: 882.7 B, std: 592.4 B). Modal size cluster: large_mtu (>576B).",
+          "supporting_metrics": {
+            "min_bytes": 58,
+            "max_bytes": 1423,
+            "mean_bytes": 882.67,
+            "std_bytes": 592.42,
+            "size_clusters": {
+              "small_control (<128B)": 1,
+              "medium_payload (128-576B)": 0,
+              "large_mtu (>576B)": 2
+            }
+          },
+          "evidence": "Computed across 3 GSE PDU lengths",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 3
+        },
+        {
+          "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+          "format": "GSE",
+          "description": "33.3% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 0 last, 2 unfragmented).",
+          "supporting_metrics": {
+            "fragmentation_ratio": 0.3333,
+            "fragmentation_counts": {
+              "unfragmented": 2,
+              "first": 1,
+              "intermediate": 0,
+              "last": 0,
+              "padding": 0
+            },
+            "is_burst": false
+          },
+          "evidence": "1/3 fragmented PDUs observed",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 3
+        },
+        {
+          "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+          "format": "GSE",
+          "description": "Addressing uses LABEL_6B on 100.0% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+          "supporting_metrics": {
+            "label_counts": {
+              "LABEL_6B": 3
+            },
+            "dominant_label": "LABEL_6B",
+            "extension_headers": [
+              "GSE_EXT_NPA"
+            ]
+          },
+          "evidence": "Label inspection on 3 PDUs",
+          "confidence": 0.3,
+          "severity": null,
+          "window_index": 3
+        }
+      ],
+      "has_transition": false,
+      "transition_description": null,
+      "format_specific_metrics": {
+        "dominant_protocol": "GSE_EXT_NPA",
+        "fragmentation_ratio": 0.3333,
+        "mean_pdu_size_bytes": 882.67,
+        "padding_packets": 0
+      },
+      "events": [],
+      "explanation": null
+    },
+    {
+      "window_index": 4,
+      "unit_offset_start": 12,
+      "unit_offset_end": 14,
+      "byte_offset_start": 7332,
+      "byte_offset_end": 8910,
+      "unit_count": 2,
+      "valid_units": 2,
+      "invalid_units": 0,
+      "payload_bytes": 1558,
+      "payload_kb": 1.521,
+      "unit_density": 2,
+      "health_score": 100.0,
+      "health_status": "HEALTHY",
+      "error_count": 0,
+      "error_rate": 0.0,
+      "is_anomaly": true,
+      "anomaly_score": 0.5018,
+      "anomaly_severity": "LOW",
+      "anomaly_explanation": "Window 4 exhibited elevated PDU fragmentation (score 0.5018, LOW). Encapsulation framing remains valid.",
+      "top_deviations": [
+        {
+          "feature_name": "log_total_units",
+          "observed_value": 0.30103,
+          "baseline_mean": 0.441903,
+          "baseline_std": 0.070437,
+          "z_score": 2.0,
+          "direction": "BELOW_BASELINE",
+          "importance_rank": 1,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "protocol_entropy",
+          "observed_value": 1.0,
+          "baseline_mean": 0.38366,
+          "baseline_std": 0.470595,
+          "z_score": 1.3097,
+          "direction": "ABOVE_BASELINE",
+          "importance_rank": 2,
+          "interpretation": "Within typical baseline dispersion"
+        },
+        {
+          "feature_name": "fragmentation_ratio",
+          "observed_value": 1.0,
+          "baseline_mean": 0.6,
+          "baseline_std": 0.326599,
+          "z_score": 1.2247,
+          "direction": "ABOVE_BASELINE",
+          "importance_rank": 3,
+          "interpretation": "Within typical baseline dispersion"
+        }
+      ],
+      "pattern_findings": [
+        {
+          "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+          "format": "GSE",
+          "description": "Protocol distribution dominated by NONE (50.0% of observed PDUs).",
+          "supporting_metrics": {
+            "protocol_counts": {
+              "NONE": 1,
+              "GSE_EXT_NPA": 1
+            },
+            "dominant_protocol": "NONE",
+            "dominant_percentage": 50.0
+          },
+          "evidence": "1/2 PDUs match NONE",
+          "confidence": 0.2,
+          "severity": null,
+          "window_index": 4
+        },
+        {
+          "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+          "format": "GSE",
+          "description": "PDU payload size spans 256 to 1302 bytes (mean: 779.0 B, std: 523.0 B). Modal size cluster: medium_payload (128-576B).",
+          "supporting_metrics": {
+            "min_bytes": 256,
+            "max_bytes": 1302,
+            "mean_bytes": 779.0,
+            "std_bytes": 523.0,
+            "size_clusters": {
+              "small_control (<128B)": 0,
+              "medium_payload (128-576B)": 1,
+              "large_mtu (>576B)": 1
+            }
+          },
+          "evidence": "Computed across 2 GSE PDU lengths",
+          "confidence": 0.2,
+          "severity": null,
+          "window_index": 4
+        },
+        {
+          "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+          "format": "GSE",
+          "description": "100.0% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 1 last, 0 unfragmented).",
+          "supporting_metrics": {
+            "fragmentation_ratio": 1.0,
+            "fragmentation_counts": {
+              "unfragmented": 0,
+              "first": 1,
+              "intermediate": 0,
+              "last": 1,
+              "padding": 0
+            },
+            "is_burst": true
+          },
+          "evidence": "2/2 fragmented PDUs observed",
+          "confidence": 0.2,
+          "severity": null,
+          "window_index": 4
+        },
+        {
+          "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+          "format": "GSE",
+          "description": "Addressing uses LABEL_NONE on 50.0% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+          "supporting_metrics": {
+            "label_counts": {
+              "LABEL_NONE": 1,
+              "LABEL_6B": 1
+            },
+            "dominant_label": "LABEL_NONE",
+            "extension_headers": [
+              "GSE_EXT_NPA"
+            ]
+          },
+          "evidence": "Label inspection on 2 PDUs",
+          "confidence": 0.2,
+          "severity": null,
+          "window_index": 4
+        }
+      ],
+      "has_transition": true,
+      "transition_description": "Fragmentation burst: jumped from 33.3% to 100.0%",
+      "format_specific_metrics": {
+        "dominant_protocol": "NONE",
+        "fragmentation_ratio": 1.0,
+        "mean_pdu_size_bytes": 779.0,
+        "padding_packets": 0
+      },
+      "events": [
+        {
+          "event_id": "EV_GSE_ANOM_4",
+          "window_index": 4,
+          "unit_offset_start": 12,
+          "unit_offset_end": 14,
+          "byte_offset_start": 7332,
+          "byte_offset_end": 8910,
+          "event_type": "F2_ANOMALY",
+          "severity": "LOW",
+          "title": "GSE Anomaly (LOW)",
+          "description": "Window 4 exhibited elevated PDU fragmentation (score 0.5018, LOW). Encapsulation framing remains valid.",
+          "metrics": {
+            "anomaly_score": 0.50184785244587,
+            "explanation": {
+              "explanation_id": "EXP_GSE_W4",
+              "format": "GSE",
+              "window_index": 4,
+              "unit_offset_start": 12,
+              "unit_offset_end": 14,
+              "byte_offset_start": 7332,
+              "byte_offset_end": 8910,
+              "anomaly_score": 0.5018,
+              "anomaly_severity": "LOW",
+              "anomaly_threshold": 0.5,
+              "is_anomaly": true,
+              "what_happened": "PDU fragmentation proportion shifted significantly in window 4.",
+              "native_component": "Stream Slicing / Capture Boundary (Unit Count); GSE Encapsulation Subsystem; GSE Fragmentation Sub-layer (S/E Framing)",
+              "evidence_summary": "log_total_units=0.30 (|z|=2.0 below baseline); protocol_entropy=1.00 (|z|=1.3 above baseline)",
+              "safe_conclusion": "PDU fragmentation was observed. GSE framing remains syntactically valid; while typical when IP packets exceed encapsulation MTU, the capture alone cannot determine the operational cause.",
+              "concise_summary": "Window 4 exhibited elevated PDU fragmentation (score 0.5018, LOW). Encapsulation framing remains valid.",
+              "primary_drivers": [
+                {
+                  "feature_name": "log_total_units",
+                  "native_component": "Stream Slicing / Capture Boundary (Unit Count)",
+                  "observed_value": 0.30103,
+                  "baseline_mean": 0.441903,
+                  "baseline_std": 0.070437,
+                  "z_score": 2.0,
+                  "direction": "BELOW_BASELINE",
+                  "deviation_pct": -31.88,
+                  "description": "Window contains only 2 units, substantially fewer than baseline 3 units.",
+                  "evidence": "log_total_units=0.301 (baseline 0.442 +/- 0.070, |z|=2.0 below baseline)",
+                  "safe_inference": "Consistent with stream capture termination / recording boundary truncation; not a transmission drop-out or packet loss."
+                },
+                {
+                  "feature_name": "protocol_entropy",
+                  "native_component": "GSE Encapsulation Subsystem",
+                  "observed_value": 1.0,
+                  "baseline_mean": 0.38366,
+                  "baseline_std": 0.470595,
+                  "z_score": 1.3097,
+                  "direction": "ABOVE_BASELINE",
+                  "deviation_pct": 160.65,
+                  "description": "Metric protocol_entropy observed at 1.0000, above baseline 0.3837.",
+                  "evidence": "protocol_entropy=1.0000 (baseline 0.3837 +/- 0.4706, |z|=1.3 above baseline)",
+                  "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+                },
+                {
+                  "feature_name": "fragmentation_ratio",
+                  "native_component": "GSE Fragmentation Sub-layer (S/E Framing)",
+                  "observed_value": 1.0,
+                  "baseline_mean": 0.6,
+                  "baseline_std": 0.326599,
+                  "z_score": 1.2247,
+                  "direction": "ABOVE_BASELINE",
+                  "deviation_pct": 66.67,
+                  "description": "PDU fragmentation ratio shifted to 100.0% (above baseline 60.0%).",
+                  "evidence": "fragmentation_ratio=1.0000 (baseline 0.6000 +/- 0.3266, |z|=1.2 above baseline)",
+                  "safe_inference": "PDU fragmentation was observed. GSE framing remains syntactically valid; the available capture does not establish the operational traffic cause."
+                }
+              ],
+              "secondary_drivers": [
+                {
+                  "feature_name": "payload_ratio",
+                  "native_component": "Stream Payload Utilization",
+                  "observed_value": 0.987326,
+                  "baseline_mean": 0.982677,
+                  "baseline_std": 0.005096,
+                  "z_score": 0.9123,
+                  "direction": "ABOVE_BASELINE",
+                  "deviation_pct": 0.47,
+                  "description": "Payload volume metric payload_ratio is above baseline (0.987 vs 0.983).",
+                  "evidence": "payload_ratio=0.9873 (baseline 0.9827 +/- 0.0051, |z|=0.9 above baseline)",
+                  "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+                },
+                {
+                  "feature_name": "mean_payload_kb",
+                  "native_component": "User Data Concentration / Packet Size",
+                  "observed_value": 0.760742,
+                  "baseline_mean": 0.621289,
+                  "baseline_std": 0.166833,
+                  "z_score": 0.8359,
+                  "direction": "ABOVE_BASELINE",
+                  "deviation_pct": 22.45,
+                  "description": "Payload volume metric mean_payload_kb is above baseline (0.761 vs 0.621).",
+                  "evidence": "mean_payload_kb=0.7607 (baseline 0.6213 +/- 0.1668, |z|=0.8 above baseline)",
+                  "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+                },
+                {
+                  "feature_name": "log_total_payload",
+                  "native_component": "Stream Payload Volume / Traffic Activity",
+                  "observed_value": 3.192567,
+                  "baseline_mean": 3.229777,
+                  "baseline_std": 0.106397,
+                  "z_score": 0.3497,
+                  "direction": "BELOW_BASELINE",
+                  "deviation_pct": -1.15,
+                  "description": "Payload volume metric log_total_payload is below baseline (3.193 vs 3.230).",
+                  "evidence": "log_total_payload=3.1926 (baseline 3.2298 +/- 0.1064, |z|=0.3 below baseline)",
+                  "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+                },
+                {
+                  "feature_name": "error_rate",
+                  "native_component": "Stream Error Counter / Physical Layer Integrity",
+                  "observed_value": 0.0,
+                  "baseline_mean": 0.0,
+                  "baseline_std": 0.0,
+                  "z_score": 0.0,
+                  "direction": "NORMAL",
+                  "deviation_pct": 0.0,
+                  "description": "Metric error_rate observed at 0.0000, aligned with baseline 0.0000.",
+                  "evidence": "error_rate=0.0000 (baseline 0.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+                  "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+                },
+                {
+                  "feature_name": "integrity_ratio",
+                  "native_component": "Stream Framing Sync / Packet Structure",
+                  "observed_value": 1.0,
+                  "baseline_mean": 1.0,
+                  "baseline_std": 0.0,
+                  "z_score": 0.0,
+                  "direction": "NORMAL",
+                  "deviation_pct": 0.0,
+                  "description": "Metric integrity_ratio observed at 1.0000, aligned with baseline 1.0000.",
+                  "evidence": "integrity_ratio=1.0000 (baseline 1.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+                  "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+                },
+                {
+                  "feature_name": "padding_ratio",
+                  "native_component": "GSE Encapsulation Subsystem",
+                  "observed_value": 0.0,
+                  "baseline_mean": 0.0,
+                  "baseline_std": 0.0,
+                  "z_score": 0.0,
+                  "direction": "NORMAL",
+                  "deviation_pct": 0.0,
+                  "description": "Metric padding_ratio observed at 0.0000, aligned with baseline 0.0000.",
+                  "evidence": "padding_ratio=0.0000 (baseline 0.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+                  "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+                }
+              ],
+              "supporting_patterns": [
+                {
+                  "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+                  "description": "Protocol distribution dominated by NONE (50.0% of observed PDUs).",
+                  "evidence": "1/2 PDUs match NONE",
+                  "supporting_metrics": {
+                    "protocol_counts": {
+                      "NONE": 1,
+                      "GSE_EXT_NPA": 1
+                    },
+                    "dominant_protocol": "NONE",
+                    "dominant_percentage": 50.0
+                  }
+                },
+                {
+                  "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+                  "description": "PDU payload size spans 256 to 1302 bytes (mean: 779.0 B, std: 523.0 B). Modal size cluster: medium_payload (128-576B).",
+                  "evidence": "Computed across 2 GSE PDU lengths",
+                  "supporting_metrics": {
+                    "min_bytes": 256,
+                    "max_bytes": 1302,
+                    "mean_bytes": 779.0,
+                    "std_bytes": 523.0,
+                    "size_clusters": {
+                      "small_control (<128B)": 0,
+                      "medium_payload (128-576B)": 1,
+                      "large_mtu (>576B)": 1
+                    }
+                  }
+                },
+                {
+                  "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+                  "description": "100.0% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 1 last, 0 unfragmented).",
+                  "evidence": "2/2 fragmented PDUs observed",
+                  "supporting_metrics": {
+                    "fragmentation_ratio": 1.0,
+                    "fragmentation_counts": {
+                      "unfragmented": 0,
+                      "first": 1,
+                      "intermediate": 0,
+                      "last": 1,
+                      "padding": 0
+                    },
+                    "is_burst": true
+                  }
+                },
+                {
+                  "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+                  "description": "Addressing uses LABEL_NONE on 50.0% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+                  "evidence": "Label inspection on 2 PDUs",
+                  "supporting_metrics": {
+                    "label_counts": {
+                      "LABEL_NONE": 1,
+                      "LABEL_6B": 1
+                    },
+                    "dominant_label": "LABEL_NONE",
+                    "extension_headers": [
+                      "GSE_EXT_NPA"
+                    ]
+                  }
+                }
+              ],
+              "unsupported_inferences": [
+                "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+                "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+                "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+                "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+                "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+              ],
+              "limitations": [
+                "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+                "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry.",
+                "The available real GSE dataset is a short sample; long-term statistical confidence is limited."
+              ],
+              "timeline_event_id": "EV_GSE_ANOM_4"
+            }
+          }
+        },
+        {
+          "event_id": "EV_GSE_TRANS_4",
+          "window_index": 4,
+          "unit_offset_start": 12,
+          "unit_offset_end": 14,
+          "byte_offset_start": 7332,
+          "byte_offset_end": 8910,
+          "event_type": "F3_TRANSITION",
+          "severity": "LOW",
+          "title": "Fragmentation Burst Event",
+          "description": "Fragmentation burst: jumped from 33.3% to 100.0%",
+          "metrics": {}
+        }
+      ],
+      "explanation": {
+        "explanation_id": "EXP_GSE_W4",
+        "format": "GSE",
+        "window_index": 4,
+        "unit_offset_start": 12,
+        "unit_offset_end": 14,
+        "byte_offset_start": 7332,
+        "byte_offset_end": 8910,
+        "anomaly_score": 0.5018,
+        "anomaly_severity": "LOW",
+        "anomaly_threshold": 0.5,
+        "is_anomaly": true,
+        "what_happened": "PDU fragmentation proportion shifted significantly in window 4.",
+        "native_component": "Stream Slicing / Capture Boundary (Unit Count); GSE Encapsulation Subsystem; GSE Fragmentation Sub-layer (S/E Framing)",
+        "evidence_summary": "log_total_units=0.30 (|z|=2.0 below baseline); protocol_entropy=1.00 (|z|=1.3 above baseline)",
+        "safe_conclusion": "PDU fragmentation was observed. GSE framing remains syntactically valid; while typical when IP packets exceed encapsulation MTU, the capture alone cannot determine the operational cause.",
+        "concise_summary": "Window 4 exhibited elevated PDU fragmentation (score 0.5018, LOW). Encapsulation framing remains valid.",
+        "primary_drivers": [
+          {
+            "feature_name": "log_total_units",
+            "native_component": "Stream Slicing / Capture Boundary (Unit Count)",
+            "observed_value": 0.30103,
+            "baseline_mean": 0.441903,
+            "baseline_std": 0.070437,
+            "z_score": 2.0,
+            "direction": "BELOW_BASELINE",
+            "deviation_pct": -31.88,
+            "description": "Window contains only 2 units, substantially fewer than baseline 3 units.",
+            "evidence": "log_total_units=0.301 (baseline 0.442 +/- 0.070, |z|=2.0 below baseline)",
+            "safe_inference": "Consistent with stream capture termination / recording boundary truncation; not a transmission drop-out or packet loss."
+          },
+          {
+            "feature_name": "protocol_entropy",
+            "native_component": "GSE Encapsulation Subsystem",
+            "observed_value": 1.0,
+            "baseline_mean": 0.38366,
+            "baseline_std": 0.470595,
+            "z_score": 1.3097,
+            "direction": "ABOVE_BASELINE",
+            "deviation_pct": 160.65,
+            "description": "Metric protocol_entropy observed at 1.0000, above baseline 0.3837.",
+            "evidence": "protocol_entropy=1.0000 (baseline 0.3837 +/- 0.4706, |z|=1.3 above baseline)",
+            "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+          },
+          {
+            "feature_name": "fragmentation_ratio",
+            "native_component": "GSE Fragmentation Sub-layer (S/E Framing)",
+            "observed_value": 1.0,
+            "baseline_mean": 0.6,
+            "baseline_std": 0.326599,
+            "z_score": 1.2247,
+            "direction": "ABOVE_BASELINE",
+            "deviation_pct": 66.67,
+            "description": "PDU fragmentation ratio shifted to 100.0% (above baseline 60.0%).",
+            "evidence": "fragmentation_ratio=1.0000 (baseline 0.6000 +/- 0.3266, |z|=1.2 above baseline)",
+            "safe_inference": "PDU fragmentation was observed. GSE framing remains syntactically valid; the available capture does not establish the operational traffic cause."
+          }
+        ],
+        "secondary_drivers": [
+          {
+            "feature_name": "payload_ratio",
+            "native_component": "Stream Payload Utilization",
+            "observed_value": 0.987326,
+            "baseline_mean": 0.982677,
+            "baseline_std": 0.005096,
+            "z_score": 0.9123,
+            "direction": "ABOVE_BASELINE",
+            "deviation_pct": 0.47,
+            "description": "Payload volume metric payload_ratio is above baseline (0.987 vs 0.983).",
+            "evidence": "payload_ratio=0.9873 (baseline 0.9827 +/- 0.0051, |z|=0.9 above baseline)",
+            "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+          },
+          {
+            "feature_name": "mean_payload_kb",
+            "native_component": "User Data Concentration / Packet Size",
+            "observed_value": 0.760742,
+            "baseline_mean": 0.621289,
+            "baseline_std": 0.166833,
+            "z_score": 0.8359,
+            "direction": "ABOVE_BASELINE",
+            "deviation_pct": 22.45,
+            "description": "Payload volume metric mean_payload_kb is above baseline (0.761 vs 0.621).",
+            "evidence": "mean_payload_kb=0.7607 (baseline 0.6213 +/- 0.1668, |z|=0.8 above baseline)",
+            "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+          },
+          {
+            "feature_name": "log_total_payload",
+            "native_component": "Stream Payload Volume / Traffic Activity",
+            "observed_value": 3.192567,
+            "baseline_mean": 3.229777,
+            "baseline_std": 0.106397,
+            "z_score": 0.3497,
+            "direction": "BELOW_BASELINE",
+            "deviation_pct": -1.15,
+            "description": "Payload volume metric log_total_payload is below baseline (3.193 vs 3.230).",
+            "evidence": "log_total_payload=3.1926 (baseline 3.2298 +/- 0.1064, |z|=0.3 below baseline)",
+            "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+          },
+          {
+            "feature_name": "error_rate",
+            "native_component": "Stream Error Counter / Physical Layer Integrity",
+            "observed_value": 0.0,
+            "baseline_mean": 0.0,
+            "baseline_std": 0.0,
+            "z_score": 0.0,
+            "direction": "NORMAL",
+            "deviation_pct": 0.0,
+            "description": "Metric error_rate observed at 0.0000, aligned with baseline 0.0000.",
+            "evidence": "error_rate=0.0000 (baseline 0.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+            "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+          },
+          {
+            "feature_name": "integrity_ratio",
+            "native_component": "Stream Framing Sync / Packet Structure",
+            "observed_value": 1.0,
+            "baseline_mean": 1.0,
+            "baseline_std": 0.0,
+            "z_score": 0.0,
+            "direction": "NORMAL",
+            "deviation_pct": 0.0,
+            "description": "Metric integrity_ratio observed at 1.0000, aligned with baseline 1.0000.",
+            "evidence": "integrity_ratio=1.0000 (baseline 1.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+            "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+          },
+          {
+            "feature_name": "padding_ratio",
+            "native_component": "GSE Encapsulation Subsystem",
+            "observed_value": 0.0,
+            "baseline_mean": 0.0,
+            "baseline_std": 0.0,
+            "z_score": 0.0,
+            "direction": "NORMAL",
+            "deviation_pct": 0.0,
+            "description": "Metric padding_ratio observed at 0.0000, aligned with baseline 0.0000.",
+            "evidence": "padding_ratio=0.0000 (baseline 0.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+            "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+          }
+        ],
+        "supporting_patterns": [
+          {
+            "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+            "description": "Protocol distribution dominated by NONE (50.0% of observed PDUs).",
+            "evidence": "1/2 PDUs match NONE",
+            "supporting_metrics": {
+              "protocol_counts": {
+                "NONE": 1,
+                "GSE_EXT_NPA": 1
+              },
+              "dominant_protocol": "NONE",
+              "dominant_percentage": 50.0
+            }
+          },
+          {
+            "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+            "description": "PDU payload size spans 256 to 1302 bytes (mean: 779.0 B, std: 523.0 B). Modal size cluster: medium_payload (128-576B).",
+            "evidence": "Computed across 2 GSE PDU lengths",
+            "supporting_metrics": {
+              "min_bytes": 256,
+              "max_bytes": 1302,
+              "mean_bytes": 779.0,
+              "std_bytes": 523.0,
+              "size_clusters": {
+                "small_control (<128B)": 0,
+                "medium_payload (128-576B)": 1,
+                "large_mtu (>576B)": 1
+              }
+            }
+          },
+          {
+            "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+            "description": "100.0% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 1 last, 0 unfragmented).",
+            "evidence": "2/2 fragmented PDUs observed",
+            "supporting_metrics": {
+              "fragmentation_ratio": 1.0,
+              "fragmentation_counts": {
+                "unfragmented": 0,
+                "first": 1,
+                "intermediate": 0,
+                "last": 1,
+                "padding": 0
+              },
+              "is_burst": true
+            }
+          },
+          {
+            "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+            "description": "Addressing uses LABEL_NONE on 50.0% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+            "evidence": "Label inspection on 2 PDUs",
+            "supporting_metrics": {
+              "label_counts": {
+                "LABEL_NONE": 1,
+                "LABEL_6B": 1
+              },
+              "dominant_label": "LABEL_NONE",
+              "extension_headers": [
+                "GSE_EXT_NPA"
+              ]
+            }
+          }
+        ],
+        "unsupported_inferences": [
+          "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+          "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+          "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+          "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+          "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+        ],
+        "limitations": [
+          "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+          "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry.",
+          "The available real GSE dataset is a short sample; long-term statistical confidence is limited."
+        ],
+        "timeline_event_id": "EV_GSE_ANOM_4"
+      }
+    }
+  ],
+  "events": [
+    {
+      "event_id": "EV_GSE_ANOM_4",
+      "window_index": 4,
+      "unit_offset_start": 12,
+      "unit_offset_end": 14,
+      "byte_offset_start": 7332,
+      "byte_offset_end": 8910,
+      "event_type": "F2_ANOMALY",
+      "severity": "LOW",
+      "title": "GSE Anomaly (LOW)",
+      "description": "Window 4 exhibited elevated PDU fragmentation (score 0.5018, LOW). Encapsulation framing remains valid.",
+      "metrics": {
+        "anomaly_score": 0.50184785244587,
+        "explanation": {
+          "explanation_id": "EXP_GSE_W4",
+          "format": "GSE",
+          "window_index": 4,
+          "unit_offset_start": 12,
+          "unit_offset_end": 14,
+          "byte_offset_start": 7332,
+          "byte_offset_end": 8910,
+          "anomaly_score": 0.5018,
+          "anomaly_severity": "LOW",
+          "anomaly_threshold": 0.5,
+          "is_anomaly": true,
+          "what_happened": "PDU fragmentation proportion shifted significantly in window 4.",
+          "native_component": "Stream Slicing / Capture Boundary (Unit Count); GSE Encapsulation Subsystem; GSE Fragmentation Sub-layer (S/E Framing)",
+          "evidence_summary": "log_total_units=0.30 (|z|=2.0 below baseline); protocol_entropy=1.00 (|z|=1.3 above baseline)",
+          "safe_conclusion": "PDU fragmentation was observed. GSE framing remains syntactically valid; while typical when IP packets exceed encapsulation MTU, the capture alone cannot determine the operational cause.",
+          "concise_summary": "Window 4 exhibited elevated PDU fragmentation (score 0.5018, LOW). Encapsulation framing remains valid.",
+          "primary_drivers": [
+            {
+              "feature_name": "log_total_units",
+              "native_component": "Stream Slicing / Capture Boundary (Unit Count)",
+              "observed_value": 0.30103,
+              "baseline_mean": 0.441903,
+              "baseline_std": 0.070437,
+              "z_score": 2.0,
+              "direction": "BELOW_BASELINE",
+              "deviation_pct": -31.88,
+              "description": "Window contains only 2 units, substantially fewer than baseline 3 units.",
+              "evidence": "log_total_units=0.301 (baseline 0.442 +/- 0.070, |z|=2.0 below baseline)",
+              "safe_inference": "Consistent with stream capture termination / recording boundary truncation; not a transmission drop-out or packet loss."
+            },
+            {
+              "feature_name": "protocol_entropy",
+              "native_component": "GSE Encapsulation Subsystem",
+              "observed_value": 1.0,
+              "baseline_mean": 0.38366,
+              "baseline_std": 0.470595,
+              "z_score": 1.3097,
+              "direction": "ABOVE_BASELINE",
+              "deviation_pct": 160.65,
+              "description": "Metric protocol_entropy observed at 1.0000, above baseline 0.3837.",
+              "evidence": "protocol_entropy=1.0000 (baseline 0.3837 +/- 0.4706, |z|=1.3 above baseline)",
+              "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+            },
+            {
+              "feature_name": "fragmentation_ratio",
+              "native_component": "GSE Fragmentation Sub-layer (S/E Framing)",
+              "observed_value": 1.0,
+              "baseline_mean": 0.6,
+              "baseline_std": 0.326599,
+              "z_score": 1.2247,
+              "direction": "ABOVE_BASELINE",
+              "deviation_pct": 66.67,
+              "description": "PDU fragmentation ratio shifted to 100.0% (above baseline 60.0%).",
+              "evidence": "fragmentation_ratio=1.0000 (baseline 0.6000 +/- 0.3266, |z|=1.2 above baseline)",
+              "safe_inference": "PDU fragmentation was observed. GSE framing remains syntactically valid; the available capture does not establish the operational traffic cause."
+            }
+          ],
+          "secondary_drivers": [
+            {
+              "feature_name": "payload_ratio",
+              "native_component": "Stream Payload Utilization",
+              "observed_value": 0.987326,
+              "baseline_mean": 0.982677,
+              "baseline_std": 0.005096,
+              "z_score": 0.9123,
+              "direction": "ABOVE_BASELINE",
+              "deviation_pct": 0.47,
+              "description": "Payload volume metric payload_ratio is above baseline (0.987 vs 0.983).",
+              "evidence": "payload_ratio=0.9873 (baseline 0.9827 +/- 0.0051, |z|=0.9 above baseline)",
+              "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+            },
+            {
+              "feature_name": "mean_payload_kb",
+              "native_component": "User Data Concentration / Packet Size",
+              "observed_value": 0.760742,
+              "baseline_mean": 0.621289,
+              "baseline_std": 0.166833,
+              "z_score": 0.8359,
+              "direction": "ABOVE_BASELINE",
+              "deviation_pct": 22.45,
+              "description": "Payload volume metric mean_payload_kb is above baseline (0.761 vs 0.621).",
+              "evidence": "mean_payload_kb=0.7607 (baseline 0.6213 +/- 0.1668, |z|=0.8 above baseline)",
+              "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+            },
+            {
+              "feature_name": "log_total_payload",
+              "native_component": "Stream Payload Volume / Traffic Activity",
+              "observed_value": 3.192567,
+              "baseline_mean": 3.229777,
+              "baseline_std": 0.106397,
+              "z_score": 0.3497,
+              "direction": "BELOW_BASELINE",
+              "deviation_pct": -1.15,
+              "description": "Payload volume metric log_total_payload is below baseline (3.193 vs 3.230).",
+              "evidence": "log_total_payload=3.1926 (baseline 3.2298 +/- 0.1064, |z|=0.3 below baseline)",
+              "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+            },
+            {
+              "feature_name": "error_rate",
+              "native_component": "Stream Error Counter / Physical Layer Integrity",
+              "observed_value": 0.0,
+              "baseline_mean": 0.0,
+              "baseline_std": 0.0,
+              "z_score": 0.0,
+              "direction": "NORMAL",
+              "deviation_pct": 0.0,
+              "description": "Metric error_rate observed at 0.0000, aligned with baseline 0.0000.",
+              "evidence": "error_rate=0.0000 (baseline 0.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+              "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+            },
+            {
+              "feature_name": "integrity_ratio",
+              "native_component": "Stream Framing Sync / Packet Structure",
+              "observed_value": 1.0,
+              "baseline_mean": 1.0,
+              "baseline_std": 0.0,
+              "z_score": 0.0,
+              "direction": "NORMAL",
+              "deviation_pct": 0.0,
+              "description": "Metric integrity_ratio observed at 1.0000, aligned with baseline 1.0000.",
+              "evidence": "integrity_ratio=1.0000 (baseline 1.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+              "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+            },
+            {
+              "feature_name": "padding_ratio",
+              "native_component": "GSE Encapsulation Subsystem",
+              "observed_value": 0.0,
+              "baseline_mean": 0.0,
+              "baseline_std": 0.0,
+              "z_score": 0.0,
+              "direction": "NORMAL",
+              "deviation_pct": 0.0,
+              "description": "Metric padding_ratio observed at 0.0000, aligned with baseline 0.0000.",
+              "evidence": "padding_ratio=0.0000 (baseline 0.0000 +/- 0.0000, |z|=0.0 baseline-aligned)",
+              "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+            }
+          ],
+          "supporting_patterns": [
+            {
+              "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+              "description": "Protocol distribution dominated by NONE (50.0% of observed PDUs).",
+              "evidence": "1/2 PDUs match NONE",
+              "supporting_metrics": {
+                "protocol_counts": {
+                  "NONE": 1,
+                  "GSE_EXT_NPA": 1
+                },
+                "dominant_protocol": "NONE",
+                "dominant_percentage": 50.0
+              }
+            },
+            {
+              "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+              "description": "PDU payload size spans 256 to 1302 bytes (mean: 779.0 B, std: 523.0 B). Modal size cluster: medium_payload (128-576B).",
+              "evidence": "Computed across 2 GSE PDU lengths",
+              "supporting_metrics": {
+                "min_bytes": 256,
+                "max_bytes": 1302,
+                "mean_bytes": 779.0,
+                "std_bytes": 523.0,
+                "size_clusters": {
+                  "small_control (<128B)": 0,
+                  "medium_payload (128-576B)": 1,
+                  "large_mtu (>576B)": 1
+                }
+              }
+            },
+            {
+              "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+              "description": "100.0% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 1 last, 0 unfragmented).",
+              "evidence": "2/2 fragmented PDUs observed",
+              "supporting_metrics": {
+                "fragmentation_ratio": 1.0,
+                "fragmentation_counts": {
+                  "unfragmented": 0,
+                  "first": 1,
+                  "intermediate": 0,
+                  "last": 1,
+                  "padding": 0
+                },
+                "is_burst": true
+              }
+            },
+            {
+              "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+              "description": "Addressing uses LABEL_NONE on 50.0% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+              "evidence": "Label inspection on 2 PDUs",
+              "supporting_metrics": {
+                "label_counts": {
+                  "LABEL_NONE": 1,
+                  "LABEL_6B": 1
+                },
+                "dominant_label": "LABEL_NONE",
+                "extension_headers": [
+                  "GSE_EXT_NPA"
+                ]
+              }
+            }
+          ],
+          "unsupported_inferences": [
+            "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+            "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+            "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+            "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+            "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+          ],
+          "limitations": [
+            "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+            "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry.",
+            "The available real GSE dataset is a short sample; long-term statistical confidence is limited."
+          ],
+          "timeline_event_id": "EV_GSE_ANOM_4"
+        }
+      }
+    },
+    {
+      "event_id": "EV_GSE_TRANS_1",
+      "window_index": 1,
+      "unit_offset_start": 3,
+      "unit_offset_end": 6,
+      "byte_offset_start": 1450,
+      "byte_offset_end": 3285,
+      "event_type": "F3_TRANSITION",
+      "severity": "LOW",
+      "title": "Fragmentation Burst Event",
+      "description": "Fragmentation burst: jumped from 33.3% to 100.0%",
+      "metrics": {}
+    },
+    {
+      "event_id": "EV_GSE_TRANS_4",
+      "window_index": 4,
+      "unit_offset_start": 12,
+      "unit_offset_end": 14,
+      "byte_offset_start": 7332,
+      "byte_offset_end": 8910,
+      "event_type": "F3_TRANSITION",
+      "severity": "LOW",
+      "title": "Fragmentation Burst Event",
+      "description": "Fragmentation burst: jumped from 33.3% to 100.0%",
+      "metrics": {}
+    }
+  ]
+}

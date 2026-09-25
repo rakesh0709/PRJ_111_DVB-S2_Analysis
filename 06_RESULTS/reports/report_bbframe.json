@@ -1,0 +1,230 @@
+{
+  "report_id": "REP_BB_FRAME_20260924_064741",
+  "timestamp": "2026-09-24T06:47:41.015828+00:00",
+  "mode": "SINGLE_STREAM",
+  "executive_summary": "The analyzed digital receiver output stream (dvb-s2_bb_example.pcap) consists of 4,309 parsed BB_FRAME framing units (1,958,826 bytes of user payload). Syntactic framing integrity is 100.00%, yielding an overall stream health score of 100.00/100.00 (HEALTHY). The calibrated Isolation Forest model flagged 5 of 87 sequential windows (5.75%) as statistically anomalous (peak anomaly score: 0.7406). Multiplex telemetry indicates concentration on dominant component DFL 8304 bits (92.0% share). All findings are strictly grounded in parsed packet and baseband telemetry without external physical-layer inference.",
+  "stream_info": {
+    "stream_name": "dvb-s2_bb_example.pcap",
+    "file_path": "C:\\Users\\rakes\\Downloads\\Mini Project\\01_RAW_DATA\\01_BBFRAME_GSE\\dvb-s2_bb_example.pcap",
+    "file_size_bytes": 2349376,
+    "detected_format": "BB_FRAME",
+    "format_description": "DVB-S2 Baseband Frame (Continuous Transmission)",
+    "total_units": 4309,
+    "valid_units": 4309,
+    "invalid_units": 0,
+    "truncated_units": 1,
+    "total_payload_bytes": 1958826,
+    "integrity_ratio": 1.0,
+    "error_count": 0
+  },
+  "tripartite_findings": [
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "FRAMING",
+      "title": "Framing Unit Count and Syntactic Validity",
+      "statement": "Parsed 4309 total framing units (4309 valid, 0 invalid).",
+      "evidence": "total_units=4309, valid_units=4309, invalid_units=0",
+      "source_layer": "PARSER",
+      "metrics": {
+        "total_units": 4309,
+        "valid_units": 4309
+      }
+    },
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "FRAMING",
+      "title": "User Payload Volume Extraction",
+      "statement": "Extracted 1958826 total octets of user data payload.",
+      "evidence": "total_payload_bytes=1958826",
+      "source_layer": "PARSER",
+      "metrics": {
+        "total_payload_bytes": 1958826
+      }
+    },
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "PATTERN",
+      "title": "Baseband Frame Header Identification",
+      "statement": "Baseband header parsing records modal DFL of DFL 8304 bits.",
+      "evidence": "modal_dfl=DFL 8304 bits",
+      "source_layer": "PARSER",
+      "metrics": {
+        "modal_dfl": "DFL 8304 bits"
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "HEALTH",
+      "title": "Aggregated Stream Health Score",
+      "statement": "Mean stream health score computed as 100.00 / 100.00 (HEALTHY).",
+      "evidence": "health_score=100.00, status=HEALTHY",
+      "source_layer": "F1",
+      "metrics": {
+        "health_score": 100.0
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "ANOMALY",
+      "title": "Isolation Forest Anomaly Scoring",
+      "statement": "Calibrated Isolation Forest flagged 5 of 87 windows as anomalous (5.75%).",
+      "evidence": "anomalous_windows=5, peak_score=0.7406, mean_score=0.1280",
+      "source_layer": "F2",
+      "metrics": {
+        "anomalous_windows": 5,
+        "peak_anomaly_score": 0.7405679323385674
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "TIMELINE",
+      "title": "Payload Density Distribution Across Windows",
+      "statement": "Window payload density averages 21.99 KB/window with peak window payload of 58.35 KB.",
+      "evidence": "mean_kb=21.99, peak_kb=58.35",
+      "source_layer": "F4",
+      "metrics": {
+        "mean_payload_kb": 21.987540409482758,
+        "peak_payload_kb": 58.353515625
+      }
+    },
+    {
+      "category": "ENGINEERING_INTERPRETATION",
+      "subsystem": "PATTERN",
+      "title": "Baseband Transmission Mode Homogeneity",
+      "statement": "Baseband stream exhibits modal DFL of DFL 8304 bits across analyzed sequential window groups.",
+      "evidence": "Dominant modal DFL: DFL 8304 bits",
+      "source_layer": "F3",
+      "metrics": {}
+    },
+    {
+      "category": "ENGINEERING_INTERPRETATION",
+      "subsystem": "FRAMING",
+      "title": "Capture Boundary Window Sizing",
+      "statement": "Window 86 unit count deviation (9 units vs nominal 50) occurs at the stream capture boundary.",
+      "evidence": "window_index=86, unit_count=9, nominal_size=50",
+      "source_layer": "F4",
+      "metrics": {}
+    },
+    {
+      "category": "ENGINEERING_INTERPRETATION",
+      "subsystem": "ANOMALY",
+      "title": "Initial Window Baseline Offset",
+      "statement": "Feature deviation in Window 0 coincides with the initial capture boundary (containing 50 units).",
+      "evidence": "window_0_score=0.6467, units=50",
+      "source_layer": "F5",
+      "metrics": {}
+    }
+  ],
+  "health": {
+    "health_score": 100.0,
+    "health_status": "HEALTHY",
+    "selected_priority1_checks": {
+      "framing_sync_integrity": "100.00%",
+      "error_packet_count": 0,
+      "stream_continuity": "NO_GAPS"
+    },
+    "detected_issues": [],
+    "recommendations": [
+      "Maintain nominal receiver telemetry monitoring."
+    ]
+  },
+  "anomalies": {
+    "total_windows": 87,
+    "anomalous_windows": 5,
+    "anomaly_rate_pct": 5.75,
+    "peak_anomaly_score": 0.7406,
+    "mean_anomaly_score": 0.128,
+    "decision_threshold": 0.5,
+    "severity_breakdown": {
+      "NORMAL": 82,
+      "LOW": 2,
+      "MEDIUM": 2,
+      "HIGH": 1,
+      "CRITICAL": 0
+    },
+    "anomaly_window_indices": [
+      0,
+      83,
+      84,
+      85,
+      86
+    ]
+  },
+  "patterns": {
+    "dominant_component": "DFL 8304 bits",
+    "dominant_component_pct": 92.0,
+    "multiplex_entropy": null,
+    "active_component_count": 5,
+    "transition_count": 3,
+    "structural_findings": [
+      "DVB-S2 Baseband Header modal DFL is 8304 bits (92.0% modal share)."
+    ]
+  },
+  "timeline": {
+    "window_size": 50,
+    "total_windows": 87,
+    "payload_volume_kb_mean": 21.99,
+    "payload_volume_kb_peak": 58.35,
+    "total_events": 8,
+    "event_counts_by_type": {
+      "F2_ANOMALY": 5,
+      "F3_TRANSITION": 3
+    },
+    "activity_summary": "Stream sliced into 87 sequential windows with average payload density of 21.99 KB/window."
+  },
+  "explanations": {
+    "explained_anomalies_count": 5,
+    "subsystem_distribution": {
+      "DVB-S2 Baseband Header (MATYPE-1 Input Stream Mode SIS/MIS); Stream Payload Volume / Traffic Activity; Stream Payload Utilization": 1,
+      "Stream Payload Utilization; Stream Payload Volume / Traffic Activity; User Data Concentration / Packet Size": 2,
+      "User Data Concentration / Packet Size; Stream Payload Volume / Traffic Activity; Stream Payload Utilization": 1,
+      "Stream Slicing / Capture File Boundary": 1
+    },
+    "key_explanations": [
+      {
+        "window_index": 0,
+        "severity": "MEDIUM",
+        "subsystem": "DVB-S2 Baseband Header (MATYPE-1 Input Stream Mode SIS/MIS); Stream Payload Volume / Traffic Activity; Stream Payload Utilization",
+        "summary": "Window 0 contains an isolated MIS header flag (score 0.6467, MEDIUM). Structural integrity is confirmed by valid CRC-8; operational intent cannot be determined."
+      },
+      {
+        "window_index": 83,
+        "severity": "LOW",
+        "subsystem": "Stream Payload Utilization; Stream Payload Volume / Traffic Activity; User Data Concentration / Packet Size",
+        "summary": "Window 83 exhibited payload volume and DFL distribution changes (score 0.5210, LOW). The capture does not by itself establish the operational cause."
+      },
+      {
+        "window_index": 84,
+        "severity": "LOW",
+        "subsystem": "Stream Payload Utilization; Stream Payload Volume / Traffic Activity; User Data Concentration / Packet Size",
+        "summary": "Window 84 exhibited payload volume and DFL distribution changes (score 0.5043, LOW). The capture does not by itself establish the operational cause."
+      },
+      {
+        "window_index": 85,
+        "severity": "MEDIUM",
+        "subsystem": "User Data Concentration / Packet Size; Stream Payload Volume / Traffic Activity; Stream Payload Utilization",
+        "summary": "Window 85 exhibited payload volume and DFL distribution changes (score 0.6013, MEDIUM). The capture does not by itself establish the operational cause."
+      },
+      {
+        "window_index": 86,
+        "severity": "HIGH",
+        "subsystem": "Stream Slicing / Capture File Boundary",
+        "summary": "Window 86 (score 0.7406, HIGH) contains 9 units at capture termination. Framing syntax remains valid; consistent with recording boundary, not transmission loss."
+      }
+    ]
+  },
+  "comparison": null,
+  "limitations_and_uncertainty": [
+    "Analysis is based strictly on parsed digital receiver output units without external demodulator RF clock telemetry.",
+    "Temporal window progression reflects spatial sequential packet/frame ordering, not broadcast wall-clock timestamps.",
+    "Unsupervised anomaly detection identifies statistical outliers relative to stream baseline; does not establish physical transmission failure.",
+    "Stream contains 1 edge window(s) with unit count below nominal window size at the capture boundary."
+  ],
+  "unsupported_inferences_guard": [
+    "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+    "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+    "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+    "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+    "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+  ]
+}

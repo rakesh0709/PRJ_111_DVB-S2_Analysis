@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRJ_111: dvb-s2_bb_example.pcap -- Analysis Report</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-dim: #94a3b8;
+      --accent: #38bdf8;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 24px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header { border-bottom: 2px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+    h1, h2, h3 { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--border); padding: 10px; text-align: left; font-size: 14px; }
+    th { background: #0b1120; color: var(--accent); }
+    code { background: #0b1120; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #38bdf8; }
+    .guard-box { background: rgba(248, 113, 113, 0.1); border-left: 4px solid var(--red); padding: 14px; margin-top: 16px; }
+    .disclaimer-box { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 14px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>PRJ_111 Automatic Analysis Report</h1>
+      <p>Stream: <code>dvb-s2_bb_example.pcap</code> | Report ID: <code>REP_BB_FRAME_20260924_064741</code> | Generated: <code>2026-09-24T06:47:41.015828+00:00</code></p>
+      <span class="badge" style="background: #34d399; color: #000;">Health: HEALTHY (100.0/100)</span>
+      <span class="badge" style="background: var(--border); color: var(--text);">Format: BB_FRAME</span>
+      <span class="badge" style="background: var(--border); color: var(--text);">Mode: SINGLE_STREAM</span>
+    </div>
+
+    <div class="card">
+      <h2>Executive Summary</h2>
+      <p>The analyzed digital receiver output stream (dvb-s2_bb_example.pcap) consists of 4,309 parsed BB_FRAME framing units (1,958,826 bytes of user payload). Syntactic framing integrity is 100.00%, yielding an overall stream health score of 100.00/100.00 (HEALTHY). The calibrated Isolation Forest model flagged 5 of 87 sequential windows (5.75%) as statistically anomalous (peak anomaly score: 0.7406). Multiplex telemetry indicates concentration on dominant component DFL 8304 bits (92.0% share). All findings are strictly grounded in parsed packet and baseband telemetry without external physical-layer inference.</p>
+    </div>
+
+    <div class="card">
+      <h2>Stream & Framing Metadata</h2>
+      <table>
+        <tr><th>Property</th><th>Value</th><th>Property</th><th>Value</th></tr>
+        <tr><td>File Path</td><td><code>C:\Users\rakes\Downloads\Mini Project\01_RAW_DATA\01_BBFRAME_GSE\dvb-s2_bb_example.pcap</code></td><td>File Size</td><td>2,349,376 bytes</td></tr>
+        <tr><td>Total Units</td><td>4,309</td><td>Framing Integrity</td><td>1.0000</td></tr>
+        <tr><td>Valid Units</td><td>4,309</td><td>Invalid Units</td><td>0</td></tr>
+        <tr><td>User Payload</td><td>1,958,826 bytes</td><td>Total Errors</td><td>0</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Epistemological Tripartite Register</h2>
+      <h3>1. Observed Facts (Deterministic Syntactic Telemetry)</h3>
+      <table>
+        <tr><th>Subsystem</th><th>Title</th><th>Statement</th><th>Evidence</th></tr>
+        <tr><td><code>FRAMING</code></td><td><strong>Framing Unit Count and Syntactic Validity</strong></td><td>Parsed 4309 total framing units (4309 valid, 0 invalid).</td><td><code>total_units=4309, valid_units=4309, invalid_units=0</code></td></tr>
+<tr><td><code>FRAMING</code></td><td><strong>User Payload Volume Extraction</strong></td><td>Extracted 1958826 total octets of user data payload.</td><td><code>total_payload_bytes=1958826</code></td></tr>
+<tr><td><code>PATTERN</code></td><td><strong>Baseband Frame Header Identification</strong></td><td>Baseband header parsing records modal DFL of DFL 8304 bits.</td><td><code>modal_dfl=DFL 8304 bits</code></td></tr>
+      </table>
+
+      <h3 style="margin-top: 24px;">2. Statistical Findings (Model & Aggregate Measurements)</h3>
+      <table>
+        <tr><th>Subsystem</th><th>Title</th><th>Finding</th><th>Evidence</th></tr>
+        <tr><td><code>HEALTH</code></td><td><strong>Aggregated Stream Health Score</strong></td><td>Mean stream health score computed as 100.00 / 100.00 (HEALTHY).</td><td><code>health_score=100.00, status=HEALTHY</code></td></tr>
+<tr><td><code>ANOMALY</code></td><td><strong>Isolation Forest Anomaly Scoring</strong></td><td>Calibrated Isolation Forest flagged 5 of 87 windows as anomalous (5.75%).</td><td><code>anomalous_windows=5, peak_score=0.7406, mean_score=0.1280</code></td></tr>
+<tr><td><code>TIMELINE</code></td><td><strong>Payload Density Distribution Across Windows</strong></td><td>Window payload density averages 21.99 KB/window with peak window payload of 58.35 KB.</td><td><code>mean_kb=21.99, peak_kb=58.35</code></td></tr>
+      </table>
+
+      <h3 style="margin-top: 24px;">3. Engineering Interpretations (Grounded Contextual Synthesis)</h3>
+      <table>
+        <tr><th>Subsystem</th><th>Title</th><th>Interpretation</th><th>Evidence</th></tr>
+        <tr><td><code>PATTERN</code></td><td><strong>Baseband Transmission Mode Homogeneity</strong></td><td>Baseband stream exhibits modal DFL of DFL 8304 bits across analyzed sequential window groups.</td><td><code>Dominant modal DFL: DFL 8304 bits</code></td></tr>
+<tr><td><code>FRAMING</code></td><td><strong>Capture Boundary Window Sizing</strong></td><td>Window 86 unit count deviation (9 units vs nominal 50) occurs at the stream capture boundary.</td><td><code>window_index=86, unit_count=9, nominal_size=50</code></td></tr>
+<tr><td><code>ANOMALY</code></td><td><strong>Initial Window Baseline Offset</strong></td><td>Feature deviation in Window 0 coincides with the initial capture boundary (containing 50 units).</td><td><code>window_0_score=0.6467, units=50</code></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Limitations and Uncertainty</h2>
+      <ul>
+        <li>Analysis is based strictly on parsed digital receiver output units without external demodulator RF clock telemetry.</li><li>Temporal window progression reflects spatial sequential packet/frame ordering, not broadcast wall-clock timestamps.</li><li>Unsupervised anomaly detection identifies statistical outliers relative to stream baseline; does not establish physical transmission failure.</li><li>Stream contains 1 edge window(s) with unit count below nominal window size at the capture boundary.</li>
+      </ul>
+      <div class="guard-box">
+        <strong>MANDATORY DOMAIN-SAFETY NOTICE:</strong>
+        <p>Physical-layer parameters (e.g., RF carrier strength, SNR, MER, BER, AGC, rain fade, atmospheric attenuation, transponder health, and demodulator hardware state) cannot be determined from digital receiver output stream data alone without external physical-layer/demodulator telemetry.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

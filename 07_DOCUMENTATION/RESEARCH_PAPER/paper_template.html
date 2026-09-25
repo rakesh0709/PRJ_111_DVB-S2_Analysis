@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development of a Multi-Format DVB-S2 Receiver Output Stream Analyzer with Anomaly Detection and Diagnostic Reporting</title>
+    <style>
+/* CSS Stylesheet designed for strict IEEE Transactions / Conference format */
+@page {
+    size: letter;
+    margin: 0.75in 0.65in 0.75in 0.65in;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Times New Roman", Times, "Nimbus Roman No9 L", serif;
+    font-size: 10pt;
+    line-height: 1.22;
+    color: #111;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page-wrapper {
+    max-width: 8.5in;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 0.75in 0.65in;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+@media print {
+    body {
+        background: transparent;
+        padding: 0;
+    }
+    .page-wrapper {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+    }
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Floating print action bar */
+.action-bar {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    gap: 10px;
+}
+.btn-print {
+    background: #0f4c81;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    transition: background 0.2s;
+}
+.btn-print:hover {
+    background: #092c4c;
+}
+
+/* Document Header (Spanning full width) */
+.paper-header {
+    text-align: center;
+    margin-bottom: 14pt;
+    border-bottom: 1px solid #222;
+    padding-bottom: 12pt;
+}
+
+.paper-title {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 21pt;
+    font-weight: bold;
+    line-height: 1.2;
+    margin: 0 0 10pt 0;
+    color: #000;
+}
+
+.authors-grid {
+    display: flex;
+    justify-content: center;
+    gap: 28pt;
+    margin-bottom: 8pt;
+    flex-wrap: wrap;
+}
+
+.author-col {
+    text-align: center;
+}
+
+.author-name {
+    font-size: 11.5pt;
+    font-weight: bold;
+    color: #000;
+}
+
+.author-id {
+    font-size: 9pt;
+    font-family: "Courier New", monospace;
+    color: #444;
+}
+
+.author-affiliation {
+    font-size: 9.5pt;
+    font-style: italic;
+    color: #333;
+    margin-top: 4pt;
+}
+
+.guide-block {
+    margin-top: 6pt;
+    font-size: 9.5pt;
+    color: #222;
+}
+.guide-block strong {
+    color: #000;
+}
+
+/* Abstract & Index Terms Box */
+.abstract-box {
+    margin: 12pt 20pt 16pt 20pt;
+    text-align: justify;
+    text-justify: inter-word;
+    font-size: 9pt;
+    line-height: 1.25;
+}
+
+.abstract-title {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.index-terms {
+    margin-top: 6pt;
+    font-size: 9pt;
+    text-align: justify;
+}
+.index-terms-title {
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Two Column Body Layout */
+.two-column-layout {
+    column-count: 2;
+    column-gap: 0.28in;
+    column-fill: balance;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+/* Headings */
+h2.ieee-heading {
+    font-size: 10pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0.6px;
+    margin: 14pt 0 6pt 0;
+    break-after: avoid;
+}
+
+h3.ieee-subheading {
+    font-size: 9.5pt;
+    font-weight: bold;
+    font-style: italic;
+    text-align: left;
+    margin: 10pt 0 4pt 0;
+    break-after: avoid;
+}
+
+h4.ieee-subsubheading {
+    font-size: 9pt;
+    font-weight: bold;
+    margin: 8pt 0 2pt 0;
+    break-after: avoid;
+}
+
+p.ieee-p {
+    margin: 0 0 0 0;
+    text-indent: 1.25em;
+    font-size: 10pt;
+    line-height: 1.22;
+}
+
+p.ieee-p-noindent {
+    margin: 0 0 0 0;
+    text-indent: 0;
+    font-size: 10pt;
+    line-height: 1.22;
+}
+
+/* Unordered & Ordered Lists */
+ul.ieee-list, ol.ieee-list {
+    margin: 4pt 0 4pt 1.5em;
+    padding: 0;
+    font-size: 9.5pt;
+    line-height: 1.22;
+}
+ul.ieee-list li, ol.ieee-list li {
+    margin-bottom: 2pt;
+    text-indent: 0;
+}
+
+/* Mathematics */
+.math-display {
+    text-align: center;
+    margin: 6pt 0;
+    font-family: "Cambria Math", "Latin Modern Math", "Times New Roman", serif;
+    font-style: italic;
+    font-size: 10pt;
+}
+.math-display .eq-num {
+    float: right;
+    font-style: normal;
+    font-weight: normal;
+}
+.math-inline {
+    font-family: "Cambria Math", "Latin Modern Math", "Times New Roman", serif;
+    font-style: italic;
+}
+
+/* Code & Preformatted */
+pre.code-block {
+    background-color: #f7f7f9;
+    border: 1px solid #e1e4e8;
+    padding: 6pt 8pt;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8pt;
+    line-height: 1.2;
+    overflow-x: auto;
+    margin: 6pt 0;
+    break-inside: avoid;
+}
+
+/* Tables */
+.table-container-full {
+    column-span: all;
+    margin: 14pt auto;
+    width: 100%;
+    break-inside: avoid;
+    text-align: center;
+}
+
+.table-container-single {
+    margin: 10pt 0;
+    width: 100%;
+    break-inside: avoid;
+    text-align: center;
+}
+
+.table-caption {
+    font-size: 8.5pt;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4pt;
+}
+.table-caption-sub {
+    font-size: 8pt;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+table.ieee-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    line-height: 1.2;
+    margin: 0 auto;
+    border-top: 1.5pt solid #000;
+    border-bottom: 1.5pt solid #000;
+}
+
+table.ieee-table th {
+    border-bottom: 1pt solid #000;
+    padding: 4pt 6pt;
+    text-align: center;
+    font-weight: bold;
+    font-size: 8.5pt;
+    background: #fafafa;
+}
+
+table.ieee-table td {
+    padding: 3.5pt 6pt;
+    border-bottom: 0.5pt solid #e6e6e6;
+    font-size: 8.5pt;
+}
+
+table.ieee-table tr:last-child td {
+    border-bottom: none;
+}
+
+.table-footnote {
+    font-size: 7.5pt;
+    font-style: italic;
+    text-align: left;
+    margin-top: 3pt;
+    color: #444;
+}
+
+/* Figures */
+.figure-full {
+    column-span: all;
+    margin: 14pt auto;
+    text-align: center;
+    break-inside: avoid;
+}
+
+.figure-single {
+    margin: 10pt 0;
+    text-align: center;
+    break-inside: avoid;
+}
+
+.figure-img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    display: block;
+    margin: 0 auto 5pt auto;
+}
+
+.figure-caption {
+    font-size: 8.5pt;
+    line-height: 1.2;
+    text-align: justify;
+    text-justify: inter-word;
+    color: #111;
+    margin: 4pt 10pt 0 10pt;
+}
+.figure-caption strong {
+    font-weight: bold;
+}
+
+/* Author Biographies */
+.bio-section {
+    column-span: all;
+    margin-top: 20pt;
+    border-top: 1pt solid #ccc;
+    padding-top: 14pt;
+}
+
+.bio-card {
+    display: flex;
+    gap: 14pt;
+    margin-bottom: 14pt;
+    break-inside: avoid;
+    align-items: flex-start;
+}
+
+.bio-photo {
+    width: 95px;
+    height: 120px;
+    object-fit: cover;
+    border: 1pt solid #444;
+    flex-shrink: 0;
+}
+
+.bio-text {
+    font-size: 9pt;
+    line-height: 1.25;
+    text-align: justify;
+    text-justify: inter-word;
+}
+.bio-name {
+    font-weight: bold;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* References Section */
+.ref-list {
+    font-size: 8.5pt;
+    line-height: 1.22;
+    margin: 6pt 0;
+    padding: 0;
+    list-style: none;
+}
+.ref-item {
+    margin-bottom: 4pt;
+    text-align: justify;
+    text-justify: inter-word;
+    text-indent: -2em;
+    padding-left: 2em;
+}
+.ref-num {
+    font-weight: bold;
+}
+
+/* Epistemic badge / subtle highlights */
+.badge-healthy {
+    color: #0d6832;
+    font-weight: bold;
+}
+.badge-comparable {
+    color: #0f4c81;
+    font-weight: bold;
+}
+.badge-blocked {
+    color: #9c27b0;
+    font-weight: bold;
+}
+    </style>
+</head>
+<body>
+
+<div class="action-bar no-print">
+    <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
+</div>
+
+<div class="page-wrapper">
+
+    <!-- Document Header -->
+    <header class="paper-header">
+        <h1 class="paper-title">Development of a Multi-Format DVB-S2 Receiver Output Stream Analyzer with Anomaly Detection and Diagnostic Reporting</h1>
+        
+        <div class="authors-grid">
+            <div class="author-col">
+                <div class="author-name">Sk Samad</div>
+                <div class="author-id">Roll No: 20231COM0031</div>
+            </div>
+            <div class="author-col">
+                <div class="author-name">Y Vengala Rao</div>
+                <div class="author-id">Roll No: 20231COM0001</div>
+            </div>
+            <div class="author-col">
+                <div class="author-name">C Rakeshwar</div>
+                <div class="author-id">Roll No: 20231COM0008</div>
+            </div>
+        </div>
+        
+        <div class="author-affiliation">
+            Department of Computer Science and Engineering, Presidency University, Bengaluru, Karnataka, India
+        </div>
+        <div class="guide-block">
+            Project Guide: <strong>Irfan Rajab Bhat</strong>, Assistant Professor, Dept. of CSE, Presidency University
+        </div>
+
+        <div class="abstract-box">
+            <p style="margin:0;">
+                <span class="abstract-title">Abstract</span>—<strong>Digital Video Broadcasting - Second Generation (DVB-S2, ETSI EN 302 307) provides the physical and data-link framing structure for satellite broadband, high-definition television distribution, and cellular backhaul. Modern satellite receivers demodulate high-frequency radio frequency (RF) downlinks and emit post-demodulator digital output streams across multiple heterogeneous encapsulation formats, primarily MPEG-2 Transport Streams (MPEG-TS, ISO/IEC 13818-1), Generic Stream Encapsulation (GSE, ETSI TS 102 606), and DVB-S2 Baseband Frames (BBFrame). Analyzing receiver output streams across these formats presents an engineering challenge: each format possesses fundamentally different framing boundaries, header structures, and error-propagation characteristics, meaning conventional single-format protocol analyzers do not natively provide the required unified cross-format workflow.</strong>
+            </p>
+            <p style="margin:4pt 0 0 0;">
+                <strong>This paper presents the architecture, methodology, and empirical validation of PRJ_111, a specialized software application engineered for comprehensive analysis and processing of multi-format DVB-S2 receiver output streams. The application establishes a seven-feature analytical pipeline (F1–F7): (F1) deterministic stream health evaluation executing selected Priority-1 broadcast stream integrity indicators inspired by ETSI TR 101 290 principles; (F2) unsupervised statistical anomaly detection via format-isolated Isolation Forest models calibrated on spatial window telemetry; (F3) structural pattern and multiplex distribution detection; (F4) spatial activity timeline generation indexed strictly by physical byte offsets and container sequence numbers without synthetic clock fabrication; (F5) bounded Z-score diagnostic anomaly explanations (|z| &le; 20.0) with explicit deviation directionality; (F6) a differential stream comparison engine governed by a strict semantic barrier isolating valid physical invariants from format-incomparable metrics; and (F7) automatic multi-format diagnostic report generation organized under a formal tripartite epistemological taxonomy (<em>Observed Fact</em>, <em>Statistical Finding</em>, and <em>Engineering Interpretation</em>).</strong>
+            </p>
+            <p style="margin:4pt 0 0 0;">
+                <strong>The proposed system is implemented as a standalone local engineering workstation with no cloud-service dependency, utilizing standard scientific Python packages. Experimental evaluation across authoritative satellite broadcast captures demonstrates deterministic health accounting (100.0% health on clean streams; 99.67% on corrupted streams with exact transport error tracking), unsupervised anomaly detection flagging structural boundary transitions and multiplex concentrations, and strict semantic isolation in cross-format comparisons. The entire software implementation is validated by an automated test suite comprising 240 tests (207 backend and 33 frontend tests) achieving a 100% pass rate with zero failures and zero errors.</strong>
+            </p>
+            <div class="index-terms">
+                <span class="index-terms-title">Index Terms</span>—DVB-S2, MPEG Transport Stream, Generic Stream Encapsulation, BBFrame, Stream Analysis, Anomaly Detection, Isolation Forest, Feature Extraction, Digital Video Broadcasting, Receiver Output Analysis.
+            </div>
+        </div>
+    </header>
+
+    <!-- Two-Column Technical Manuscript -->
+    <main class="two-column-layout">
+
+        <!-- SECTION I -->
+        <h2 class="ieee-heading">I. Introduction</h2>
+        <p class="ieee-p">
+            The Second Generation Digital Video Broadcasting via Satellite standard (DVB-S2) is the foundational physical and framing specification for high-throughput telecommunication satellites [1]. Operating directly behind the satellite low-noise block downconverter (LNB) and intermediate-frequency (IF) tuner, the digital satellite receiver demodulator performs carrier synchronization, matched filtering, forward error correction (FEC) decoding using low-density parity-check (LDPC) and Bose-Chaudhuri-Hocquenghem (BCH) codes, and stream deframing. The resulting post-demodulator digital output represents the primary data boundary between the satellite physical channel and terrestrial consumer or enterprise networking appliances [7].
+        </p>
+        <p class="ieee-p">
+            In modern satellite ground stations, consumer set-top boxes, and satellite broadband terminals, receiver output is not uniform. Depending on the transmitted service profiles, transponder configuration, and downstream equipment, the digital output stream is delivered in one of three standardized digital framing representations [1], [2], [3]:
+        </p>
+        <ol class="ieee-list">
+            <li><strong>MPEG-2 Transport Stream (MPEG-TS):</strong> Characterized by fixed 188-byte containers, periodic synchronization markers (<code style="font-size:8.5pt;">0x47</code>), 13-bit Program Identifiers (PIDs), and continuity counters, predominantly utilized for linear broadcast television and legacy digital distribution [3].</li>
+            <li><strong>Generic Stream Encapsulation (GSE):</strong> Characterized by variable-length protocol data units (PDUs), 2-bit start/end fragmentation flags, 16-bit EtherType protocol identifiers, and 32-bit cyclic redundancy check (CRC-32) verification, standard in satellite IP broadband and enterprise backhaul [2].</li>
+            <li><strong>DVB-S2 Baseband Frames (BBFrame):</strong> The native physical-layer container consisting of an 80-bit Baseband Header (BBHeader), mode adaptation fields (MATYPE-1/2), User Packet Length (UPL), Data Field Length (DFL), and an 8-bit CRC header protection code [1].</li>
+        </ol>
+        <p class="ieee-p">
+            Analyzing digital receiver output streams is critical for broadcast verification, transponder capacity planning, transmission debugging, and stream integrity assessment. However, analyzing these heterogeneous representations using conventional software tools presents operational limitations [12]. Generic network protocol analyzers (such as Wireshark) treat captured data as network frames, requiring external dissector plugins that lack native support for raw concatenated TS streams, non-Ethernet encapsulated GSE byte sequences, or baseband frame telemetry. Conversely, dedicated broadcast test and measurement instruments are tailored primarily to MPEG-TS, providing limited native support for modern DVB-S2 baseband frames or GSE streams [8], [12].
+        </p>
+        <p class="ieee-p">
+            To address this gap, this project develops <strong>PRJ_111</strong>: an extensible and mathematically grounded software application for unified analysis and processing of multi-format DVB-S2 receiver output streams. PRJ_111 is designed as a post-demodulator digital stream analyzer rather than a generic network packet sniffer, emphasizing deterministic framing verification, unsupervised statistical anomaly detection, spatial activity indexing, diagnostic explanations, semantic cross-format comparison, and automated reporting.
+        </p>
+
+        <!-- SECTION II -->
+        <h2 class="ieee-heading">II. Problem Statement</h2>
+        <p class="ieee-p">
+            When analyzing post-demodulator digital receiver outputs in satellite communications, system engineers face three core challenges:
+        </p>
+        <p class="ieee-p">
+            1) <em>Framing Heterogeneity and Parser Brittleness:</em> Digital receiver output streams arrive as unindexed raw binary files (<code style="font-size:8.5pt;">.ts</code>, <code style="font-size:8.5pt;">.gse</code>, <code style="font-size:8.5pt;">.bin</code>, <code style="font-size:8.5pt;">.pcap</code>). Format boundaries vary from fixed 188-byte packets to variable-length network PDUs (up to 4,096 bytes) and fixed-block forward error correction frames (up to 7,275 bytes in normal FEC frame configurations). Ingestion layers that rely on naive file extension checking frequently misidentify streams, while streaming parsers that lack periodic synchronization recovery fail upon encountering corrupted bits.
+        </p>
+        <p class="ieee-p">
+            2) <em>Lack of Common Telemetry Across Disparate Framing Layers:</em> Transport Stream packet counts, GSE PDU counts, and Baseband Frame counts describe physically distinct encapsulation entities. Comparing or unifying metrics across these formats without mathematical rigor results in false equivalence, comparing quantities with incompatible dimensions and misleading ground station operators.
+        </p>
+        <p class="ieee-p">
+            3) <em>Epistemic Over-Claiming in Stream Telemetry:</em> Many monitoring applications compute synthetic clock timestamps, calculate fictitious Megabits-per-second (Mbps) throughputs in offline files where no receiver clock telemetry is present, or assert ungrounded physical-layer causal inferences (e.g., attributing a continuity counter error to "rain fade" or "transponder failure" without demodulator signal-to-noise ratio measurements).
+        </p>
+        <p class="ieee-p">
+            The technical objective of PRJ_111 is to formulate, implement, and validate a unified software system that ingests multi-format receiver output streams, executes deterministic framing analysis, extracts mathematically grounded common and format-specific features, detects anomalies via unsupervised statistical learning, explains deviations with bounded dispersion metrics, compares streams across a strict semantic barrier, and generates automated diagnostic reports without violating domain-safety constraints.
+        </p>
+
+        <!-- SECTION III -->
+        <h2 class="ieee-heading">III. Project Objectives</h2>
+        <p class="ieee-p">
+            The specific technical objectives of the PRJ_111 project are defined as follows:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>Multi-Format Stream Ingestion:</strong> Ingest raw binary receiver output captures and reliably detect stream format (MPEG-TS, GSE, DVB-S2 BBFrame) through content-aware byte inspection.</li>
+            <li><strong>Deterministic Stream Parsing:</strong> Implement parsers capable of extracting complete header syntax, verifying cyclic redundancy checks, detecting continuity counter discontinuities, tracking Transport Error Indicators, and resynchronizing after bit errors.</li>
+            <li><strong>Unified Feature Architecture:</strong> Formulate a structured feature set that separates invariant physical metrics (<code>CommonMetrics</code>) from format-specific metrics (<code>TSSpecificMetrics</code>, <code>GSESpecificMetrics</code>, <code>BBFrameSpecificMetrics</code>).</li>
+            <li><strong>Stream Health Evaluation (Feature F1):</strong> Implement deterministic integrity indicators inspired by ETSI TR 101 290 principles to compute objective stream health scores ([0.0, 100.0]) and categorical classifications (<code>HEALTHY</code>, <code>DEGRADED</code>, <code>CRITICAL</code>).</li>
+            <li><strong>AI-Based Anomaly Detection (Feature F2):</strong> Deploy format-isolated, unsupervised Isolation Forest machine learning models to detect structural, volume, and entropy anomalies across rolling spatial windows without relying on unavailable labeled training sets.</li>
+            <li><strong>Pattern &amp; Multiplex Detection (Feature F3):</strong> Quantify PID multiplex concentrations, Shannon entropy, PAT/PMT recurrence, GSE protocol distributions, and BBFrame transmission mode transitions (ACM/CCM, SIS/MIS).</li>
+            <li><strong>Spatial Timeline Visualization (Feature F4):</strong> Generate continuous spatial activity timelines indexed strictly by physical byte offsets and container sequence numbers, visualizing rolling health, anomaly scores, and payload density without fabricating clock timestamps.</li>
+            <li><strong>Diagnostic Anomaly Explanation (Feature F5):</strong> Formulate an explanatory model based on Bounded Z-Score Magnitude (|z| &le; 20.0) with explicit deviation directionality to attribute detected anomalies to specific feature variations.</li>
+            <li><strong>Semantic Stream Comparison Engine (Feature F6):</strong> Establish an automated differential engine that strictly enforces a cross-format semantic barrier (2 comparable metrics vs. 9 non-comparable metrics), employs direct-index window alignment (min(N<sub>A</sub>, N<sub>B</sub>)), and classifies metric differences into an objective four-tier significance hierarchy.</li>
+            <li><strong>Automatic Report Generation (Feature F7):</strong> Synthesize authoritative F1–F6 analytical results into exportable reports (JSON, Markdown, Plain Text, Standalone HTML5) categorized under a formal tripartite taxonomy (<em>Observed Fact</em>, <em>Statistical Finding</em>, <em>Engineering Interpretation</em>).</li>
+            <li><strong>Software Verification &amp; Regression Integrity:</strong> Validate the complete system through automated unit, integration, and regression testing with zero test failures.</li>
+        </ul>
+
+        <!-- SECTION IV -->
+        <h2 class="ieee-heading">IV. Related Work and Literature Review</h2>
+        <p class="ieee-p">
+            The technical foundation of PRJ_111 synthesizes international telecommunications standards, satellite protocol engineering, unsupervised anomaly detection, and empirical broadcast stream monitoring.
+        </p>
+        <h3 class="ieee-subheading">A. DVB-S2 and Framing Standards</h3>
+        <p class="ieee-p">
+            The DVB-S2 standard (ETSI EN 302 307-1) defines the framing and channel coding specification for satellite communications, introducing Adaptive Coding and Modulation (ACM) and Native Baseband Framing [1]. Morello and Mignone [7] detailed the physical-layer mechanisms of DVB-S2, demonstrating how variable-length user data packets are encapsulated into fixed-size baseband frames protected by inner LDPC and outer BCH codes. Casini et al. [14] analyzed modulation schemes ranging from QPSK to 32-APSK, establishing the operational roles of the 80-bit Baseband Header (BBHeader), Roll-Off factors (&alpha; &isin; {0.20, 0.25, 0.35}), and Data Field Length (DFL).
+        </p>
+        <p class="ieee-p">
+            For network layer transport, Fairhurst and Collini-Nocker [8] formulated the Generic Stream Encapsulation (GSE) protocol (ETSI TS 102 606), designed to replace Multi-Protocol Encapsulation (MPE over MPEG-TS) by reducing framing overhead [2], [16]. GSE defines variable-size protocol data units carrying native IP packets with optional label re-use and fragment-level CRC-32 protection. Meanwhile, digital television broadcast transmission continues to rely on the MPEG-2 Transport Stream standard (ISO/IEC 13818-1) [3]. Measurement guidelines for digital television broadcast systems are standardized in ETSI TR 101 290 [4], defining three priority levels of measurement parameters. Priority-1 parameters represent fundamental transmission integrity: TS synchronization loss, Transport Error Indicator (TEI) assertions, and Continuity Counter (CC) errors [4], [12].
+        </p>
+        <h3 class="ieee-subheading">B. Broadcast Stream Monitoring and Protocol Inspection</h3>
+        <p class="ieee-p">
+            Luisi et al. [12] evaluated digital video broadcast stream monitoring techniques, demonstrating that while hardware-based TS analyzers reliably measure ETSI TR 101 290 Priority-1 errors, they fail to support modern multi-protocol IP encapsulations (GSE and BBFrames) emitted by hybrid ground terminals. Generic network packet inspection tools, surveyed by Minoli [11], provide inspection of terrestrial Ethernet stacks but treat raw post-demodulator digital bitstreams as unstructured payloads unless wrapped in network capture headers (such as PCAP). PRJ_111 builds directly upon these observations by providing native, modular parsers for MPEG-TS, GSE, and BBFrames directly from raw receiver bitstreams.
+        </p>
+        <h3 class="ieee-subheading">C. Unsupervised Anomaly Detection in Communication Streams</h3>
+        <p class="ieee-p">
+            Anomaly detection in streaming telemetry has been surveyed by Chandola et al. [9] and Pimentel et al. [10]. Traditional statistical process control (SPC) relies on fixed thresholding, which presents difficulties in multiplexed broadcast channels where packet rates vary dynamically with video complexity and statistical multiplexing. Supervised classification approaches require extensive collections of ground-truth labeled anomaly datasets [9], [13]. In operational DVB-S2 receiver output monitoring, labeled anomalous bitstreams are rarely available; receiver streams reflect proprietary transmissions, encrypted carrier feeds, or transient operational errors.
+        </p>
+        <p class="ieee-p">
+            To address unlabeled streaming data, Liu et al. [5], [6] introduced the <strong>Isolation Forest</strong> algorithm. Isolation Forest isolates anomalies explicitly rather than profiling normal data points, constructing ensembles of random isolation trees (iTrees). Because anomalies possess distinct feature attributes, they are isolated closer to the root of the tree, resulting in shorter average path lengths [5]. Baggio et al. [13] evaluated unsupervised machine learning models for network traffic anomaly detection, demonstrating that Isolation Forest achieves computational efficiency (O(n log n) training complexity) and robust outlier detection in streaming feature spaces compared to distance-based models (k-NN) or density-based clustering (k-means) [19], [20]. PRJ_111 adapts the Isolation Forest baseline to DVB-S2 stream telemetry, executing window-partitioned, format-isolated anomaly detection with calibrated decision boundaries.
+        </p>
+
+        <!-- SECTION V -->
+        <h2 class="ieee-heading">V. Proposed System Architecture</h2>
+        <p class="ieee-p">
+            The overall architecture of the PRJ_111 DVB-S2 Receiver Output Stream Analyzer is illustrated in Fig. 1. The system is architected as a six-stage pipeline that ingests raw post-demodulator digital receiver output, processes framing syntax, extracts unified features, executes analytical engines (F1–F3), generates spatial timeline telemetry (F4), diagnoses deviations (F5), evaluates dual-stream differentials (F6), and outputs structured diagnostic reports (F7) via an engineering workstation interface.
+        </p>
+
+        <!-- Figure 1: Full-Width Architecture Diagram -->
+        <div class="figure-full">
+            <img class="figure-img" src="__ASSET_ARCH__" alt="PRJ_111 Architecture Diagram" style="max-height: 480px;">
+            <div class="figure-caption">
+                <strong>Fig. 1.</strong> End-to-End Architectural Pipeline of the PRJ_111 DVB-S2 Receiver Output Stream Analyzer. The six-stage workflow transitions from raw physical receiver output ingestion and content-aware format detection (Stages 1–2), through unified invariant feature extraction (Stage 3), core analytical intelligence engines F1–F3 (Stage 4), spatial timeline and diagnostic attribution F4–F5 (Stage 5), to differential stream comparison F6, automated reporting F7, and the browser workstation interface (Stage 6).
+            </div>
+        </div>
+
+        <!-- SECTION VI -->
+        <h2 class="ieee-heading">VI. Format-Specific Processing</h2>
+        <p class="ieee-p">
+            The ingestion and parsing layer operates directly on raw binary stream captures, providing modular decoders tailored to each standard.
+        </p>
+        <h3 class="ieee-subheading">A. MPEG-2 Transport Stream (MPEG-TS) Processing</h3>
+        <p class="ieee-p">
+            The MPEG-TS parser processes continuous 188-byte containers specified in ISO/IEC 13818-1 [3]. Each packet header is decoded as:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>Sync Byte:</strong> Must equal <code>0x47</code> (01000111 binary). If the parser encounters a non-<code>0x47</code> byte, it increments <code>sync_byte_errors</code> and scans forward byte-by-byte for the next valid synchronization byte.</li>
+            <li><strong>Transport Error Indicator (TEI):</strong> Bit 7 of byte 1. Set to 1 in the packet header to indicate that an uncorrected error exists within the packet container.</li>
+            <li><strong>Payload Unit Start Indicator (PUSI):</strong> Bit 6 of byte 1. Indicates that the packet payload begins with a Program Association Table (PAT), Program Map Table (PMT), or Packetized Elementary Stream (PES) header.</li>
+            <li><strong>Transport Priority:</strong> Bit 5 of byte 1.</li>
+            <li><strong>Program Identifier (PID):</strong> 13-bit value ([0, 8191]) defining the logical elementary stream multiplex. Null packets are identified by PID = 8191 (<code>0x1FFF</code>).</li>
+            <li><strong>Transport Scrambling Control (TSC):</strong> Bits 7–6 of byte 3.</li>
+            <li><strong>Adaptation Field Control (AFC):</strong> Bits 5–4 of byte 3, indicating payload-only (<code>01</code>), adaptation-field-only (<code>10</code>), or adaptation-field followed by payload (<code>11</code>).</li>
+            <li><strong>Continuity Counter (CC):</strong> 4-bit cyclic counter ([0, 15]) incremented per PID. Discontinuities (CC<sub>curr</sub> &ne; (CC<sub>prev</sub> + 1) mod 16) indicate an observed sequence discontinuity for the corresponding PID.</li>
+        </ul>
+
+        <h3 class="ieee-subheading">B. Generic Stream Encapsulation (GSE) Processing</h3>
+        <p class="ieee-p">
+            The GSE parser decodes variable-size protocol data units adhering to ETSI TS 102 606 [2]:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>Start/End Flags (S, E):</strong> 2 bits defining PDU fragmentation. S=1, E=1 indicates an unfragmented PDU; S=1, E=0 indicates the first fragment; S=0, E=0 intermediate fragments; S=0, E=1 the last fragment.</li>
+            <li><strong>GSE Length:</strong> 12-bit field specifying total PDU length in bytes ([1, 4095]).</li>
+            <li><strong>Protocol Type:</strong> 16-bit EtherType identifier (e.g., <code>0x0800</code> for IPv4, <code>0x86DD</code> for IPv6) or GSE extension header type (<code>GSE_EXT_NPA</code>).</li>
+            <li><strong>Label Type:</strong> 2 bits specifying 6-byte (<code>LABEL_6B</code>), 3-byte (<code>LABEL_3B</code>), or label-less (<code>LABEL_NONE</code>) addressing.</li>
+            <li><strong>Fragment ID &amp; Total Length:</strong> Present in fragmented PDUs to facilitate payload reassembly.</li>
+            <li><strong>CRC-32 Verification:</strong> 32-bit CRC polynomial calculated over the PDU payload and headers for complete PDUs and last fragments.</li>
+        </ul>
+
+        <h3 class="ieee-subheading">C. DVB-S2 Baseband Frame (BBFrame) Processing</h3>
+        <p class="ieee-p">
+            The BBFrame parser decodes native satellite baseband frames specified in ETSI EN 302 307 [1]. Each frame contains an 80-bit (10-byte) BBHeader followed by the data field:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>MATYPE-1 (Mode Adaptation Type 1):</strong> Bit 7–6 indicates Single Input Stream (SIS) or Multiple Input Streams (MIS); Bit 5 indicates Constant Coding &amp; Modulation (CCM) or Adaptive Coding &amp; Modulation (ACM); Bit 4 indicates ISSYI; Bit 3 indicates Null Packet Deletion; Bits 1–0 specify Roll-Off factor &alpha; = 0.35 (<code>00</code>), 0.25 (<code>01</code>), or 0.20 (<code>10</code>).</li>
+            <li><strong>MATYPE-2:</strong> Input Stream Identifier (ISI) when MIS is active.</li>
+            <li><strong>User Packet Length (UPL):</strong> 16-bit integer defining user packet dimension.</li>
+            <li><strong>Data Field Length (DFL):</strong> 16-bit integer defining the active payload bits in the frame ([0, K<sub>bch</sub>]). <strong>DFL is expressed in bits</strong>, representing the usable user data field within the physical baseband frame.</li>
+            <li><strong>SYNC:</strong> 8-bit copy of user packet synchronization marker.</li>
+            <li><strong>SYNCD:</strong> 16-bit distance in bits from the start of the DATA FIELD to the first user packet.</li>
+            <li><strong>CRC-8:</strong> 8-bit error detection code computed over the preceding 72 bits using polynomial G(x) = x<sup>8</sup> + x<sup>7</sup> + x<sup>6</sup> + x<sup>4</sup> + x<sup>2</sup> + 1. Frames failing CRC-8 validation are flagged as corrupted.</li>
+        </ul>
+
+        <!-- SECTION VII -->
+        <h2 class="ieee-heading">VII. Unified Feature Extraction</h2>
+        <p class="ieee-p">
+            To perform analysis across disparate formats without creating invalid semantic conflations, PRJ_111 establishes the <code>UnifiedStreamFeatureSet</code> architecture. Telemetry is bifurcated into physical invariants and native format-specific metrics:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>CommonMetrics (Physical Invariants):</strong> <code>total_units</code>, <code>valid_units</code>, <code>invalid_units</code>, <code>integrity_ratio</code> ([0.0, 1.0]), <code>total_payload_bytes</code>, <code>mean_payload_bytes</code>, <code>payload_ratio</code>, <code>error_count</code>, <code>error_rate</code>, and <code>entropy</code>.</li>
+            <li><strong>TSSpecificMetrics (Format-Isolated):</strong> <code>pid_counts</code>, <code>sync_byte_errors</code>, <code>tei_errors</code>, <code>cc_errors</code>, <code>pcr_pid_count</code>, and <code>null_packet_count</code>.</li>
+            <li><strong>GSESpecificMetrics (Format-Isolated):</strong> <code>protocol_counts</code>, <code>fragmented_pdus</code>, <code>unfragmented_pdus</code>, and <code>crc32_failures</code>.</li>
+            <li><strong>BBFrameSpecificMetrics (Format-Isolated):</strong> <code>coding_modulation_modes</code>, <code>stream_input_modes</code>, and <code>roll_off_factors</code>.</li>
+        </ul>
+        <p class="ieee-p">
+            Where a metric is inapplicable to a given format (e.g., <code>pcr_pid_count</code> on GSE or <code>crc32_failures</code> on MPEG-TS), the feature vector assigns <code>None</code> or an isolated zero rather than manufacturing fictitious values.
+        </p>
+
+        <!-- SECTION VIII -->
+        <h2 class="ieee-heading">VIII. Feature F1: Stream Health Analysis</h2>
+        <p class="ieee-p">
+            Feature F1 executes deterministic stream health analysis. PRJ_111 evaluates <strong>selected stream integrity indicators inspired by ETSI TR 101 290 principles</strong> [4].
+        </p>
+        <h3 class="ieee-subheading">A. Evaluated Integrity Indicators</h3>
+        <p class="ieee-p">
+            For MPEG-TS captures, F1 evaluates three fundamental Priority-1 integrity indicators:
+        </p>
+        <p class="ieee-p">
+            1) <em>Sync Byte (0x47) Integrity:</em> Evaluates synchronization loss events. A pass condition requires periodic alignment on byte <code>0x47</code> with &ge; 99.0% validity across yielded packets.
+        </p>
+        <p class="ieee-p">
+            2) <em>Transport Error Indicator (TEI):</em> Monitors bit 7 of the packet header. Assertion of TEI = 1 indicates that the packet header has been marked as containing transmission errors.
+        </p>
+        <p class="ieee-p">
+            3) <em>Continuity Counter (CC):</em> Tracks sequential packet counter monotonic progression per active PID. Discontinuities in sequence indicate an observed packet sequence gap for the corresponding PID.
+        </p>
+        <p class="ieee-p">
+            For GSE, F1 evaluates PDU header syntax, start/end flag consistency, and CRC-32 integrity. For BBFrame, F1 evaluates BBHeader 72-bit CRC-8 verification and Data Field Length (DFL &le; K<sub>bch</sub>) bounds.
+        </p>
+        <h3 class="ieee-subheading">B. Deductive Rule-Based Health Scoring</h3>
+        <p class="ieee-p">
+            Rather than employing arbitrary penalty weight sums, PRJ_111 implements the transparent threshold-driven deductive scoring model encoded in <code>analysis/health.py</code>. Each evaluated spatial window W<sub>i</sub> starts from an initial healthy score of 100.0%:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>Sync Integrity (ETSI TR 101 290 P1.1):</strong> Critical (&lt; 95.00%): Deducts 40.0%; Warning (&lt; 99.99%): Deducts 20.0%.</li>
+            <li><strong>Transport Error Indicator (ETSI TR 101 290 P1.3):</strong> Critical (&gt; 1.00% error rate): Deducts 30.0%; Warning (&gt; 0.00% error rate): Deducts 15.0%.</li>
+            <li><strong>Continuity Counter Errors (ETSI TR 101 290 P1.4):</strong> Critical (&gt; 0.50% error rate): Deducts 30.0%; Warning (&gt; 0.01% error rate): Deducts 15.0%.</li>
+            <li><strong>Null Packet Ratio (Transponder Load):</strong> Idle Transponder Beacon (&gt; 99.90% null packets): Deducts 10.0%; High Padding Ratio (&gt; 95.00% null packets): Deducts 5.0%.</li>
+            <li><strong>Header Malformations:</strong> Critical (&gt; 10 malformed headers): Deducts 20.0%; Warning (&gt; 1 malformed header): Deducts 10.0%.</li>
+        </ul>
+        <p class="ieee-p">
+            The overall stream health score H is computed as the arithmetic mean of individual window health scores across all N evaluated windows:
+        </p>
+        <div class="math-display">
+            H = (1 / N) &sum;<sub>i=1</sub><sup>N</sup> H(W<sub>i</sub>)
+            <span class="eq-num">(1)</span>
+        </div>
+        <p class="ieee-p">
+            Streams are categorized into operational states:
+        </p>
+        <ul class="ieee-list">
+            <li><strong><code>HEALTHY</code>:</strong> H &ge; 99.0%</li>
+            <li><strong><code>DEGRADED</code> / <code>WARNING</code>:</strong> 80.0% &le; H &lt; 99.0%</li>
+            <li><strong><code>CRITICAL</code>:</strong> H &lt; 80.0%</li>
+        </ul>
+
+        <!-- SECTION IX -->
+        <h2 class="ieee-heading">IX. Feature F2: AI-Based Anomaly Detection</h2>
+        <p class="ieee-p">
+            Feature F2 implements unsupervised anomaly detection across rolling spatial windows using the <strong>Isolation Forest</strong> algorithm [5] through Scikit-learn.
+        </p>
+        <h3 class="ieee-subheading">A. Mathematical Formulation and Implementation</h3>
+        <p class="ieee-p">
+            Given a spatial window W<sub>i</sub> containing K units (where K=200 for TS, K=3 for GSE, and K=50 for BBFrame), an m-dimensional feature vector <strong>x</strong><sub>i</sub> &isin; &Ropf;<sup>m</sup> is extracted, capturing payload volume, integrity ratio, error rate, entropy, unit size variance, and format-specific telemetry.
+        </p>
+        <p class="ieee-p">
+            The anomaly detector instantiates an ensemble of T = 100 isolation trees (<code>n_estimators=100</code>, <code>contamination=0.05</code>, <code>random_state=42</code>). The raw decision output d(<strong>x</strong>) &isin; &Ropf; is computed using Scikit-learn's <code>decision_function</code>, where negative values designate outliers and positive values designate inliers. To map this output to a normalized, intuitive anomaly score s(<strong>x</strong>) &isin; [0.0, 1.0], PRJ_111 applies a centered logistic sigmoid transformation:
+        </p>
+        <div class="math-display">
+            s(<strong>x</strong>) = 1 / ( 1 + e<sup>8.0 &middot; d(<strong>x</strong>)</sup> )
+            <span class="eq-num">(2)</span>
+        </div>
+        <p class="ieee-p">
+            At the nominal decision boundary (d(<strong>x</strong>) = 0.0), the score evaluates to exactly s = 0.5000. Outliers (d(<strong>x</strong>) &lt; 0) map to s &gt; 0.5000, while regular inliers (d(<strong>x</strong>) &gt; 0) map to s &lt; 0.5000. Anomaly classification is determined by the decision threshold:
+        </p>
+        <div class="math-display">
+            Anomaly Flag = <strong>TRUE</strong> &hArr; s(<strong>x</strong><sub>i</sub>) &ge; 0.5000
+            <span class="eq-num">(3)</span>
+        </div>
+
+        <h3 class="ieee-subheading">B. Epistemic Boundary on Supervised Metrics</h3>
+        <p class="ieee-p">
+            <strong>Domain Rule:</strong> Because operational satellite receiver output bitstreams are inherently unlabeled, <strong>no ground-truth anomaly annotations exist</strong> for off-air broadcast captures. Therefore, PRJ_111 <strong>avoids asserting classification accuracy, precision, recall, or F1-score</strong> on real broadcast data. Model sensitivity is validated through controlled synthetic perturbation experiments, wherein known corruptions (bit flips, synthetic sync byte drops, and container truncations) are injected into verified captures to demonstrate that the detector flags abnormal intervals with s &ge; 0.5000.
+        </p>
+
+        <!-- SECTION X -->
+        <h2 class="ieee-heading">X. Feature F3: Pattern Detection</h2>
+        <p class="ieee-p">
+            Feature F3 identifies structural patterns and multiplex characteristics across stream progress:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>MPEG-TS PID Distribution:</strong> Computes individual packet counts and percentage shares per PID. The dominant PID and Shannon entropy are evaluated:
+                <div class="math-display">
+                    H<sub>PID</sub> = - &sum;<sub>k=1</sub><sup>P</sup> p<sub>k</sub> log<sub>2</sub> p<sub>k</sub>, &nbsp;&nbsp; p<sub>k</sub> = N<sub>k</sub> / &sum;<sub>j</sub> N<sub>j</sub>
+                    <span class="eq-num">(4)</span>
+                </div>
+            </li>
+            <li><strong>PAT/PMT Program Structure:</strong> Identifies Program Association Tables (PID = 0) and Program Map Tables, tracking program multiplex recurrence.</li>
+            <li><strong>GSE Protocol Mapping:</strong> Classifies encapsulated protocol types (<code>GSE_EXT_NPA</code>, IPv4, IPv6) and quantifies fragmentation ratios (N<sub>frag</sub> / N<sub>total</sub>).</li>
+            <li><strong>BBFrame Mode Transitions:</strong> Tracks shifts in modulation profiles (ACM vs. CCM), Single vs. Multiple Input Stream allocations, and DFL distribution clustering.</li>
+        </ul>
+
+        <!-- SECTION XI -->
+        <h2 class="ieee-heading">XI. Feature F4: Spatial Activity Timeline</h2>
+        <p class="ieee-p">
+            Feature F4 provides continuous visual mapping of stream activity across spatial progress.
+        </p>
+        <h3 class="ieee-subheading">Absence of Fabricated Timestamps</h3>
+        <p class="ieee-p">
+            <strong>Epistemic Rule:</strong> Offline receiver bitstreams captured from demodulator test points lack calibrated broadcast wall-clock telemetry. Assigning synthetic timestamps or calculating fictitious throughput rates (e.g., "15.4 Mbps") creates false precision. PRJ_111 indexes all timeline events strictly by:
+        </p>
+        <ol class="ieee-list">
+            <li><strong>Physical Byte Offset:</strong> [B<sub>start</sub>, B<sub>end</sub>] indicating exact octet positions in the capture file.</li>
+            <li><strong>Container Sequence Index:</strong> Unit indices [U<sub>start</sub>, U<sub>end</sub>] tracking sequential packet, PDU, or frame numbers.</li>
+        </ol>
+        <p class="ieee-p">
+            The timeline visualizes rolling F1 stream health ([0, 100%]), F2 anomaly scores ([0.0, 1.0]) alongside the 0.5000 threshold line, payload density (KB per window), and format-specific telemetry (PID entropy or PDU length).
+        </p>
+
+        <!-- SECTION XII -->
+        <h2 class="ieee-heading">XII. Feature F5: Diagnostic Anomaly Explanation</h2>
+        <p class="ieee-p">
+            Feature F5 bridges unsupervised machine learning and domain engineering by attributing flagged anomalies to specific metric deviations.
+        </p>
+        <h3 class="ieee-subheading">A. Bounded Z-Score Deviation Formulation</h3>
+        <p class="ieee-p">
+            For each feature j in anomalous window W<sub>i</sub>, deviation from the stream baseline is evaluated using an operational dispersion model:
+        </p>
+        <div class="math-display">
+            z<sub>i, j</sub> = ( x<sub>i, j</sub> - &mu;<sub>j</sub> ) / max( &sigma;<sub>j</sub>, &epsilon;<sub>j</sub> )
+            <span class="eq-num">(5)</span>
+        </div>
+        <p class="ieee-p">
+            where &mu;<sub>j</sub> is the stream mean for feature j, &sigma;<sub>j</sub> is standard deviation, and &epsilon;<sub>j</sub> is an operational dispersion floor preventing division-by-zero on invariant channels.
+        </p>
+        <p class="ieee-p">
+            To eliminate unbounded numerical artifacts while maintaining mathematical interpretability, PRJ_111 bounds the Z-score:
+        </p>
+        <div class="math-display">
+            z<sub>bounded</sub> = clamp( z<sub>i, j</sub>, &nbsp; -20.0, &nbsp; +20.0 )
+            <span class="eq-num">(6)</span>
+        </div>
+        <p class="ieee-p">
+            The magnitude |z<sub>bounded</sub>| is accompanied by an explicit deviation direction: <code>ABOVE_BASELINE</code> (z &gt; 0) or <code>BELOW_BASELINE</code> (z &lt; 0).
+        </p>
+        <h3 class="ieee-subheading">B. Physical-Layer Domain Safety Guard</h3>
+        <p class="ieee-p">
+            <strong>Epistemic Boundary:</strong> PRJ_111 operates strictly on digital post-demodulator bitstreams. Without access to baseband constellation measurements or RF tuner AGC levels, the application <strong>avoids asserting physical-layer root causes</strong>. F5 diagnoses are constrained to digital observations (e.g., "Elevated adaptation field frequency" or "Recording termination boundary"), avoiding speculative claims such as "rain fade," "LNB drift," or "transponder power drop."
+        </p>
+
+        <!-- SECTION XIII -->
+        <h2 class="ieee-heading">XIII. Feature F6: Stream Comparison Engine</h2>
+        <p class="ieee-p">
+            Feature F6 provides differential comparison between two analyzed streams (<strong>Stream A</strong> and <strong>Stream B</strong>).
+        </p>
+        <h3 class="ieee-subheading">A. The Cross-Format Semantic Barrier</h3>
+        <p class="ieee-p">
+            A key element of PRJ_111 is the <strong>Cross-Format Semantic Barrier</strong>. Metrics sharing identical nomenclature inside <code>CommonMetrics</code> are <strong>not</strong> assumed to be comparable across formats. As detailed in Table VI, physical equivalence is enforced:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>Comparable Metrics (2):</strong> <code>total_payload_bytes</code> (an octet of user data represents an invariant physical quantity) and <code>integrity_ratio</code> (dimensionless syntactic compliance proportion [0.0, 1.0]).</li>
+            <li><strong>Non-Comparable Metrics (9):</strong> <code>total_units</code>, <code>valid_units</code>, <code>invalid_units</code>, <code>truncated_units</code>, <code>mean_payload_bytes</code>, <code>payload_ratio</code>, <code>error_count</code>, <code>error_rate</code>, and <code>entropy</code> are blocked cross-format with explicit engineering justifications.</li>
+        </ul>
+        <h3 class="ieee-subheading">B. Difference Quantification and Zero-Baseline Handling</h3>
+        <p class="ieee-p">
+            For comparable metrics, differences are quantified without mathematical singularities:
+        </p>
+        <div class="math-display">
+            &Delta;<sub>abs</sub> = B - A, &nbsp;&nbsp;&nbsp;
+            &Delta;<sub>rel</sub> = [ (B - A) / A ] &times; 100% &nbsp; (if A &gt; 0)
+            <span class="eq-num">(7)</span>
+        </div>
+        <p class="ieee-p">
+            When A = 0 and B &gt; 0 (e.g., non-zero error emergence from an error-free baseline), &Delta;<sub>rel</sub> is classified as <em>Undefined (Critical)</em>. Differences are categorized into a four-tier significance hierarchy:
+        </p>
+        <ul class="ieee-list">
+            <li><strong><code>NEGLIGIBLE</code>:</strong> |&Delta;<sub>rel</sub>| &lt; 2.0%</li>
+            <li><strong><code>MINOR</code>:</strong> 2.0% &le; |&Delta;<sub>rel</sub>| &lt; 10.0%</li>
+            <li><strong><code>SUBSTANTIAL</code>:</strong> 10.0% &le; |&Delta;<sub>rel</sub>| &lt; 50.0%</li>
+            <li><strong><code>CRITICAL</code>:</strong> |&Delta;<sub>rel</sub>| &ge; 50.0% (or error emergence from zero baseline)</li>
+        </ul>
+        <h3 class="ieee-subheading">C. Direct-Index Window Alignment</h3>
+        <p class="ieee-p">
+            Windows are synchronized via direct-index overlap: i &isin; [0, min(N<sub>A</sub>, N<sub>B</sub>) - 1]. Trailing windows in asymmetric captures are recorded under <code>unaligned_windows</code> as capture duration differences, not transmission loss.
+        </p>
+
+        <!-- SECTION XIV -->
+        <h2 class="ieee-heading">XIV. Feature F7: Automatic Report Generation</h2>
+        <p class="ieee-p">
+            Feature F7 synthesizes F1–F6 outputs into multi-format executive reports (JSON, Markdown, CP-1252-safe Plain Text, and Standalone HTML5).
+        </p>
+        <h3 class="ieee-subheading">Tripartite Findings Taxonomy</h3>
+        <p class="ieee-p">
+            All findings generated by F7 are categorized under a strict epistemological taxonomy:
+        </p>
+        <ol class="ieee-list">
+            <li><strong><code>OBSERVED_FACT</code>:</strong> Direct, deterministic physical measurements directly verifiable in stream syntax (e.g., <code>total_units = 18176</code>, <code>sync_byte_errors = 0</code>).</li>
+            <li><strong><code>STATISTICAL_FINDING</code>:</strong> Quantities derived through statistical or machine learning models (e.g., <code>health_score = 100.0</code>, <code>anomalous_windows = 5</code>, <code>peak_anomaly_score = 0.8576</code>).</li>
+            <li><strong><code>ENGINEERING_INTERPRETATION</code>:</strong> Domain-bounded diagnostic attributions constrained strictly to digital bitstream characteristics (e.g., "Capture termination boundary accounts for partial trailing window").</li>
+        </ol>
+
+        <!-- SECTION XV -->
+        <h2 class="ieee-heading">XV. Implementation</h2>
+        <p class="ieee-p">
+            PRJ_111 is implemented in Python 3.12 as a standalone local engineering workstation with no external cloud or proprietary licensing dependencies:
+        </p>
+        <ul class="ieee-list">
+            <li><strong>Backend Core:</strong> Pure Python modular architecture (<code>dvbs2_analyzer/ingestion/</code>, <code>parsers/</code>, <code>features/</code>, <code>analysis/</code>).</li>
+            <li><strong>Machine Learning Layer:</strong> Scikit-learn (<code>IsolationForest</code>) with NumPy for vector operations.</li>
+            <li><strong>HTTP Gateway:</strong> Multi-threaded native Python HTTP server (<code>ThreadingHTTPServer</code>) exposing a RESTful JSON API (<code>/api/status</code>, <code>/api/analyze</code>, <code>/api/compare</code>, <code>/api/upload</code>, <code>/api/export</code>).</li>
+            <li><strong>Frontend Workstation:</strong> Single-Page Application (SPA) built with vanilla HTML5, CSS3, and ES6 JavaScript. Visualizations are rendered offline using vendored Chart.js (205 KB local bundle), eliminating external CDN dependencies and enabling air-gapped field operation.</li>
+            <li><strong>Local Staging Security:</strong> Direct browser file uploads are staged locally under <code>05_CODE/uploads/</code> with alphanumeric token sanitization and directory traversal prevention (<code>os.path.commonpath</code>).</li>
+        </ul>
+
+        <!-- SECTION XVI -->
+        <h2 class="ieee-heading">XVI. Experimental Datasets</h2>
+        <p class="ieee-p">
+            The system was evaluated against authoritative satellite captures stored in <code>01_RAW_DATA/</code>:
+        </p>
+        <ol class="ieee-list">
+            <li><strong>MPEG-TS Clean Capture (<code>01_RAW_DATA/03_TS/DVBS2_toolkit/sample.ts</code>):</strong> 3,417,088 bytes of off-air DVB-S2 satellite television broadcast, captured via DVBS2_toolkit, containing 18,176 fixed 188-byte packets.</li>
+            <li><strong>MPEG-TS Corrupted Capture (<code>01_RAW_DATA/03_TS/DVBS2_toolkit/corrupted_sample.ts</code>):</strong> 3,417,088 bytes containing 11 corrupted synchronization bytes in the initial segment.</li>
+            <li><strong>GSE Authoritative Capture (<code>01_RAW_DATA/02_GSE/GSExtract/sample.ts</code>):</strong> 9,324 bytes containing 14 variable-length GSE PDUs carrying encapsulated IPv4 datagrams, captured via GSExtract.</li>
+            <li><strong>DVB-S2 Baseband Frame Capture (<code>01_RAW_DATA/01_BBFRAME_GSE/dvb-s2_bb_example.pcap</code>):</strong> 2,349,376 bytes containing 4,309 DVB-S2 Baseband Frames with ACM and SIS/MIS configuration.</li>
+        </ol>
+
+        <!-- SECTION XVII -->
+        <h2 class="ieee-heading">XVII. Experimental Results and Discussion</h2>
+        <p class="ieee-p">
+            Empirical results across the authoritative captures are documented in Tables I through VI.
+        </p>
+
+        <!-- TABLE I (Full-Width) -->
+        <div class="table-container-full">
+            <div class="table-caption">
+                Table I<br>
+                <span class="table-caption-sub">Supported Input Format Characteristics</span>
+            </div>
+            <table class="ieee-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Format Identifier</th>
+                        <th>Framing Structure</th>
+                        <th>Header Size</th>
+                        <th>Typical Container Dimension</th>
+                        <th>Checksum Algorithm</th>
+                        <th style="text-align:left;">Primary Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:left;"><strong>MPEG-TS</strong></td>
+                        <td>Fixed Packet</td>
+                        <td>4 Bytes (32 bits)</td>
+                        <td>Fixed 188 Bytes</td>
+                        <td>Continuity Counter (4b)</td>
+                        <td style="text-align:left;">Linear Broadcast TV</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><strong>GSE</strong></td>
+                        <td>Variable PDU</td>
+                        <td>2–8 Bytes</td>
+                        <td>45–1,444 Bytes (Variable)</td>
+                        <td>CRC-32 (32 bits)</td>
+                        <td style="text-align:left;">Satellite IP Broadband</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><strong>BBFrame</strong></td>
+                        <td>Fixed Frame</td>
+                        <td>10 Bytes (80 bits)</td>
+                        <td>216–10,000 Bits (DFL)</td>
+                        <td>CRC-8 (8 bits)</td>
+                        <td style="text-align:left;">Native Physical Layer</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TABLE II (Full-Width) -->
+        <div class="table-container-full">
+            <div class="table-caption">
+                Table II<br>
+                <span class="table-caption-sub">MPEG-TS Health and Priority-1 Integrity Results</span>
+            </div>
+            <table class="ieee-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Stream Capture</th>
+                        <th>Total Packets</th>
+                        <th>Sync Integrity</th>
+                        <th>TEI Errors</th>
+                        <th>CC Errors</th>
+                        <th>Extracted Payload</th>
+                        <th>Health Score</th>
+                        <th>Classification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:left;"><code>sample.ts</code> (Clean)</td>
+                        <td>18,176</td>
+                        <td>100.0% (18,176 / 18,176)</td>
+                        <td>0 (0.00%)</td>
+                        <td>0 (0.00%)</td>
+                        <td>3,267,305 B</td>
+                        <td>100.0%</td>
+                        <td><span class="badge-healthy">HEALTHY</span></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>corrupted_sample.ts</code></td>
+                        <td>18,168</td>
+                        <td>100.0% (18,168 / 18,168)</td>
+                        <td>4 (0.02%)</td>
+                        <td>0 (0.00%)</td>
+                        <td>3,265,277 B</td>
+                        <td>99.67%</td>
+                        <td><span class="badge-healthy">HEALTHY</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="table-footnote">
+                * Diagnostic Trace of Corrupted TS: TSParser encountered 11 corrupted sync bytes in the initial segment and resynchronized, dropping exactly 8 unaligned packets. The 18,168 yielded packets exhibited 100.0% sync byte integrity. Four packets suffered false sync alignment in payload data resulting in TEI = 4 in Window 0 (Window 0 health = 70.0%). Windows 1–90 exhibited 100.0% health, yielding an average stream health of 99.67%, satisfying the &ge; 99.0% threshold for HEALTHY.
+            </div>
+        </div>
+
+        <!-- TABLE III (Single-Column) -->
+        <div class="table-container-single">
+            <div class="table-caption">
+                Table III<br>
+                <span class="table-caption-sub">GSE Encapsulation &amp; Protocol Analysis Results</span>
+            </div>
+            <table class="ieee-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Metric Parameter</th>
+                        <th>Experimental Value</th>
+                        <th>Epistemic Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:left;">Total Ingested PDUs</td>
+                        <td>14 PDUs</td>
+                        <td><code>OBSERVED_FACT</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Valid Framing Compliance</td>
+                        <td>100.0% (14 / 14 PDUs)</td>
+                        <td><code>OBSERVED_FACT</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Total Payload Extracted</td>
+                        <td>8,764 Bytes</td>
+                        <td><code>OBSERVED_FACT</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Mean PDU Length</td>
+                        <td>626.0 B (Min: 45 B, Max: 1,444 B)</td>
+                        <td><code>STATISTICAL_FINDING</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Fragmentation Breakdown</td>
+                        <td>6 Unfragmented (42.9%), 8 Fragmented (57.1%)</td>
+                        <td><code>OBSERVED_FACT</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">First / Interm. / Last Frags</td>
+                        <td>5 First / 0 Intermediate / 3 Last</td>
+                        <td><code>OBSERVED_FACT</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Encapsulated Protocols</td>
+                        <td>GSE_EXT_NPA: 11 (100%), IPv4: 9</td>
+                        <td><code>OBSERVED_FACT</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Addressing Labels</td>
+                        <td>6-Byte: 11 PDUs, No Label: 3 PDUs</td>
+                        <td><code>OBSERVED_FACT</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">CRC-32 Verification</td>
+                        <td>100.0% Pass (0 Failures)</td>
+                        <td><code>OBSERVED_FACT</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">F1 Stream Health Score</td>
+                        <td>100.0% (<span class="badge-healthy">HEALTHY</span>)</td>
+                        <td><code>STATISTICAL_FINDING</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TABLE IV (Single-Column) -->
+        <div class="table-container-single">
+            <div class="table-caption">
+                Table IV<br>
+                <span class="table-caption-sub">DVB-S2 Baseband Frame Transmission Analysis</span>
+            </div>
+            <table class="ieee-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Parameter Dimension</th>
+                        <th>Observed Value</th>
+                        <th>Distribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:left;">Total Baseband Frames</td>
+                        <td>4,309 Frames</td>
+                        <td>100.0%</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">BBHeader CRC-8 Validity</td>
+                        <td>4,309 Passed / 0 Failed</td>
+                        <td>100.0% Valid</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Stream Input Mode</td>
+                        <td>SIS: 4,308 / MIS: 1</td>
+                        <td>99.98% SIS / 0.02% MIS</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Coding &amp; Modulation</td>
+                        <td>Adaptive Coding &amp; Mod. (ACM)</td>
+                        <td>100.0% (4,309 / 4,309)</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Transmission Profile</td>
+                        <td>GENERIC_CONTINUOUS</td>
+                        <td>100.0% (4,309 / 4,309)</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Roll-off Factor (&alpha;)</td>
+                        <td>&alpha; = 0.35</td>
+                        <td>100.0% (4,309 / 4,309)</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Total Data Field Payload</td>
+                        <td>1,958,826 Bytes</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Data Field Length (DFL)</td>
+                        <td>216 to 10,000 Bits</td>
+                        <td>Mean: 3,636.72 Bits</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;">Modal DFL</td>
+                        <td>2,992 Bits (3,698 frames)</td>
+                        <td>85.82% Modal Share</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TABLE V (Full-Width) -->
+        <div class="table-container-full">
+            <div class="table-caption">
+                Table V<br>
+                <span class="table-caption-sub">Unsupervised Isolation Forest Anomaly Detection Results</span>
+            </div>
+            <table class="ieee-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Stream Format &amp; Capture</th>
+                        <th>Window Dimension</th>
+                        <th>Total Windows</th>
+                        <th>Anomalous Windows</th>
+                        <th>Anomaly Proportion</th>
+                        <th>Peak Anomaly Score</th>
+                        <th>Anomalous Window Indices</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:left;"><strong>MPEG-TS</strong> (<code>sample.ts</code>)</td>
+                        <td>200 Packets</td>
+                        <td>91</td>
+                        <td>5</td>
+                        <td>5.49%</td>
+                        <td>0.8576 (Window 90)</td>
+                        <td><code>[1, 2, 12, 88, 90]</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><strong>GSE</strong> (<code>sample.ts</code>)</td>
+                        <td>3 PDUs</td>
+                        <td>5</td>
+                        <td>1</td>
+                        <td>20.00%</td>
+                        <td>0.5018 (Window 4)</td>
+                        <td><code>[4]</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><strong>BBFrame</strong> (<code>bb_example.pcap</code>)</td>
+                        <td>50 Frames</td>
+                        <td>87</td>
+                        <td>5</td>
+                        <td>5.75%</td>
+                        <td>0.7406 (Window 86)</td>
+                        <td><code>[0, 83, 84, 85, 86]</code></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="table-footnote">
+                * Analysis of Anomaly Distribution: In all three formats, an elevated anomaly score consistently occurs at the final window boundary (Window 90 in TS, Window 4 in GSE, Window 86 in BBFrame). This demonstrates the sensitivity of the Isolation Forest to container volume truncation caused by capture termination. Intermediate anomalies (e.g., TS Windows 1, 2, and 12) correspond to localized statistical multiplexing bursts where single PIDs concentrate up to 98.5% of window bandwidth.
+            </div>
+        </div>
+
+        <!-- TABLE VI (Full-Width) -->
+        <div class="table-container-full">
+            <div class="table-caption">
+                Table VI<br>
+                <span class="table-caption-sub">Cross-Format Stream Comparison Audit (TS vs. BBFrame)</span>
+            </div>
+            <table class="ieee-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Metric Identifier</th>
+                        <th>Semantic Status</th>
+                        <th>Stream A (MPEG-TS)</th>
+                        <th>Stream B (BBFrame)</th>
+                        <th>Absolute Delta (&Delta;<sub>abs</sub>)</th>
+                        <th>Relative Delta (&Delta;<sub>rel</sub>)</th>
+                        <th>Significance Classification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:left;"><code>total_payload_bytes</code></td>
+                        <td><span class="badge-comparable">COMPARABLE</span></td>
+                        <td>3,267,305 B</td>
+                        <td>1,958,826 B</td>
+                        <td>-1,308,479 B</td>
+                        <td>-40.05%</td>
+                        <td><strong>SUBSTANTIAL</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>integrity_ratio</code></td>
+                        <td><span class="badge-comparable">COMPARABLE</span></td>
+                        <td>1.0000</td>
+                        <td>1.0000</td>
+                        <td>0.0000</td>
+                        <td>0.00%</td>
+                        <td><strong>NEGLIGIBLE</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>total_units</code></td>
+                        <td><span class="badge-blocked">NOT_COMPARABLE</span></td>
+                        <td>18,176 pkts</td>
+                        <td>4,309 frames</td>
+                        <td>Blocked by Shield</td>
+                        <td>Blocked</td>
+                        <td><code>INCOMPATIBLE_DIMENSION</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>valid_units</code></td>
+                        <td><span class="badge-blocked">NOT_COMPARABLE</span></td>
+                        <td>18,176 pkts</td>
+                        <td>4,309 frames</td>
+                        <td>Blocked by Shield</td>
+                        <td>Blocked</td>
+                        <td><code>INCOMPATIBLE_DIMENSION</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>invalid_units</code></td>
+                        <td><span class="badge-blocked">NOT_COMPARABLE</span></td>
+                        <td>0 pkts</td>
+                        <td>0 frames</td>
+                        <td>Blocked by Shield</td>
+                        <td>Blocked</td>
+                        <td><code>INCOMPATIBLE_DIMENSION</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>mean_payload_bytes</code></td>
+                        <td><span class="badge-blocked">NOT_COMPARABLE</span></td>
+                        <td>179.76 B/pkt</td>
+                        <td>454.59 B/frame</td>
+                        <td>Blocked by Shield</td>
+                        <td>Blocked</td>
+                        <td><code>INCOMPATIBLE_CONTAINER</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>payload_ratio</code></td>
+                        <td><span class="badge-blocked">NOT_COMPARABLE</span></td>
+                        <td>1.0000</td>
+                        <td>1.0000</td>
+                        <td>Blocked by Shield</td>
+                        <td>Blocked</td>
+                        <td><code>DIVERGENT_FORMULATION</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>error_count</code></td>
+                        <td><span class="badge-blocked">NOT_COMPARABLE</span></td>
+                        <td>0 errors</td>
+                        <td>0 errors</td>
+                        <td>Blocked by Shield</td>
+                        <td>Blocked</td>
+                        <td><code>HETEROGENEOUS_FAILURES</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>error_rate</code></td>
+                        <td><span class="badge-blocked">NOT_COMPARABLE</span></td>
+                        <td>0.0000</td>
+                        <td>0.0000</td>
+                        <td>Blocked by Shield</td>
+                        <td>Blocked</td>
+                        <td><code>HETEROGENEOUS_FAILURES</code></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;"><code>entropy</code></td>
+                        <td><span class="badge-blocked">NOT_COMPARABLE</span></td>
+                        <td>0.1361 bits</td>
+                        <td>0.0000 bits</td>
+                        <td>Blocked by Shield</td>
+                        <td>Blocked</td>
+                        <td><code>DISTINCT_STATE_SPACES</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION XVIII -->
+        <h2 class="ieee-heading">XVIII. Frontend Application Workstation Demonstration</h2>
+        <p class="ieee-p">
+            The PRJ_111 user interface is engineered in the aesthetic of professional telecommunications workstations. Captured views of the live application are presented below.
+        </p>
+
+        <!-- Figures 2 & 3: Full Width UI Dashboards -->
+        <div class="figure-full">
+            <img class="figure-img" src="__ASSET_FIG2__" alt="Workstation Standby Dashboard">
+            <div class="figure-caption">
+                <strong>Fig. 2.</strong> PRJ_111 Stream Ingestion &amp; Analysis Controls Dashboard (Workstation Standby). The interface features a real browser file upload dropzone, authoritative sample preset selectors, format override controls, and the conceptual execution sequence checklist in initial standby state.
+            </div>
+        </div>
+
+        <div class="figure-full">
+            <img class="figure-img" src="__ASSET_FIG3__" alt="Active Stream Analyzed Dashboard">
+            <div class="figure-caption">
+                <strong>Fig. 3.</strong> PRJ_111 Stream Ingestion &amp; Analysis Dashboard (Active Stream Analyzed). Displaying live telemetry for <code>sample.ts</code>: 100.0% stream health, 100.00% framing integrity across 18,176 units, 5 flagged anomaly windows, and 3,337 KB container payload. The execution checklist verifies execution of F1–F5 and F7, while F6 correctly awaits comparison input.
+            </div>
+        </div>
+
+        <div class="figure-full">
+            <img class="figure-img" src="__ASSET_FIG4__" alt="Stream Comparison View">
+            <div class="figure-caption">
+                <strong>Fig. 4.</strong> PRJ_111 Stream Comparison Interface (Feature F6 Dual-Stream Evaluation). Comparing <code>sample.ts</code> against <code>corrupted_sample.ts</code>. The view highlights format equivalence (SAME FORMAT), direct-index alignment (91 windows), relative payload delta (-0.06%, NEGLIGIBLE), and the dynamic semantic audit table evaluating all metrics with exact engineering rationales.
+            </div>
+        </div>
+
+        <div class="figure-full">
+            <img class="figure-img" src="__ASSET_FIG5__" alt="Spatial Activity Timeline View">
+            <div class="figure-caption">
+                <strong>Fig. 5.</strong> PRJ_111 Spatial Activity Timeline &amp; Metric Trajectory (Feature F4). Synchronized multi-panel telemetry charting rolling stream health ([0, 100%]), Isolation Forest anomaly score alongside the calibrated decision threshold (s = 0.5000), window payload density (KB), and PID multiplex Shannon entropy without synthetic timestamp fabrication.
+            </div>
+        </div>
+
+        <div class="figure-full">
+            <img class="figure-img" src="__ASSET_FIG6__" alt="Flagged Anomaly Windows Table">
+            <div class="figure-caption">
+                <strong>Fig. 6.</strong> PRJ_111 Flagged Anomaly Windows &amp; Diagnostic Attribution (Features F2 + F5). Anomaly table presenting unit ranges, byte offsets, anomaly scores, and Bounded Z-Score diagnostic attributions identifying multiplex concentration and recording termination boundaries.
+            </div>
+        </div>
+
+        <div class="figure-full">
+            <img class="figure-img" src="__ASSET_FIG7__" alt="Automatic Report Generation View">
+            <div class="figure-caption">
+                <strong>Fig. 7.</strong> PRJ_111 Automatic Multi-Format Report Generation (Feature F7). Executive diagnostic report interface presenting findings categorized under the formal tripartite taxonomy (<em>Observed Fact</em>, <em>Statistical Finding</em>, <em>Engineering Interpretation</em>) alongside multi-format export buttons (JSON, Markdown, Plain Text, and Standalone HTML5).
+            </div>
+        </div>
+
+        <!-- SECTION XIX -->
+        <h2 class="ieee-heading">XIX. Software Verification and Regression Testing</h2>
+        <p class="ieee-p">
+            System stability and algorithmic correctness are verified through an automated test suite.
+        </p>
+        <p class="ieee-p">
+            <strong>Automated Test Suite Execution:</strong> Executed via the isolated project environment:
+        </p>
+        <pre class="code-block">python -m unittest discover -s tests -v</pre>
+        <p class="ieee-p">
+            <strong>Outcome:</strong> <strong>240 / 240 Tests Passing (100% Pass Rate)</strong> with <strong>0 Failures</strong> and <strong>0 Errors</strong> in 19.86s.
+        </p>
+        <p class="ieee-p">
+            <strong>Test Coverage Architecture:</strong>
+        </p>
+        <ul class="ieee-list">
+            <li><strong>Backend Analytical Suite (207 Tests):</strong> Validates deterministic framing parsers (<code>test_ts_parser.py</code>, <code>test_gse_parser.py</code>, <code>test_bbframe_parser.py</code>), feature extraction (<code>test_unified_features.py</code>), F1 stream health (<code>test_f1_health.py</code>), F2 anomaly detection (<code>test_anomaly.py</code>), F3 pattern detection (<code>test_patterns.py</code>), F4 timeline generation (<code>test_timeline.py</code>), F5 anomaly explanations (<code>test_explanation.py</code>), F6 stream comparison (<code>test_comparison.py</code>), and F7 report generation (<code>test_report.py</code>).</li>
+            <li><strong>Frontend Server &amp; Integration Suite (33 Tests):</strong> Validates threaded HTTP server lifecycle, static asset delivery, SVG/ICO favicon MIME types, binary file upload staging, directory traversal security guards, F6 state reset lifecycle, relative path multi-candidate resolution, content-aware GSE detection, corrupted TS diagnostic accounting, sequential stream replacement lifecycle, and semantically correct HTTP 400 invalid-file handling.</li>
+        </ul>
+        <p class="ieee-p">
+            <em>Note on Epistemic Integrity:</em> Passing 240/240 automated software tests constitutes rigorous <strong>software verification and regression integrity</strong>. It is explicitly <strong>not</strong> presented as machine learning classification accuracy.
+        </p>
+
+        <!-- SECTION XX -->
+        <h2 class="ieee-heading">XX. Limitations</h2>
+        <p class="ieee-p">
+            To maintain scientific integrity, the limitations of the current prototype are documented:
+        </p>
+        <ol class="ieee-list">
+            <li><strong>Unlabeled Real-World Datasets:</strong> Due to the absence of public, ground-truth-labeled DVB-S2 anomaly datasets, machine learning models are evaluated via unsupervised isolation and synthetic perturbation, rather than supervised benchmark metrics (ROC-AUC).</li>
+            <li><strong>Post-Demodulator Scope:</strong> The application operates exclusively on digital receiver output bitstreams. It cannot diagnose analog RF physical-layer conditions (e.g., signal-to-noise ratio, carrier frequency offset, or transponder compression).</li>
+            <li><strong>ETSI TR 101 290 Scope:</strong> Health analysis evaluates selected Priority-1 indicators inspired by ETSI TR 101 290 principles; it does not claim formal certification across all Priority-2 and Priority-3 measurement guidelines.</li>
+            <li><strong>Offline Spatial Windowing:</strong> Analysis is structured over discrete spatial unit windows rather than real-time continuous sliding windows.</li>
+            <li><strong>No Sequence Memory:</strong> The Isolation Forest treats each window independently; temporal sequence dependencies across successive windows are not modeled.</li>
+        </ol>
+
+        <!-- SECTION XXI -->
+        <h2 class="ieee-heading">XXI. Future Work</h2>
+        <p class="ieee-p">
+            Future research and development directions include:
+        </p>
+        <ol class="ieee-list">
+            <li><strong>Deep Sequential Models:</strong> Investigating bidirectional long short-term memory (Bi-LSTM) networks and temporal transformers to capture long-range sequential correlations across broadcast streams.</li>
+            <li><strong>Software-Defined Radio (SDR) Demodulation:</strong> Exploring integration with an upstream GNU Radio or gr-dvbs2 physical-layer front-end to capture simultaneous RF constellation metrics (EVM, MER, SNR) alongside digital framing telemetry.</li>
+            <li><strong>Hardware Acceleration:</strong> Exploring offloading of PDU and packet header parsing to FPGA or eBPF kernel bypass engines to support high-throughput transponder aggregation.</li>
+            <li><strong>Standardized Benchmark Dataset Publication:</strong> Curating and releasing an open, expert-annotated multi-format DVB-S2 anomaly dataset for the research community.</li>
+        </ol>
+
+        <!-- SECTION XXII -->
+        <h2 class="ieee-heading">XXII. Conclusion</h2>
+        <p class="ieee-p">
+            This paper has presented the architectural design, algorithmic foundation, and empirical verification of <strong>PRJ_111</strong>, a specialized software application for the analysis and processing of multi-format DVB-S2 receiver output streams. By implementing content-aware format detection and modular parsing across MPEG-TS, GSE, and DVB-S2 Baseband Frames, the system overcomes the structural fragmentation that limits single-format protocol analyzers.
+        </p>
+        <p class="ieee-p">
+            The seven-feature analytical pipeline achieves deterministic stream health evaluation (F1), unsupervised Isolation Forest anomaly detection (F2), structural pattern and entropy analysis (F3), physical spatial activity timelines (F4), bounded Z-score diagnostic anomaly explanations (F5), semantically guarded stream comparisons (F6), and automated tripartite diagnostic reporting (F7). Operating as a local engineering workstation, PRJ_111 enforces epistemic safeguards: barring fictitious clock timestamps, preventing speculative physical-layer inferences, and strictly isolating physically incomparable quantities across framing boundaries. Validated across authoritative satellite captures with 240/240 passing automated tests, PRJ_111 establishes a robust, extensible prototype for satellite ground station monitoring, telecommunications education, and broadcast stream verification.
+        </p>
+
+        <!-- ACKNOWLEDGMENT -->
+        <h2 class="ieee-heading">Acknowledgment</h2>
+        <p class="ieee-p">
+            The authors express their sincere gratitude to the <strong>Department of Computer Science and Engineering, Presidency University, Bengaluru</strong>, for providing the laboratory facilities, computing infrastructure, and academic environment necessary to conduct this research. The authors extend special thanks to our project guide, <strong>Irfan Rajab Bhat, Assistant Professor</strong>, for his guidance, insightful technical critiques, and continued support throughout the development and verification of this project.
+        </p>
+
+        <!-- REFERENCES -->
+        <h2 class="ieee-heading">References</h2>
+        <ul class="ref-list">
+            <li class="ref-item"><span class="ref-num">[1]</span> ETSI EN 302 307-1 V1.4.1, "Digital Video Broadcasting (DVB); Second generation framing structure, channel coding and modulation systems for Broadcasting, Interactive Services, News Gathering and other broadband satellite applications; Part 1: DVB-S2," European Telecommunications Standards Institute (ETSI), Sophia Antipolis, France, Nov. 2014.</li>
+            <li class="ref-item"><span class="ref-num">[2]</span> ETSI TS 102 606-1 V1.2.1, "Digital Video Broadcasting (DVB); Generic Stream Encapsulation (GSE); Part 1: Protocol," European Telecommunications Standards Institute (ETSI), Sophia Antipolis, France, Jul. 2014.</li>
+            <li class="ref-item"><span class="ref-num">[3]</span> ISO/IEC 13818-1:2022, "Information technology — Generic coding of moving pictures and associated audio information — Part 1: Systems (MPEG-2 Transport Stream)," International Organization for Standardization / International Electrotechnical Commission, Geneva, Switzerland, 2022.</li>
+            <li class="ref-item"><span class="ref-num">[4]</span> ETSI TR 101 290 V1.4.1, "Digital Video Broadcasting (DVB); Measurement guidelines for DVB systems," European Telecommunications Standards Institute (ETSI), Technical Report, Sophia Antipolis, France, Jun. 2020.</li>
+            <li class="ref-item"><span class="ref-num">[5]</span> F. T. Liu, K. M. Ting, and Z.-H. Zhou, "Isolation Forest," in <em>Proc. 8th IEEE International Conference on Data Mining (ICDM)</em>, Pisa, Italy, Dec. 2008, pp. 413–422.</li>
+            <li class="ref-item"><span class="ref-num">[6]</span> F. T. Liu, K. M. Ting, and Z.-H. Zhou, "Isolation-based anomaly detection," <em>ACM Transactions on Knowledge Discovery from Data (TKDD)</em>, vol. 6, no. 1, pp. 1–39, Mar. 2012.</li>
+            <li class="ref-item"><span class="ref-num">[7]</span> A. Morello and V. Mignone, "DVB-S2: The second generation standard for satellite broadband services," <em>Proceedings of the IEEE</em>, vol. 94, no. 1, pp. 210–227, Jan. 2006.</li>
+            <li class="ref-item"><span class="ref-num">[8]</span> G. Fairhurst and B. Collini-Nocker, "Generic Stream Encapsulation (GSE) for DVB-S2: Design and Evaluation," <em>International Journal of Satellite Communications and Networking</em>, vol. 28, no. 5–6, pp. 287–305, Sep. 2010.</li>
+            <li class="ref-item"><span class="ref-num">[9]</span> V. Chandola, A. Banerjee, and V. Kumar, "Anomaly detection: A survey," <em>ACM Computing Surveys (CSUR)</em>, vol. 41, no. 3, pp. 1–58, Jul. 2009.</li>
+            <li class="ref-item"><span class="ref-num">[10]</span> M. A. Pimentel, D. A. Clifton, L. Clifton, and L. Tarassenko, "A review of novelty detection," <em>Signal Processing</em>, vol. 99, pp. 215–249, Jun. 2014.</li>
+            <li class="ref-item"><span class="ref-num">[11]</span> D. Minoli, <em>Innovations in Satellite Communications and the Global Information Infrastructure</em>, Hoboken, NJ, USA: John Wiley &amp; Sons, 2015.</li>
+            <li class="ref-item"><span class="ref-num">[12]</span> P. L. Luisi, A. B. Sampaio, and C. A. C. Marcondes, "Empirical Evaluation of Digital Video Broadcasting Systems and Transport Stream Analysis," <em>IEEE Transactions on Broadcasting</em>, vol. 66, no. 2, pp. 431–444, Jun. 2020.</li>
+            <li class="ref-item"><span class="ref-num">[13]</span> R. S. Baggio, P. R. L. Gondim, and F. L. L. Mendonca, "Network Traffic Anomaly Detection Using Unsupervised Learning Models: A Comparative Study," <em>IEEE Access</em>, vol. 9, pp. 15982–15998, Jan. 2021.</li>
+            <li class="ref-item"><span class="ref-num">[14]</span> E. Casini, R. De Gaudenzi, and A. Ginesi, "DVB-S2 modern modulation and coding techniques for satellite broadcast and broadband transmissions," <em>IEEE Communications Magazine</em>, vol. 42, no. 11, pp. 146–156, Nov. 2004.</li>
+            <li class="ref-item"><span class="ref-num">[15]</span> B. Sklar, <em>Digital Communications: Fundamentals and Applications</em>, 2nd ed., Upper Saddle River, NJ, USA: Prentice Hall PTR, 2001.</li>
+            <li class="ref-item"><span class="ref-num">[16]</span> IETF RFC 4326, G. Fairhurst and B. Collini-Nocker, "Unidirectional Lightweight Encapsulation (ULE) for Transmission of IP Datagrams over an MPEG-2 Transport Stream," Internet Engineering Task Force (IETF), Dec. 2005.</li>
+            <li class="ref-item"><span class="ref-num">[17]</span> ETSI EN 300 468 V1.17.1, "Digital Video Broadcasting (DVB); Specification for Service Information (SI) in DVB systems," European Telecommunications Standards Institute (ETSI), Sophia Antipolis, France, 2021.</li>
+            <li class="ref-item"><span class="ref-num">[18]</span> C. E. Shannon, "A Mathematical Theory of Communication," <em>Bell System Technical Journal</em>, vol. 27, no. 3, pp. 379–423, Jul. 1948.</li>
+            <li class="ref-item"><span class="ref-num">[19]</span> D. Arthur and S. Vassilvitskii, "k-means++: The advantages of careful seeding," in <em>Proc. 18th Annual ACM-SIAM Symposium on Discrete Algorithms (SODA)</em>, New Orleans, LA, USA, 2007, pp. 1027–1035.</li>
+            <li class="ref-item"><span class="ref-num">[20]</span> M. Ester, H.-P. Kriegel, J. Sander, and X. Xu, "A density-based algorithm for discovering clusters in large spatial databases with noise," in <em>Proc. 2nd International Conference on Knowledge Discovery and Data Mining (KDD)</em>, Portland, OR, USA, 1996, pp. 226–231.</li>
+        </ul>
+
+    </main>
+
+    <!-- Author Biographies Section (Full Width) -->
+    <section class="bio-section">
+        <h2 class="ieee-heading" style="text-align: left; margin-bottom: 12pt;">Author Biographies</h2>
+
+        <!-- Author 1 -->
+        <div class="bio-card">
+            <img class="bio-photo" src="__ASSET_SAMAD__" alt="Sk Samad">
+            <div class="bio-text">
+                <span class="bio-name">Sk Samad</span> is currently pursuing his Bachelor of Technology (B.Tech) in Computer Science and Engineering at Presidency University, Bengaluru, Karnataka, India. His academic interests encompass digital signal processing, satellite communication protocols, and machine learning applications in telecommunication security. Within the PRJ_111 project, he contributed to the ingestion layer architecture, content-aware format sniffer calibration, and the unsupervised Isolation Forest anomaly detection pipeline across heterogeneous stream representations.<br>
+                <span style="font-size: 8.5pt; color: #555;">Roll No: <strong>20231COM0031</strong> &nbsp;|&nbsp; Department of Computer Science and Engineering, Presidency University, Bengaluru.</span>
+            </div>
+        </div>
+
+        <!-- Author 2 -->
+        <div class="bio-card">
+            <img class="bio-photo" src="__ASSET_VENGALA__" alt="Y Vengala Rao">
+            <div class="bio-text">
+                <span class="bio-name">Y Vengala Rao</span> is currently pursuing his Bachelor of Technology (B.Tech) in Computer Science and Engineering at Presidency University, Bengaluru, Karnataka, India. His areas of interest include telecommunications systems, protocol parsing, and lightweight neural network architectures for resource-constrained embedded environments. In the PRJ_111 project, he focused on framing parsing implementations for MPEG-TS, GSE, and DVB-S2 Baseband Frames, as well as the deterministic stream health scoring formulation inspired by ETSI TR 101 290 principles.<br>
+                <span style="font-size: 8.5pt; color: #555;">Roll No: <strong>20231COM0001</strong> &nbsp;|&nbsp; Department of Computer Science and Engineering, Presidency University, Bengaluru.</span>
+            </div>
+        </div>
+
+        <!-- Author 3 -->
+        <div class="bio-card">
+            <img class="bio-photo" src="__ASSET_RAKESHWAR__" alt="C Rakeshwar">
+            <div class="bio-text">
+                <span class="bio-name">C Rakeshwar</span> is currently pursuing his Bachelor of Technology (B.Tech) in Computer Science and Engineering at Presidency University, Bengaluru, Karnataka, India. His research interests include distributed systems, software engineering methodologies, and cybersecurity telemetry analysis. For the PRJ_111 project, he developed the cross-format stream comparison engine, the bounded Z-score explanatory model, the engineering workstation single-page application, and automated regression test suites.<br>
+                <span style="font-size: 8.5pt; color: #555;">Roll No: <strong>20231COM0008</strong> &nbsp;|&nbsp; Department of Computer Science and Engineering, Presidency University, Bengaluru.</span>
+            </div>
+        </div>
+
+        <!-- Team Presentation Photo (Fig. 8) -->
+        <div style="margin-top: 20pt; text-align: center;">
+            <img class="figure-img" src="__ASSET_TEAM__" alt="Team Presentation at Presidency University" style="max-height: 440px;">
+            <div class="figure-caption" style="text-align: center; margin-top: 6pt;">
+                <strong>Fig. 8.</strong> PRJ_111 project team during project presentation at Presidency University (Sk Samad, Y Vengala Rao, and C Rakeshwar).
+            </div>
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>

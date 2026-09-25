@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRJ_111: DVB-S2 Receiver Output Stream Analyzer</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/styles.css">
+  <!-- Offline Vendored Chart.js (Zero external CDN dependency) -->
+  <script src="/vendor/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Application Header -->
+  <header class="app-header">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/>
+        <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.6"/>
+        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+        <line x1="12" y1="1" x2="12" y2="5" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="1" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="19" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span class="brand-badge">PRJ_111</span>
+      <div class="brand-title">
+        <h1>DVB-S2 Receiver Output Stream Analyzer</h1>
+        <p>Review-2 Functional Prototype - Post-Demodulator Framing &amp; Anomaly Analysis</p>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span id="backendStatusLabel">BACKEND F1-F7 VERIFIED | 240 TESTS PASSING</span>
+      </div>
+      <span id="headerFormatBadge" class="badge badge-dim">NO STREAM LOADED</span>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs (Clean Monochrome SVGs, Zero Emojis) -->
+  <nav class="app-nav">
+    <button class="nav-tab active" data-tab="tab-dashboard">
+      <svg viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h11A1.5 1.5 0 0 1 15 2.5v11a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 13.5v-11zM2.5 2a.5.5 0 0 0-.5.5V6h12V2.5a.5.5 0 0 0-.5-.5h-11zM14 7H2v6.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-tab" data-tab="tab-anomalies">
+      <svg viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+      Anomaly Analysis (F2+F5)
+    </button>
+    <button class="nav-tab" data-tab="tab-timeline">
+      <svg viewBox="0 0 16 16"><path d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.707l-4.146 4.147a.5.5 0 0 1-.708 0L7 6.707 3.354 10.354a.5.5 0 1 1-.708-.708l4-4a.5.5 0 0 1 .708 0L9.5 7.793 13.293 4H10.5a.5.5 0 0 1-.5-.5z"/></svg>
+      Timeline (F4)
+    </button>
+    <button class="nav-tab" data-tab="tab-comparison">
+      <svg viewBox="0 0 16 16"><path d="M7 2a1 1 0 0 1 2 0v1h4.5a.5.5 0 0 1 0 1H12v8.5a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 4 12.5V4h-.5a.5.5 0 0 1 0-1H8V2zM5 4v8.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V4H5z"/></svg>
+      Comparison (F6)
+    </button>
+    <button class="nav-tab" data-tab="tab-report">
+      <svg viewBox="0 0 16 16"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
+      Automatic Report (F7)
+    </button>
+  </nav>
+
+  <!-- Notification Banner -->
+  <div id="notificationBanner" style="display:none; padding:8px 20px; font-size:12px; font-family:var(--font-mono); font-weight:600;"></div>
+
+  <!-- Main Views Container -->
+  <main class="app-main">
+
+    <!-- ====================================================================== -->
+    <!-- VIEW 1: DASHBOARD -->
+    <!-- ====================================================================== -->
+    <section id="tab-dashboard" class="view-section active">
+      
+      <!-- Ingestion & Control Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/></svg>
+            Stream Ingestion &amp; Analysis Controls
+          </div>
+          <span class="badge badge-info">Post-Demodulator Gateway</span>
+        </div>
+
+        <div class="grid-2">
+          <!-- Left Column: Input selection (Primary: File Upload, Secondary: Test Presets) -->
+          <div>
+            <!-- Primary Input: File Upload -->
+            <div class="form-group">
+              <label><strong>Primary Input: Upload Receiver Output Capture</strong></label>
+              <div class="upload-dropzone" id="uploadDropzone">
+                <svg class="upload-icon" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V10.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>
+                <div style="font-size:12px; font-weight:600; color:var(--text-main);">Choose capture file or drag &amp; drop here</div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                  Verified formats: MPEG-TS (.ts), GSE (.ts, .gse), DVB-S2 BBFrame (.pcap)
+                </div>
+                <input type="file" id="streamFileInput" accept=".ts,.pcap,.gse" style="display:none;">
+              </div>
+              <div id="fileMetaPanel" class="file-meta-panel" style="display:none;">
+                <div>
+                  <span id="fileMetaName" style="color:var(--text-main); font-weight:600;">--</span>
+                  <span id="fileMetaSize" style="color:var(--text-dim); margin-left:8px;">--</span>
+                </div>
+                <span id="fileMetaStatus" class="badge badge-info">READY FOR UPLOAD</span>
+              </div>
+            </div>
+
+            <!-- Secondary Input: Test Captures -->
+            <div class="form-group" style="margin-top:12px;">
+              <label for="presetSelect">Secondary Input: Verified Test Captures</label>
+              <select id="presetSelect">
+                <option value="">-- Or select an authoritative repository capture --</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="customPathInput">Local Staged / Relative Path:</label>
+              <input type="text" id="customPathInput" placeholder="01_RAW_DATA/03_TS/DVBS2_toolkit/sample.ts">
+            </div>
+          </div>
+
+          <!-- Right Column: Framing format, window size, and execution trigger -->
+          <div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="formatSelect">Stream Format:</label>
+                <select id="formatSelect">
+                  <option value="AUTO" selected>Auto-Detect (Heuristic &amp; Magic Sniffer)</option>
+                  <option value="MPEG_TS">MPEG-2 Transport Stream (188B TS)</option>
+                  <option value="BB_FRAME">DVB-S2 Baseband Frame (BBHeader)</option>
+                  <option value="GSE">Generic Stream Encapsulation (GSE)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="windowSizeInput">Window Size (Units):</label>
+                <input type="number" id="windowSizeInput" placeholder="Default: 200 TS / 50 BB / 3 GSE">
+              </div>
+            </div>
+
+            <!-- Execution Status Checklist (F1-F7 Conceptual Sequence) -->
+            <div class="form-group">
+              <label>Conceptual Execution Sequence:</label>
+              <div class="exec-checklist">
+                <div id="step-ingest" class="exec-step">
+                  <span class="exec-step-name"><span class="exec-dot"></span>Stream Ingestion &amp; Format Detection</span>
+                  <span class="badge badge-dim" id="badge-step-ingest">STANDBY</span>
+                </div>
+                <div id="step-f1" class="exec-step">
+                  <span class="exec-step-name"><span class="exec-dot"></span>F1 Stream Health &amp; Priority-1 Checks</span>
+                  <span class="badge badge-dim" id="badge-step-f1">STANDBY</span>
+                </div>
+                <div id="step-f2" class="exec-step">
+                  <span class="exec-step-name"><span class="exec-dot"></span>F2 Anomaly Detection (Isolation Forest)</span>
+                  <span class="badge badge-dim" id="badge-step-f2">STANDBY</span>
+                </div>
+                <div id="step-f3" class="exec-step">
+                  <span class="exec-step-name"><span class="exec-dot"></span>F3 Pattern Detection &amp; Entropy</span>
+                  <span class="badge badge-dim" id="badge-step-f3">STANDBY</span>
+                </div>
+                <div id="step-f4" class="exec-step">
+                  <span class="exec-step-name"><span class="exec-dot"></span>F4 Spatial Activity Timeline</span>
+                  <span class="badge badge-dim" id="badge-step-f4">STANDBY</span>
+                </div>
+                <div id="step-f5" class="exec-step">
+                  <span class="exec-step-name"><span class="exec-dot"></span>F5 Diagnostic Anomaly Explanations</span>
+                  <span class="badge badge-dim" id="badge-step-f5">STANDBY</span>
+                </div>
+                <div id="step-f6" class="exec-step">
+                  <span class="exec-step-name"><span class="exec-dot"></span>F6 Stream Comparison</span>
+                  <span class="badge badge-dim" id="badge-step-f6">AWAITING COMPARISON INPUT</span>
+                </div>
+                <div id="step-f7" class="exec-step">
+                  <span class="exec-step-name"><span class="exec-dot"></span>F7 Automatic Multi-Format Report</span>
+                  <span class="badge badge-dim" id="badge-step-f7">STANDBY</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; display: flex; gap: 8px; align-items:center;">
+              <button id="runAnalysisBtn" class="btn btn-primary" style="flex: 1;">
+                <span id="btnSpinner" class="spinner" style="display: none;"></span>
+                <span id="btnText">Analyze Stream (F1-F5, F7)</span>
+              </button>
+              <button id="clearDataBtn" class="btn btn-secondary">Clear</button>
+              <span id="execTimer" style="font-family:var(--font-mono); font-size:11.5px; color:var(--text-dim); min-width:85px; text-align:right;">Elapsed: 0.00 s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State View (Before analysis) -->
+      <div id="dashboardEmptyState" class="empty-state">
+        <div class="empty-state-title">No Stream Analyzed</div>
+        <div class="empty-state-desc">
+          Upload a receiver output capture file or select a verified test capture above, then click Analyze Stream.
+        </div>
+      </div>
+
+      <!-- Analysis Results Container (Populated dynamically) -->
+      <div id="dashboardResults" style="display: none;">
+        
+        <!-- Top Metrics Grid -->
+        <div class="grid-4" style="margin-bottom: 14px;">
+          <div class="stat-box">
+            <div class="stat-label">F1 Stream Health</div>
+            <div id="statHealthScore" class="stat-value green">--</div>
+            <div id="statHealthStatus" class="stat-sub">Status: --</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-label">Framing Integrity</div>
+            <div id="statIntegrityRatio" class="stat-value accent">--</div>
+            <div id="statUnitsRatio" class="stat-sub">Valid / Total: --</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-label">F2 Anomaly Windows</div>
+            <div id="statAnomalyCount" class="stat-value amber">--</div>
+            <div id="statPeakAnomaly" class="stat-sub">Peak Score: --</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-label">Extracted Payload</div>
+            <div id="statPayloadKb" class="stat-value">--</div>
+            <div id="statFileSize" class="stat-sub">Capture Size: --</div>
+          </div>
+        </div>
+
+        <!-- Middle Columns: Health & Patterns -->
+        <div class="grid-2">
+          
+          <!-- Priority-1 Health Indicators -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <svg viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.464 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z"/></svg>
+                  Stream Health Indicators
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                  Selected stream integrity indicators inspired by ETSI TR 101 290 principles
+                </div>
+              </div>
+              <span id="dashHealthBadge" class="badge badge-healthy">HEALTHY</span>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Verification Check</th>
+                    <th>Status</th>
+                    <th>Observed Details</th>
+                  </tr>
+                </thead>
+                <tbody id="p1ChecksTableBody">
+                  <tr><td colspan="3">No stream evaluated</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- F3 Pattern Summary -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+                F3: Pattern &amp; Protocol Telemetry
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('tab-timeline')">View Timeline &rarr;</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div class="stat-box">
+                <div class="stat-label">Dominant Traffic Component</div>
+                <div id="f3DominantComponent" style="font-size: 14px; font-weight: 600; font-family:var(--font-mono); color: var(--accent);">--</div>
+                <div id="f3ActiveComponents" class="stat-sub">Active components: --</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Multiplex Dispersion / Entropy</div>
+                <div id="f3EntropyLabel" style="font-size: 13px; font-weight: 600; font-family:var(--font-mono); color: var(--text-main);">--</div>
+                <div id="f3TransitionsLabel" class="stat-sub">State transitions observed: 0</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ====================================================================== -->
+    <!-- VIEW 2: ANOMALY ANALYSIS (F2 + F5) -->
+    <!-- ====================================================================== -->
+    <section id="tab-anomalies" class="view-section">
+      
+      <div class="notice-box notice-warning">
+        <div class="notice-title">
+          <svg viewBox="0 0 16 16"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/></svg>
+          Domain Safety &amp; Capture Boundary Notice
+        </div>
+        <p>
+          F2 Anomaly Detection evaluates post-demodulator digital receiver output against learned Isolation Forest baseline distributions.
+          Anomalous scores occurring at final window boundaries indicate recording termination (fewer units before capture end) and are not transmission or receiver hardware failures.
+        </p>
+      </div>
+
+      <!-- Anomaly Statistics Header -->
+      <div class="grid-4" style="margin-bottom: 14px;">
+        <div class="stat-box">
+          <div class="stat-label">Total Windows</div>
+          <div id="anomTotalWindows" class="stat-value">--</div>
+          <div class="stat-sub">Analyzed spatial slices</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Anomalous Windows</div>
+          <div id="anomFlaggedCount" class="stat-value amber">--</div>
+          <div id="anomRatePct" class="stat-sub">Anomaly rate: --%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Peak Anomaly Score</div>
+          <div id="anomPeakScore" class="stat-value red">--</div>
+          <div class="stat-sub">Decision threshold: 0.5000</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Diagnostic Metric</div>
+          <div style="font-size: 12.5px; font-weight: 600; font-family:var(--font-mono); color: var(--accent); margin-top: 4px;">Bounded Z-Score Magnitude</div>
+          <div class="stat-sub">With explicit deviation direction</div>
+        </div>
+      </div>
+
+      <!-- Anomaly Windows Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
+            Flagged Anomaly Windows &amp; Diagnostic Attributions
+          </div>
+          <span class="badge badge-dim">Click Inspect to view F5 explanation</span>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Window</th>
+                <th>Unit Offset Range</th>
+                <th>Byte Offset Range</th>
+                <th>Anomaly Score</th>
+                <th>Severity</th>
+                <th>Primary Diagnostic Finding</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="anomaliesTableBody">
+              <tr><td colspan="7">No anomalies evaluated. Run analysis first.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detailed Window Inspector Modal / Accordion -->
+      <div id="anomalyDetailCard" class="card" style="display: none;">
+        <div class="card-header">
+          <div class="card-title" id="anomDetailTitle">
+            <svg viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+            Window Diagnostic Deep Dive
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('anomalyDetailCard').style.display='none'">Close</button>
+        </div>
+        <div id="anomDetailBody">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================== -->
+    <!-- VIEW 3: TIMELINE (F4) -->
+    <!-- ====================================================================== -->
+    <section id="tab-timeline" class="view-section">
+      
+      <div class="notice-box">
+        <div class="notice-title">
+          <svg viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
+          Physical Spatial Indexing Notice
+        </div>
+        <p>
+          Offline captured streams lack calibrated broadcast clock signals. The PRJ_111 timeline strictly indexes events and windows by physical byte offsets and unit sequence numbers, avoiding synthetic timestamps or fabricated throughput rates.
+        </p>
+      </div>
+
+      <!-- Chart 1: Health & Anomaly Score -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16"><path d="M0 0h1v15h15v1H0V0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.707l-4.146 4.147a.5.5 0 0 1-.708 0L7 6.707 3.354 10.354a.5.5 0 1 1-.708-.708l4-4a.5.5 0 0 1 .708 0L9.5 7.793 13.293 4H10.5a.5.5 0 0 1-.5-.5z"/></svg>
+            Trajectory: Rolling Stream Health &amp; F2 Anomaly Score
+          </div>
+          <span class="badge badge-info">Vendored Chart.js</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="healthAnomalyCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Payload Volume & Format Telemetry -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16"><path d="M1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-4zm6-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7zm6-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2z"/></svg>
+            Activity: Payload Density (KB) &amp; Format Telemetry
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="activityCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Window Telemetry Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16"><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>
+            Spatial Window Telemetry Data
+          </div>
+          <span id="timelineWindowCountBadge" class="badge badge-dim">0 Windows</span>
+        </div>
+        <div class="table-container" style="max-height: 380px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Win #</th>
+                <th>Unit Range</th>
+                <th>Byte Offset Range</th>
+                <th>Payload (KB)</th>
+                <th>Health</th>
+                <th>Anomaly</th>
+                <th>Severity</th>
+                <th>Events</th>
+              </tr>
+            </thead>
+            <tbody id="timelineTableBody">
+              <tr><td colspan="8">No timeline generated.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================== -->
+    <!-- VIEW 4: COMPARISON (F6) -->
+    <!-- ====================================================================== -->
+    <section id="tab-comparison" class="view-section">
+      
+      <!-- Comparison Controller -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16"><path d="M7 2a1 1 0 0 1 2 0v1h4.5a.5.5 0 0 1 0 1H12v8.5a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 4 12.5V4h-.5a.5.5 0 0 1 0-1H8V2zM5 4v8.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V4H5z"/></svg>
+            Feature F6: Stream Comparison Engine
+          </div>
+          <span class="badge badge-purple">Semantic Cross-Format Shield</span>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="form-group">
+              <label for="compStreamA">Stream A Path (Reference Baseline):</label>
+              <input type="text" id="compStreamA" placeholder="01_RAW_DATA/03_TS/DVBS2_toolkit/sample.ts">
+            </div>
+            <div class="form-group">
+              <label for="compStreamB">Stream B Path (Target Comparison):</label>
+              <input type="text" id="compStreamB" placeholder="01_RAW_DATA/01_BBFRAME_GSE/dvb-s2_bb_example.pcap">
+            </div>
+          </div>
+
+          <div>
+            <div class="form-group">
+              <label>Comparison Mode:</label>
+              <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <button id="btnCompHalves" class="btn btn-secondary" style="flex: 1;">
+                  Compare Stream Halves (First vs Second Half)
+                </button>
+                <button id="btnRunComparison" class="btn btn-primary" style="flex: 1;">
+                  Run Dual Stream Comparison
+                </button>
+              </div>
+            </div>
+            <div style="margin-top: 10px; font-size: 11px; color: var(--text-dim);">
+              Cross-format comparisons strictly enforce the <strong>2 Comparable vs. 9 Non-Comparable</strong> semantic barrier.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Results -->
+      <div id="comparisonResults" style="display: none;">
+        
+        <!-- Summary Cards -->
+        <div class="grid-3" style="margin-bottom: 14px;">
+          <div class="stat-box">
+            <div class="stat-label">Format Equivalence</div>
+            <div id="compFormatEquiv" class="stat-value accent">--</div>
+            <div id="compFormatNames" class="stat-sub">Stream A vs Stream B</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Alignment Overview</div>
+            <div id="compAlignmentMode" class="stat-value green">--</div>
+            <div id="compAlignedCount" class="stat-sub">Aligned windows: --</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Payload Delta (&Delta;rel)</div>
+            <div id="compPayloadDelta" class="stat-value">--</div>
+            <div id="compPayloadSig" class="stat-sub">Significance: --</div>
+          </div>
+        </div>
+
+        <!-- Semantic Barrier Table -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z"/></svg>
+              Cross-Format Semantic Barrier &amp; Metric Audit
+            </div>
+            <span class="badge badge-info">F6 Semantic Safeguard</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Metric Dimension</th>
+                  <th>Classification</th>
+                  <th>Semantic Cross-Format Rationale</th>
+                  <th>Comparison Result</th>
+                </tr>
+              </thead>
+              <tbody id="semanticAuditTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ====================================================================== -->
+    <!-- VIEW 5: AUTOMATIC REPORT (F7) -->
+    <!-- ====================================================================== -->
+    <section id="tab-report" class="view-section">
+      
+      <!-- Report Header & Export Actions -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title" id="repStreamTitle">
+              <svg viewBox="0 0 16 16"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
+              Automatic Analysis Report
+            </div>
+            <p id="repTimestamp" style="font-size: 11px; font-family:var(--font-mono); color: var(--text-dim); margin-top: 2px;">No report generated.</p>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <a id="btnDownloadJson" href="#" class="btn btn-secondary btn-sm">Export JSON</a>
+            <a id="btnDownloadMd" href="#" class="btn btn-secondary btn-sm">Export Markdown</a>
+            <a id="btnDownloadTxt" href="#" class="btn btn-secondary btn-sm">Export Text</a>
+            <a id="btnDownloadHtml" href="#" class="btn btn-primary btn-sm">Export HTML</a>
+          </div>
+        </div>
+
+        <!-- Domain Safety Shield Banner -->
+        <div class="notice-box notice-safety">
+          <div class="notice-title">
+            <svg viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z"/></svg>
+            Domain-Safety Shield Status: ACTIVE
+          </div>
+          <p id="repGuardText">
+            Physical RF / Demodulator inference guard is strictly active. Speculative claims regarding SNR, BER, rain fade, or hardware failure are barred.
+          </p>
+        </div>
+
+        <!-- Tripartite Filter Buttons -->
+        <div style="display: flex; gap: 6px; margin-bottom: 14px;">
+          <button class="btn btn-sm btn-secondary filter-btn active" data-filter="ALL">All Findings</button>
+          <button class="btn btn-sm btn-secondary filter-btn" data-filter="OBSERVED_FACT">Observed Facts</button>
+          <button class="btn btn-sm btn-secondary filter-btn" data-filter="STATISTICAL_FINDING">Statistical Findings</button>
+          <button class="btn btn-sm btn-secondary filter-btn" data-filter="ENGINEERING_INTERPRETATION">Engineering Interpretations</button>
+        </div>
+
+        <!-- Findings List -->
+        <div id="reportFindingsContainer" style="display: flex; flex-direction: column; gap: 8px;">
+          <p style="color: var(--text-dim); font-size:12px;">No analysis report generated yet.</p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Terms & Conditions Modal -->
+  <div id="termsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Terms &amp; Conditions / Prototype Scope Notice</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeTermsModal()">Close</button>
+      </div>
+      <div class="modal-body">
+        <h4>1. Academic &amp; Research Prototype Scope</h4>
+        <p>
+          The PRJ_111 DVB-S2 Receiver Output Stream Analyzer is an academic engineering prototype developed for Review-2 milestones. It operates exclusively on post-demodulator digital output captures (MPEG-TS, GSE, and DVB-S2 BBFrame).
+        </p>
+
+        <h4>2. Data Handling &amp; Local Execution</h4>
+        <p>
+          Uploaded captures are processed locally by the application and may be temporarily staged on the local machine for analysis. No external cloud processing is required.
+        </p>
+
+        <h4>3. Domain Boundary &amp; Epistemic Guards</h4>
+        <p>
+          The software evaluates digital framing syntax and anomaly statistics. It does not infer physical RF characteristics (such as SNR, Eb/N0, C/N, BER, carrier frequency drift, rain fade, or hardware failure) from digital stream indicators.
+        </p>
+
+        <h4>4. Verification Scope</h4>
+        <p>
+          Stream health checks represent selected stream integrity indicators inspired by ETSI TR 101 290 principles and do not constitute formal ETSI certification.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-sm" onclick="closeTermsModal()">Acknowledge &amp; Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <div>PRJ_111: Development of a Software Application for Analysis and Processing of DVB-S2 Receiver Output Stream</div>
+    <div>
+      <span>Review-2 Functional Prototype Milestone &bull; CSE Mini Project 2026</span>
+      &bull; <a onclick="openTermsModal()">Terms &amp; Conditions</a>
+    </div>
+  </footer>
+
+  <!-- Application Frontend Logic -->
+  <script src="/app.js"></script>
+</body>
+</html>

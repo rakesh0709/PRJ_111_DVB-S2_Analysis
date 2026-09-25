@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRJ_111: sample.ts -- Analysis Report</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-dim: #94a3b8;
+      --accent: #38bdf8;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 24px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header { border-bottom: 2px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+    h1, h2, h3 { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--border); padding: 10px; text-align: left; font-size: 14px; }
+    th { background: #0b1120; color: var(--accent); }
+    code { background: #0b1120; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #38bdf8; }
+    .guard-box { background: rgba(248, 113, 113, 0.1); border-left: 4px solid var(--red); padding: 14px; margin-top: 16px; }
+    .disclaimer-box { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 14px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>PRJ_111 Automatic Analysis Report</h1>
+      <p>Stream: <code>sample.ts</code> | Report ID: <code>REP_MPEG_TS_20260924_064741</code> | Generated: <code>2026-09-24T06:47:41.544143+00:00</code></p>
+      <span class="badge" style="background: #34d399; color: #000;">Health: HEALTHY (100.0/100)</span>
+      <span class="badge" style="background: var(--border); color: var(--text);">Format: MPEG_TS</span>
+      <span class="badge" style="background: var(--border); color: var(--text);">Mode: DUAL_STREAM</span>
+    </div>
+
+    <div class="card">
+      <h2>Executive Summary</h2>
+      <p>The analyzed digital receiver output stream (sample.ts) consists of 18,176 parsed MPEG_TS framing units (3,267,305 bytes of user payload). Syntactic framing integrity is 100.00%, yielding an overall stream health score of 100.00/100.00 (HEALTHY). The calibrated Isolation Forest model flagged 5 of 91 sequential windows (5.49%) as statistically anomalous (peak anomaly score: 0.8576). Multiplex telemetry indicates concentration on dominant component PID 256 (98.5%) (98.5% share). Comparative analysis against DVB-S2 BBFrame Real Capture (dvb-s2_bb_example.pcap) (BB_FRAME) identified 1 key telemetric differences. All findings are strictly grounded in parsed packet and baseband telemetry without external physical-layer inference.</p>
+    </div>
+
+    <div class="card">
+      <h2>Stream & Framing Metadata</h2>
+      <table>
+        <tr><th>Property</th><th>Value</th><th>Property</th><th>Value</th></tr>
+        <tr><td>File Path</td><td><code>C:\Users\rakes\Downloads\Mini Project\01_RAW_DATA\03_TS\DVBS2_toolkit\sample.ts</code></td><td>File Size</td><td>3,417,088 bytes</td></tr>
+        <tr><td>Total Units</td><td>18,176</td><td>Framing Integrity</td><td>1.0000</td></tr>
+        <tr><td>Valid Units</td><td>18,176</td><td>Invalid Units</td><td>0</td></tr>
+        <tr><td>User Payload</td><td>3,267,305 bytes</td><td>Total Errors</td><td>0</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Differential Stream Comparison (F6)</h2>
+      <p><strong>Stream B:</strong> <code>DVB-S2 BBFrame Real Capture (dvb-s2_bb_example.pcap)</code> (<code>BB_FRAME</code>) | Same Format: <code>False</code></p>
+      <div class="disclaimer-box">
+        <strong>Cross-Stream Alignment Disclaimer:</strong>
+        <p>Temporal alignment is unavailable without external receiver clock telemetry; streams are aligned by physical stream progress and sequential window index. Differences reflect spatial capture progression, not synchronized broadcast timestamps.</p>
+      </div>
+      <h3 style="margin-top: 16px;">Key Telemetric Differences</h3>
+      <ul><li>User payload volume shifted by -1.30848e+06 bytes (-40.05%) (Classification: DECREASED, Significance: SUBSTANTIAL).</li></ul>
+      <h3 style="margin-top: 16px;">Safe Comparative Conclusions</h3>
+      <ul><li>Both streams maintained 100% syntactically valid framing integrity across all parsed units.</li><li>Anomaly counts were identical (5 anomalous windows in both streams).</li><li>All reported observations are strictly grounded in parsed packet/frame telemetry.</li></ul>
+    </div>
+    <div class="card">
+      <h2>Epistemological Tripartite Register</h2>
+      <h3>1. Observed Facts (Deterministic Syntactic Telemetry)</h3>
+      <table>
+        <tr><th>Subsystem</th><th>Title</th><th>Statement</th><th>Evidence</th></tr>
+        <tr><td><code>FRAMING</code></td><td><strong>Framing Unit Count and Syntactic Validity</strong></td><td>Parsed 18176 total framing units (18176 valid, 0 invalid).</td><td><code>total_units=18176, valid_units=18176, invalid_units=0</code></td></tr>
+<tr><td><code>FRAMING</code></td><td><strong>User Payload Volume Extraction</strong></td><td>Extracted 3267305 total octets of user data payload.</td><td><code>total_payload_bytes=3267305</code></td></tr>
+<tr><td><code>PATTERN</code></td><td><strong>Dominant PID Identification</strong></td><td>MPEG-TS packets show concentration on dominant component PID 256 (98.5%).</td><td><code>dominant_component=PID 256 (98.5%), share=98.5%</code></td></tr>
+<tr><td><code>HEALTH</code></td><td><strong>Priority-1 Continuity and TEI Indicator Check</strong></td><td>Observed 0 Priority-1 continuity or transport error indicator flags across capture.</td><td><code>error_count=0</code></td></tr>
+      </table>
+
+      <h3 style="margin-top: 24px;">2. Statistical Findings (Model & Aggregate Measurements)</h3>
+      <table>
+        <tr><th>Subsystem</th><th>Title</th><th>Finding</th><th>Evidence</th></tr>
+        <tr><td><code>HEALTH</code></td><td><strong>Aggregated Stream Health Score</strong></td><td>Mean stream health score computed as 100.00 / 100.00 (HEALTHY).</td><td><code>health_score=100.00, status=HEALTHY</code></td></tr>
+<tr><td><code>ANOMALY</code></td><td><strong>Isolation Forest Anomaly Scoring</strong></td><td>Calibrated Isolation Forest flagged 5 of 91 windows as anomalous (5.49%).</td><td><code>anomalous_windows=5, peak_score=0.8576, mean_score=0.2401</code></td></tr>
+<tr><td><code>PATTERN</code></td><td><strong>Multiplex Shannon Entropy Measurement</strong></td><td>Multiplex distribution Shannon entropy measured at 0.1361 bits across 4 active components.</td><td><code>shannon_entropy=0.1361, active_components=4</code></td></tr>
+<tr><td><code>TIMELINE</code></td><td><strong>Payload Density Distribution Across Windows</strong></td><td>Window payload density averages 35.06 KB/window with peak window payload of 35.94 KB.</td><td><code>mean_kb=35.06, peak_kb=35.94</code></td></tr>
+      </table>
+
+      <h3 style="margin-top: 24px;">3. Engineering Interpretations (Grounded Contextual Synthesis)</h3>
+      <table>
+        <tr><th>Subsystem</th><th>Title</th><th>Interpretation</th><th>Evidence</th></tr>
+        <tr><td><code>PATTERN</code></td><td><strong>Multiplex Bandwidth Allocation Concentration</strong></td><td>Transport stream capacity is predominantly allocated to dominant PID PID 256 (98.5%) (accounting for 98.5% of units).</td><td><code>Dominant PID share: 98.5%, active PIDs: 4</code></td></tr>
+<tr><td><code>FRAMING</code></td><td><strong>Capture Boundary Window Sizing</strong></td><td>Window 90 unit count deviation (176 units vs nominal 200) occurs at the stream capture boundary.</td><td><code>window_index=90, unit_count=176, nominal_size=200</code></td></tr>
+<tr><td><code>COMPARISON</code></td><td><strong>Comparative Cross-Stream Differential Synthesis</strong></td><td>User payload volume shifted by -1.30848e+06 bytes (-40.05%) (Classification: DECREASED, Significance: SUBSTANTIAL).</td><td><code>is_same_format=False, key_diff_count=1</code></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Limitations and Uncertainty</h2>
+      <ul>
+        <li>Analysis is based strictly on parsed digital receiver output units without external demodulator RF clock telemetry.</li><li>Temporal window progression reflects spatial sequential packet/frame ordering, not broadcast wall-clock timestamps.</li><li>Unsupervised anomaly detection identifies statistical outliers relative to stream baseline; does not establish physical transmission failure.</li><li>Stream contains 1 edge window(s) with unit count below nominal window size at the capture boundary.</li><li>Transport stream component analysis uses dominant PID numbers; specific program and stream-type roles remain unverified without PSI/SI tables.</li>
+      </ul>
+      <div class="guard-box">
+        <strong>MANDATORY DOMAIN-SAFETY NOTICE:</strong>
+        <p>Physical-layer parameters (e.g., RF carrier strength, SNR, MER, BER, AGC, rain fade, atmospheric attenuation, transponder health, and demodulator hardware state) cannot be determined from digital receiver output stream data alone without external physical-layer/demodulator telemetry.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

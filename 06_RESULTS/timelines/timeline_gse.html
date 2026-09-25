@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRJ_111: sample.ts — Timeline & Activity Dashboard</title>
+  <!-- Chart.js CDN for interactive charting -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-red: #f87171;
+      --accent-purple: #c084fc;
+      --border-color: #334155;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+    .header-title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+    .header-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .header-badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .badge {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-format {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+    .badge-healthy {
+      background-color: rgba(52, 211, 153, 0.2);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+    }
+    .badge-warning {
+      background-color: rgba(251, 191, 36, 0.2);
+      color: var(--accent-amber);
+      border: 1px solid var(--accent-amber);
+    }
+    .badge-critical {
+      background-color: rgba(248, 113, 113, 0.2);
+      color: var(--accent-red);
+      border: 1px solid var(--accent-red);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+    .kpi-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 6px;
+      color: var(--text-primary);
+    }
+    .kpi-subtext {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chart-legend-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .chart-container {
+      position: relative;
+      height: 280px;
+      width: 100%;
+    }
+    .table-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .table-container {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: var(--text-secondary);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #283548;
+      color: var(--text-primary);
+    }
+    tr:hover {
+      background-color: #273549;
+    }
+    .event-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+    .event-anomaly {
+      background-color: rgba(248, 113, 113, 0.25);
+      color: #fca5a5;
+      border: 1px solid #f87171;
+    }
+    .event-transition {
+      background-color: rgba(251, 191, 36, 0.25);
+      color: #fde68a;
+      border: 1px solid #fbbf24;
+    }
+    .event-health {
+      background-color: rgba(56, 189, 248, 0.25);
+      color: #bae6fd;
+      border: 1px solid #38bdf8;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <h1>PRJ_111: Stream Timeline & Activity Visualization</h1>
+      <div class="header-subtitle">
+        Capture: <strong>sample.ts</strong> | Sequential Physical Offset Timeline | Grounded Telemetry
+      </div>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-format">GSE</span>
+      <span class="badge badge-warning">Status: 100.0% Health</span>
+    </div>
+  </header>
+
+  <!-- KPI Metrics Grid -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Units Monitored</div>
+      <div class="kpi-value">14</div>
+      <div class="kpi-subtext">5 sequential windows (3 units/window)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Average Health Score</div>
+      <div class="kpi-value">100.0%</div>
+      <div class="kpi-subtext">ETSI TR 101 290 metric synthesis</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Peak Anomaly Score</div>
+      <div class="kpi-value">0.5018</div>
+      <div class="kpi-subtext">F2 Threshold: 0.50 (1 flagged windows)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Payload Volume</div>
+      <div class="kpi-value">8.6 KB</div>
+      <div class="kpi-subtext">Physical data volume (no fake throughput)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Structural Transitions</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-subtext">Cross-window mode/composition shifts</div>
+    </div>
+  </section>
+
+  <!-- Main Visual Charts -->
+  <section class="chart-grid">
+    <!-- Chart 1: Health vs Anomaly Trajectory -->
+    <div class="chart-card">
+      <div class="chart-title">
+        <span>Stream Health Trajectory vs. AI Anomaly Score</span>
+        <span class="chart-legend-hint">Dual Y-Axis: Health Score [0..100%] (Left) vs. Anomaly Score [0.0..1.0] (Right)</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="healthAnomalyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 2: Payload Volume & Format Telemetry -->
+    <div class="chart-card">
+      <div class="chart-title">
+        <span>Activity & Format-Specific Telemetry</span>
+        <span class="chart-legend-hint">Payload Volume (KB) vs. Fragmentation Ratio</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Window Telemetry & Events Table -->
+  <section class="table-card">
+    <div class="chart-title">
+      <span>Sequential Window Telemetry & Discovered Events</span>
+      <span class="chart-legend-hint">Showing 5 windows with exact unit and byte offsets</span>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Window</th>
+            <th>Unit Range</th>
+            <th>Byte Range</th>
+            <th>Payload (KB)</th>
+            <th>Health Score</th>
+            <th>Anomaly Score</th>
+            <th>Severity</th>
+            <th>Format Telemetry</th>
+            <th>Events & Explanations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>W0</strong></td>
+            <td>0..3</td>
+            <td style="font-family: monospace;">0..1,450</td>
+            <td>1.38</td>
+            <td>100.0%</td>
+            <td>0.3091</td>
+            <td>NORMAL</td>
+            <td>GSE_EXT_NPA | Frag: 33.3%</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W1</strong></td>
+            <td>3..6</td>
+            <td style="font-family: monospace;">1,450..3,285</td>
+            <td>1.77</td>
+            <td>100.0%</td>
+            <td>0.4250</td>
+            <td>NORMAL</td>
+            <td>NONE | Frag: 100.0%</td>
+            <td><span class="event-pill event-transition">TRANSITION</span><div style="font-size: 11px; color: #fde68a; margin-top: 2px;">Fragmentation burst: jumped from 33.3% to 100.0%</div></td>
+          </tr>
+          <tr>
+            <td><strong>W2</strong></td>
+            <td>6..9</td>
+            <td style="font-family: monospace;">3,285..4,651</td>
+            <td>1.30</td>
+            <td>100.0%</td>
+            <td>0.3497</td>
+            <td>NORMAL</td>
+            <td>GSE_EXT_NPA | Frag: 33.3%</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W3</strong></td>
+            <td>9..12</td>
+            <td style="font-family: monospace;">4,651..7,332</td>
+            <td>2.59</td>
+            <td>100.0%</td>
+            <td>0.4926</td>
+            <td>NORMAL</td>
+            <td>GSE_EXT_NPA | Frag: 33.3%</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W4</strong></td>
+            <td>12..14</td>
+            <td style="font-family: monospace;">7,332..8,910</td>
+            <td>1.52</td>
+            <td>100.0%</td>
+            <td>0.5018</td>
+            <td>LOW</td>
+            <td>NONE | Frag: 100.0%</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: LOW</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> PDU fragmentation proportion shifted significantly in window 4.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> PDU fragmentation was observed. GSE framing remains syntactically valid; while typical when IP packets exceed encapsulation MTU, the capture alone cannot determine the operational cause.</div><span class="event-pill event-transition">TRANSITION</span><div style="font-size: 11px; color: #fde68a; margin-top: 2px;">Fragmentation burst: jumped from 33.3% to 100.0%</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    PRJ_111: DVB-S2 Receiver Output Stream Analysis — Review-2 Prototype Milestone &copy; 2026
+  </footer>
+
+  <!-- Chart.js Scripts -->
+  <script>
+    const labels = ["W0", "W1", "W2", "W3", "W4"];
+    const healthData = [100.0, 100.0, 100.0, 100.0, 100.0];
+    const anomalyData = [0.3091, 0.425, 0.3497, 0.4926, 0.5018];
+    const payloadData = [1.384, 1.766, 1.302, 2.586, 1.521];
+    const fmtData = [0.3333, 1.0, 0.3333, 0.3333, 1.0];
+    const anomalyThreshold = 0.5;
+
+    // Chart 1: Health vs Anomaly Trajectory
+    const ctx1 = document.getElementById('healthAnomalyChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Stream Health Score (%)',
+            data: healthData,
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52, 211, 153, 0.1)',
+            borderWidth: 2.5,
+            yAxisID: 'yHealth',
+            tension: 0.2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+          {
+            label: 'AI Anomaly Score',
+            data: anomalyData,
+            borderColor: '#f87171',
+            backgroundColor: 'rgba(248, 113, 113, 0.15)',
+            borderWidth: 2,
+            borderDash: [4, 4],
+            yAxisID: 'yAnomaly',
+            tension: 0.2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+          {
+            label: 'F2 Anomaly Decision Threshold (' + anomalyThreshold.toFixed(2) + ')',
+            data: Array(labels.length).fill(anomalyThreshold),
+            borderColor: '#fbbf24',
+            borderWidth: 1.5,
+            borderDash: [6, 6],
+            pointRadius: 0,
+            yAxisID: 'yAnomaly',
+            fill: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: {
+            grid: { color: '#334155' },
+            ticks: { color: '#94a3b8' }
+          },
+          yHealth: {
+            type: 'linear',
+            position: 'left',
+            min: 0,
+            max: 100,
+            grid: { color: '#334155' },
+            ticks: { color: '#34d399' },
+            title: { display: true, text: 'Health Score (%)', color: '#34d399' }
+          },
+          yAnomaly: {
+            type: 'linear',
+            position: 'right',
+            min: 0.0,
+            max: 1.0,
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#f87171' },
+            title: { display: true, text: 'Anomaly Score [0..1]', color: '#f87171' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#f8fafc' } }
+        }
+      }
+    });
+
+    // Chart 2: Payload Volume & Format Telemetry
+    const ctx2 = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Payload Volume (KB)',
+            data: payloadData,
+            backgroundColor: 'rgba(56, 189, 248, 0.4)',
+            borderColor: '#38bdf8',
+            borderWidth: 1.5,
+            yAxisID: 'yPayload',
+          },
+          {
+            type: 'line',
+            label: 'Fragmentation Ratio',
+            data: fmtData,
+            borderColor: '#c084fc',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 3,
+            yAxisID: 'yFmt',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: {
+            grid: { color: '#334155' },
+            ticks: { color: '#94a3b8' }
+          },
+          yPayload: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: '#334155' },
+            ticks: { color: '#38bdf8' },
+            title: { display: true, text: 'Payload (KB)', color: '#38bdf8' }
+          },
+          yFmt: {
+            type: 'linear',
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#c084fc' },
+            title: { display: true, text: 'Fragmentation Ratio', color: '#c084fc' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#f8fafc' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

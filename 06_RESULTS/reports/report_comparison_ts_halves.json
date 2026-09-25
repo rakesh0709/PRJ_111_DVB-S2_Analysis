@@ -1,0 +1,529 @@
+{
+  "report_id": "REP_MPEG_TS_20260924_064741",
+  "timestamp": "2026-09-24T06:47:41.536306+00:00",
+  "mode": "DUAL_STREAM",
+  "executive_summary": "The analyzed digital receiver output stream (MPEG-TS First Half (W0-W44)) consists of 9,000 parsed MPEG_TS framing units (1,626,231 bytes of user payload). Syntactic framing integrity is 100.00%, yielding an overall stream health score of 100.00/100.00 (HEALTHY). The calibrated Isolation Forest model flagged 3 of 45 sequential windows (6.67%) as statistically anomalous (peak anomaly score: 0.5305). Multiplex telemetry indicates concentration on dominant component PID 256 (98.5%) (98.5% share). Comparative analysis against MPEG-TS Second Half (W45-W90) (MPEG_TS) identified 3 key telemetric differences. All findings are strictly grounded in parsed packet and baseband telemetry without external physical-layer inference.",
+  "stream_info": {
+    "stream_name": "MPEG-TS First Half (W0-W44)",
+    "file_path": "C:\\Users\\rakes\\Downloads\\Mini Project\\01_RAW_DATA\\03_TS\\DVBS2_toolkit\\sample.ts",
+    "file_size_bytes": 3417088,
+    "detected_format": "MPEG_TS",
+    "format_description": "MPEG-2 Transport Stream (188B Packets)",
+    "total_units": 9000,
+    "valid_units": 9000,
+    "invalid_units": 0,
+    "truncated_units": 0,
+    "total_payload_bytes": 1626231,
+    "integrity_ratio": 1.0,
+    "error_count": 0
+  },
+  "tripartite_findings": [
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "FRAMING",
+      "title": "Framing Unit Count and Syntactic Validity",
+      "statement": "Parsed 9000 total framing units (9000 valid, 0 invalid).",
+      "evidence": "total_units=9000, valid_units=9000, invalid_units=0",
+      "source_layer": "PARSER",
+      "metrics": {
+        "total_units": 9000,
+        "valid_units": 9000
+      }
+    },
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "FRAMING",
+      "title": "User Payload Volume Extraction",
+      "statement": "Extracted 1626231 total octets of user data payload.",
+      "evidence": "total_payload_bytes=1626231",
+      "source_layer": "PARSER",
+      "metrics": {
+        "total_payload_bytes": 1626231
+      }
+    },
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "PATTERN",
+      "title": "Dominant PID Identification",
+      "statement": "MPEG-TS packets show concentration on dominant component PID 256 (98.5%).",
+      "evidence": "dominant_component=PID 256 (98.5%), share=98.5%",
+      "source_layer": "PARSER",
+      "metrics": {
+        "dominant_component": "PID 256 (98.5%)"
+      }
+    },
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "HEALTH",
+      "title": "Priority-1 Continuity and TEI Indicator Check",
+      "statement": "Observed 0 Priority-1 continuity or transport error indicator flags across capture.",
+      "evidence": "error_count=0",
+      "source_layer": "F1",
+      "metrics": {
+        "error_count": 0
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "HEALTH",
+      "title": "Aggregated Stream Health Score",
+      "statement": "Mean stream health score computed as 100.00 / 100.00 (HEALTHY).",
+      "evidence": "health_score=100.00, status=HEALTHY",
+      "source_layer": "F1",
+      "metrics": {
+        "health_score": 100.0
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "ANOMALY",
+      "title": "Isolation Forest Anomaly Scoring",
+      "statement": "Calibrated Isolation Forest flagged 3 of 45 windows as anomalous (6.67%).",
+      "evidence": "anomalous_windows=3, peak_score=0.5305, mean_score=0.2466",
+      "source_layer": "F2",
+      "metrics": {
+        "anomalous_windows": 3,
+        "peak_anomaly_score": 0.5305296415733157
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "PATTERN",
+      "title": "Multiplex Shannon Entropy Measurement",
+      "statement": "Multiplex distribution Shannon entropy measured at 0.1361 bits across 4 active components.",
+      "evidence": "shannon_entropy=0.1361, active_components=4",
+      "source_layer": "F3",
+      "metrics": {
+        "entropy": 0.1361
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "TIMELINE",
+      "title": "Payload Density Distribution Across Windows",
+      "statement": "Window payload density averages 35.29 KB/window with peak window payload of 35.94 KB.",
+      "evidence": "mean_kb=35.29, peak_kb=35.94",
+      "source_layer": "F4",
+      "metrics": {
+        "mean_payload_kb": 35.29147135416667,
+        "peak_payload_kb": 35.9375
+      }
+    },
+    {
+      "category": "ENGINEERING_INTERPRETATION",
+      "subsystem": "PATTERN",
+      "title": "Multiplex Bandwidth Allocation Concentration",
+      "statement": "Transport stream capacity is predominantly allocated to dominant PID PID 256 (98.5%) (accounting for 98.5% of units).",
+      "evidence": "Dominant PID share: 98.5%, active PIDs: 4",
+      "source_layer": "F3",
+      "metrics": {}
+    },
+    {
+      "category": "ENGINEERING_INTERPRETATION",
+      "subsystem": "COMPARISON",
+      "title": "Comparative Cross-Stream Differential Synthesis",
+      "statement": "User payload volume shifted by +14843 bytes (+0.91%) (Classification: INCREASED, Significance: NEGLIGIBLE).; Dominant traffic component shifted from 'PID 256 (98.5%)' to 'PID 256 (72.0%)'.",
+      "evidence": "is_same_format=True, key_diff_count=3",
+      "source_layer": "F6",
+      "metrics": {}
+    }
+  ],
+  "health": {
+    "health_score": 100.0,
+    "health_status": "HEALTHY",
+    "selected_priority1_checks": {
+      "framing_sync_integrity": "100.00%",
+      "error_packet_count": 0,
+      "stream_continuity": "NO_GAPS"
+    },
+    "detected_issues": [],
+    "recommendations": [
+      "Maintain nominal receiver telemetry monitoring."
+    ]
+  },
+  "anomalies": {
+    "total_windows": 45,
+    "anomalous_windows": 3,
+    "anomaly_rate_pct": 6.67,
+    "peak_anomaly_score": 0.5305,
+    "mean_anomaly_score": 0.2466,
+    "decision_threshold": 0.5,
+    "severity_breakdown": {
+      "NORMAL": 42,
+      "LOW": 3,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0
+    },
+    "anomaly_window_indices": [
+      1,
+      2,
+      12
+    ]
+  },
+  "patterns": {
+    "dominant_component": "PID 256 (98.5%)",
+    "dominant_component_pct": 98.5,
+    "multiplex_entropy": 0.1361,
+    "active_component_count": 4,
+    "transition_count": 0,
+    "structural_findings": [
+      "MPEG-TS multiplex dominated by PID 256 (98.5%)."
+    ]
+  },
+  "timeline": {
+    "window_size": 200,
+    "total_windows": 45,
+    "payload_volume_kb_mean": 35.29,
+    "payload_volume_kb_peak": 35.94,
+    "total_events": 3,
+    "event_counts_by_type": {
+      "F2_ANOMALY": 3
+    },
+    "activity_summary": "Stream sliced into 45 sequential windows with average payload density of 35.29 KB/window."
+  },
+  "explanations": {
+    "explained_anomalies_count": 5,
+    "subsystem_distribution": {
+      "MPEG-TS Multiplex / Active Stream Allocation; MPEG-TS Multiplex / PID Composition; MPEG-TS Adaptation Field / Clock Timing (PCR)": 3,
+      "User Data Concentration / Packet Size; MPEG-TS Adaptation Field / Clock Timing (PCR); Stream Payload Volume / Traffic Activity": 1,
+      "Stream Slicing / Capture File Boundary": 1
+    },
+    "key_explanations": [
+      {
+        "window_index": 1,
+        "severity": "LOW",
+        "subsystem": "MPEG-TS Multiplex / Active Stream Allocation; MPEG-TS Multiplex / PID Composition; MPEG-TS Adaptation Field / Clock Timing (PCR)",
+        "summary": "Window 1 exhibited multiplex concentration on a single PID (score 0.5232, LOW). Sync framing remains valid; scheduling intent cannot be determined."
+      },
+      {
+        "window_index": 2,
+        "severity": "LOW",
+        "subsystem": "MPEG-TS Multiplex / Active Stream Allocation; MPEG-TS Multiplex / PID Composition; MPEG-TS Adaptation Field / Clock Timing (PCR)",
+        "summary": "Window 2 exhibited multiplex concentration on a single PID (score 0.5305, LOW). Sync framing remains valid; scheduling intent cannot be determined."
+      },
+      {
+        "window_index": 12,
+        "severity": "LOW",
+        "subsystem": "MPEG-TS Multiplex / Active Stream Allocation; MPEG-TS Multiplex / PID Composition; MPEG-TS Adaptation Field / Clock Timing (PCR)",
+        "summary": "Window 12 exhibited multiplex concentration on a single PID (score 0.5232, LOW). Sync framing remains valid; scheduling intent cannot be determined."
+      },
+      {
+        "window_index": 88,
+        "severity": "MEDIUM",
+        "subsystem": "User Data Concentration / Packet Size; MPEG-TS Adaptation Field / Clock Timing (PCR); Stream Payload Volume / Traffic Activity",
+        "summary": "Window 88 exhibited elevated adaptation-field frequency (score 0.6635, MEDIUM). The available capture does not establish the specific cause."
+      },
+      {
+        "window_index": 90,
+        "severity": "CRITICAL",
+        "subsystem": "Stream Slicing / Capture File Boundary",
+        "summary": "Window 90 (score 0.8576, CRITICAL) contains 176 units at capture termination. Framing syntax remains valid; consistent with recording boundary, not transmission loss."
+      }
+    ]
+  },
+  "comparison": {
+    "stream_b_name": "MPEG-TS Second Half (W45-W90)",
+    "stream_b_format": "MPEG_TS",
+    "is_same_format": true,
+    "common_metrics_differential": {
+      "total_units": {
+        "metric_name": "total_units",
+        "stream_a_value": 9000,
+        "stream_b_value": 9176,
+        "absolute_difference": 176.0,
+        "relative_difference_pct": 1.9556,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "NEGLIGIBLE",
+        "description": "total_units changed from 9000 units to 9176 units (delta=+176 units, +1.96%).",
+        "incompatibility_reason": null,
+        "unit": " units"
+      },
+      "valid_units": {
+        "metric_name": "valid_units",
+        "stream_a_value": 9000,
+        "stream_b_value": 9176,
+        "absolute_difference": 176.0,
+        "relative_difference_pct": 1.9556,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "NEGLIGIBLE",
+        "description": "valid_units changed from 9000 units to 9176 units (delta=+176 units, +1.96%).",
+        "incompatibility_reason": null,
+        "unit": " units"
+      },
+      "invalid_units": {
+        "metric_name": "invalid_units",
+        "stream_a_value": 0,
+        "stream_b_value": 0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "invalid_units is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " units"
+      },
+      "truncated_units": {
+        "metric_name": "truncated_units",
+        "stream_a_value": 0,
+        "stream_b_value": 1,
+        "absolute_difference": 1.0,
+        "relative_difference_pct": null,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "CRITICAL",
+        "description": "Stream B observed non-zero value (1 units) while Stream A baseline is zero.",
+        "incompatibility_reason": null,
+        "unit": " units"
+      },
+      "integrity_ratio": {
+        "metric_name": "integrity_ratio",
+        "stream_a_value": 1.0,
+        "stream_b_value": 1.0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "integrity_ratio remained stable within equality tolerance (A=1.0, B=1.0, delta=+0.00%).",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "total_payload_bytes": {
+        "metric_name": "total_payload_bytes",
+        "stream_a_value": 1626231,
+        "stream_b_value": 1641074,
+        "absolute_difference": 14843.0,
+        "relative_difference_pct": 0.9127,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "NEGLIGIBLE",
+        "description": "total_payload_bytes changed from 1626231 bytes to 1641074 bytes (delta=+14843 bytes, +0.91%).",
+        "incompatibility_reason": null,
+        "unit": " bytes"
+      },
+      "mean_payload_bytes": {
+        "metric_name": "mean_payload_bytes",
+        "stream_a_value": 180.69233333333332,
+        "stream_b_value": 178.84415867480382,
+        "absolute_difference": -1.848175,
+        "relative_difference_pct": -1.0228,
+        "direction": "A_HIGHER",
+        "classification": "DECREASED",
+        "significance": "NEGLIGIBLE",
+        "description": "mean_payload_bytes changed from 180.69233333333332 B/unit to 178.84415867480382 B/unit (delta=-1.84817 B/unit, -1.02%).",
+        "incompatibility_reason": null,
+        "unit": " B/unit"
+      },
+      "payload_ratio": {
+        "metric_name": "payload_ratio",
+        "stream_a_value": 1.0,
+        "stream_b_value": 1.0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "payload_ratio remained stable within equality tolerance (A=1.0, B=1.0, delta=+0.00%).",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "error_count": {
+        "metric_name": "error_count",
+        "stream_a_value": 0,
+        "stream_b_value": 0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "error_count is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " errors"
+      },
+      "error_rate": {
+        "metric_name": "error_rate",
+        "stream_a_value": 0.0,
+        "stream_b_value": 0.0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "error_rate is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "entropy": {
+        "metric_name": "entropy",
+        "stream_a_value": 0.1361,
+        "stream_b_value": 0.9794,
+        "absolute_difference": 0.8433,
+        "relative_difference_pct": 619.6179,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "CRITICAL",
+        "description": "entropy changed from 0.1361 bits to 0.9794 bits (delta=+0.8433 bits, +619.62%).",
+        "incompatibility_reason": null,
+        "unit": " bits"
+      }
+    },
+    "format_specific_differential": {
+      "pid_entropy": {
+        "metric_name": "pid_entropy",
+        "stream_a_value": 0.5659244444444445,
+        "stream_b_value": 0.6899978260869565,
+        "absolute_difference": 0.124073,
+        "relative_difference_pct": 21.924,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "SUBSTANTIAL",
+        "description": "pid_entropy changed from 0.5659244444444445 bits to 0.6899978260869565 bits (delta=+0.124073 bits, +21.92%).",
+        "incompatibility_reason": null,
+        "unit": " bits"
+      },
+      "null_packet_ratio": {
+        "metric_name": "null_packet_ratio",
+        "stream_a_value": 0.0,
+        "stream_b_value": 0.0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "null_packet_ratio is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "tei_error_count": {
+        "metric_name": "tei_error_count",
+        "stream_a_value": 0,
+        "stream_b_value": 0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "tei_error_count is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " pkts"
+      },
+      "continuity_error_count": {
+        "metric_name": "continuity_error_count",
+        "stream_a_value": 0,
+        "stream_b_value": 0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "continuity_error_count is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " errors"
+      }
+    },
+    "anomaly_differential": {
+      "stream_a_anomaly_count": 3,
+      "stream_b_anomaly_count": 2,
+      "stream_a_anomaly_ratio": 0.0667,
+      "stream_b_anomaly_ratio": 0.0435,
+      "stream_a_peak_score": 0.5305,
+      "stream_b_peak_score": 0.8576,
+      "stream_a_mean_score": 0.2466,
+      "stream_b_mean_score": 0.2337,
+      "severity_breakdown_a": {
+        "NORMAL": 42,
+        "LOW": 3,
+        "MEDIUM": 0,
+        "HIGH": 0,
+        "CRITICAL": 0
+      },
+      "severity_breakdown_b": {
+        "NORMAL": 44,
+        "LOW": 0,
+        "MEDIUM": 1,
+        "HIGH": 0,
+        "CRITICAL": 1
+      },
+      "score_difference": {
+        "metric_name": "mean_anomaly_score",
+        "stream_a_value": 0.2465600625857673,
+        "stream_b_value": 0.23369729300328815,
+        "absolute_difference": -0.012863,
+        "relative_difference_pct": -5.2169,
+        "direction": "A_HIGHER",
+        "classification": "DECREASED",
+        "significance": "MINOR",
+        "description": "mean_anomaly_score changed from 0.2465600625857673 to 0.23369729300328815 (delta=-0.0128628, -5.22%).",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "rate_difference": {
+        "metric_name": "anomaly_rate",
+        "stream_a_value": 0.06666666666666667,
+        "stream_b_value": 0.043478260869565216,
+        "absolute_difference": -0.023188,
+        "relative_difference_pct": -34.7826,
+        "direction": "A_HIGHER",
+        "classification": "DECREASED",
+        "significance": "SUBSTANTIAL",
+        "description": "anomaly_rate changed from 0.06666666666666667 to 0.043478260869565216 (delta=-0.0231884, -34.78%).",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "is_cross_format": false,
+      "comparison_notes": [
+        "Stream A experienced 1 more anomalous windows than Stream B."
+      ]
+    },
+    "pattern_differential": {
+      "dominant_component_a": "PID 256 (98.5%)",
+      "dominant_component_b": "PID 256 (72.0%)",
+      "component_match": false,
+      "pattern_metrics": {
+        "transition_count": {
+          "metric_name": "transition_count",
+          "stream_a_value": 0,
+          "stream_b_value": 0,
+          "absolute_difference": 0.0,
+          "relative_difference_pct": 0.0,
+          "direction": "EQUAL",
+          "classification": "UNCHANGED",
+          "significance": "NEGLIGIBLE",
+          "description": "transition_count is zero in both streams.",
+          "incompatibility_reason": null,
+          "unit": ""
+        }
+      },
+      "structural_findings": [
+        "Dominant traffic component changed: PID 256 (98.5%) -> PID 256 (72.0%)."
+      ]
+    },
+    "key_differences": [
+      "User payload volume shifted by +14843 bytes (+0.91%) (Classification: INCREASED, Significance: NEGLIGIBLE).",
+      "Dominant traffic component shifted from 'PID 256 (98.5%)' to 'PID 256 (72.0%)'.",
+      "Detected anomaly occurrence changed by -1 windows (Stream A=3, Stream B=2)."
+    ],
+    "safe_comparative_conclusions": [
+      "Both streams maintained 100% syntactically valid framing integrity across all parsed units.",
+      "All reported observations are strictly grounded in parsed packet/frame telemetry."
+    ],
+    "alignment_disclaimer": "Temporal alignment is unavailable without external receiver clock telemetry; streams are aligned by physical stream progress and sequential window index. Differences reflect spatial capture progression, not synchronized broadcast timestamps."
+  },
+  "limitations_and_uncertainty": [
+    "Analysis is based strictly on parsed digital receiver output units without external demodulator RF clock telemetry.",
+    "Temporal window progression reflects spatial sequential packet/frame ordering, not broadcast wall-clock timestamps.",
+    "Unsupervised anomaly detection identifies statistical outliers relative to stream baseline; does not establish physical transmission failure.",
+    "Transport stream component analysis uses dominant PID numbers; specific program and stream-type roles remain unverified without PSI/SI tables."
+  ],
+  "unsupported_inferences_guard": [
+    "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+    "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+    "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+    "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+    "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+  ]
+}

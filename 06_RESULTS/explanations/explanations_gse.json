@@ -1,0 +1,150 @@
+{
+  "stream_name": "sample.ts",
+  "format": "GSE",
+  "total_windows": 5,
+  "anomaly_count": 1,
+  "anomaly_threshold": 0.5,
+  "summary_stats": {
+    "total_windows": 5,
+    "anomaly_windows": 1,
+    "explanations_generated": 1,
+    "mean_anomaly_score": 0.4156
+  },
+  "explanations": [
+    {
+      "explanation_id": "EXP_GSE_W4",
+      "format": "GSE",
+      "window_index": 4,
+      "unit_offset_start": 12,
+      "unit_offset_end": 14,
+      "byte_offset_start": 7332,
+      "byte_offset_end": 8910,
+      "anomaly_score": 0.5018,
+      "anomaly_severity": "LOW",
+      "anomaly_threshold": 0.5,
+      "is_anomaly": true,
+      "what_happened": "Window 4 contains a reduced unit count (2 units) at stream termination.",
+      "native_component": "Stream Slicing / Capture File Boundary",
+      "evidence_summary": "Window length of 2 units deviates from configured window size. Driven by log_total_units (|z| >= 2.0 below baseline). All framed packets retain 100% syntactic validity.",
+      "safe_conclusion": "Consistent with capture file end / recording termination boundary. This is an artifact of capture cessation and cannot be interpreted as packet loss, transmission failure, or system failure.",
+      "concise_summary": "Window 4 (score 0.5018, LOW) contains 2 units at capture termination. Framing syntax remains valid; consistent with recording boundary, not transmission loss.",
+      "primary_drivers": [
+        {
+          "feature_name": "log_total_units",
+          "native_component": "Stream Slicing / Capture Boundary (Unit Count)",
+          "observed_value": 0.30103,
+          "baseline_mean": 0.441903,
+          "baseline_std": 0.070437,
+          "z_score": 2.0,
+          "direction": "BELOW_BASELINE",
+          "deviation_pct": -31.88,
+          "description": "Window contains only 2 units, substantially fewer than baseline 3 units.",
+          "evidence": "log_total_units=0.301 (baseline 0.442 +/- 0.070, |z|=2.0 below baseline)",
+          "safe_inference": "Consistent with stream capture termination / recording boundary truncation; not a transmission drop-out or packet loss."
+        },
+        {
+          "feature_name": "protocol_entropy",
+          "native_component": "GSE Encapsulation Subsystem",
+          "observed_value": 1.0,
+          "baseline_mean": 0.38366,
+          "baseline_std": 0.470595,
+          "z_score": 1.3097,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 160.65,
+          "description": "Metric protocol_entropy observed at 1.0000, above baseline 0.3837.",
+          "evidence": "protocol_entropy=1.0000 (baseline 0.3837 +/- 0.4706, |z|=1.3 above baseline)",
+          "safe_inference": "Statistical deviation from learned baseline distribution. Capture data does not establish operational cause."
+        },
+        {
+          "feature_name": "fragmentation_ratio",
+          "native_component": "GSE Fragmentation Sub-layer (S/E Framing)",
+          "observed_value": 1.0,
+          "baseline_mean": 0.6,
+          "baseline_std": 0.326599,
+          "z_score": 1.2247,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 66.67,
+          "description": "PDU fragmentation ratio shifted to 100.0% (above baseline 60.0%).",
+          "evidence": "fragmentation_ratio=1.0000 (baseline 0.6000 +/- 0.3266, |z|=1.2 above baseline)",
+          "safe_inference": "PDU fragmentation was observed. GSE framing remains syntactically valid; the available capture does not establish the operational traffic cause."
+        }
+      ],
+      "secondary_drivers": [],
+      "supporting_patterns": [
+        {
+          "pattern_type": "GSE_PROTOCOL_DISTRIBUTION",
+          "description": "Protocol distribution dominated by NONE (50.0% of observed PDUs).",
+          "evidence": "1/2 PDUs match NONE",
+          "supporting_metrics": {
+            "protocol_counts": {
+              "NONE": 1,
+              "GSE_EXT_NPA": 1
+            },
+            "dominant_protocol": "NONE",
+            "dominant_percentage": 50.0
+          }
+        },
+        {
+          "pattern_type": "GSE_PDU_SIZE_DISTRIBUTION",
+          "description": "PDU payload size spans 256 to 1302 bytes (mean: 779.0 B, std: 523.0 B). Modal size cluster: medium_payload (128-576B).",
+          "evidence": "Computed across 2 GSE PDU lengths",
+          "supporting_metrics": {
+            "min_bytes": 256,
+            "max_bytes": 1302,
+            "mean_bytes": 779.0,
+            "std_bytes": 523.0,
+            "size_clusters": {
+              "small_control (<128B)": 0,
+              "medium_payload (128-576B)": 1,
+              "large_mtu (>576B)": 1
+            }
+          }
+        },
+        {
+          "pattern_type": "GSE_FRAGMENTATION_BEHAVIOR",
+          "description": "100.0% of observed PDUs belong to fragmented transmissions (1 first, 0 mid, 1 last, 0 unfragmented).",
+          "evidence": "2/2 fragmented PDUs observed",
+          "supporting_metrics": {
+            "fragmentation_ratio": 1.0,
+            "fragmentation_counts": {
+              "unfragmented": 0,
+              "first": 1,
+              "intermediate": 0,
+              "last": 1,
+              "padding": 0
+            },
+            "is_burst": true
+          }
+        },
+        {
+          "pattern_type": "GSE_LABEL_EXTENSION_USAGE",
+          "description": "Addressing uses LABEL_NONE on 50.0% of PDUs. Extension headers: ['GSE_EXT_NPA'].",
+          "evidence": "Label inspection on 2 PDUs",
+          "supporting_metrics": {
+            "label_counts": {
+              "LABEL_NONE": 1,
+              "LABEL_6B": 1
+            },
+            "dominant_label": "LABEL_NONE",
+            "extension_headers": [
+              "GSE_EXT_NPA"
+            ]
+          }
+        }
+      ],
+      "unsupported_inferences": [
+        "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+        "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+        "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+        "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+        "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+      ],
+      "limitations": [
+        "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+        "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry.",
+        "The available real GSE dataset is a short sample; long-term statistical confidence is limited."
+      ],
+      "timeline_event_id": "EV_GSE_ANOM_4"
+    }
+  ]
+}

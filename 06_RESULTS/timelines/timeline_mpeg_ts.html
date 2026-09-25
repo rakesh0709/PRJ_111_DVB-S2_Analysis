@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRJ_111: sample.ts — Timeline & Activity Dashboard</title>
+  <!-- Chart.js CDN for interactive charting -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-red: #f87171;
+      --accent-purple: #c084fc;
+      --border-color: #334155;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+    .header-title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+    .header-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .header-badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .badge {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-format {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+    .badge-healthy {
+      background-color: rgba(52, 211, 153, 0.2);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+    }
+    .badge-warning {
+      background-color: rgba(251, 191, 36, 0.2);
+      color: var(--accent-amber);
+      border: 1px solid var(--accent-amber);
+    }
+    .badge-critical {
+      background-color: rgba(248, 113, 113, 0.2);
+      color: var(--accent-red);
+      border: 1px solid var(--accent-red);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+    .kpi-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 6px;
+      color: var(--text-primary);
+    }
+    .kpi-subtext {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chart-legend-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .chart-container {
+      position: relative;
+      height: 280px;
+      width: 100%;
+    }
+    .table-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .table-container {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: var(--text-secondary);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #283548;
+      color: var(--text-primary);
+    }
+    tr:hover {
+      background-color: #273549;
+    }
+    .event-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+    .event-anomaly {
+      background-color: rgba(248, 113, 113, 0.25);
+      color: #fca5a5;
+      border: 1px solid #f87171;
+    }
+    .event-transition {
+      background-color: rgba(251, 191, 36, 0.25);
+      color: #fde68a;
+      border: 1px solid #fbbf24;
+    }
+    .event-health {
+      background-color: rgba(56, 189, 248, 0.25);
+      color: #bae6fd;
+      border: 1px solid #38bdf8;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <h1>PRJ_111: Stream Timeline & Activity Visualization</h1>
+      <div class="header-subtitle">
+        Capture: <strong>sample.ts</strong> | Sequential Physical Offset Timeline | Grounded Telemetry
+      </div>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-format">MPEG_TS</span>
+      <span class="badge badge-warning">Status: 100.0% Health</span>
+    </div>
+  </header>
+
+  <!-- KPI Metrics Grid -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Units Monitored</div>
+      <div class="kpi-value">18,176</div>
+      <div class="kpi-subtext">91 sequential windows (200 units/window)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Average Health Score</div>
+      <div class="kpi-value">100.0%</div>
+      <div class="kpi-subtext">ETSI TR 101 290 metric synthesis</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Peak Anomaly Score</div>
+      <div class="kpi-value">0.8576</div>
+      <div class="kpi-subtext">F2 Threshold: 0.50 (5 flagged windows)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Payload Volume</div>
+      <div class="kpi-value">3,190.7 KB</div>
+      <div class="kpi-subtext">Physical data volume (no fake throughput)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Structural Transitions</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-subtext">Cross-window mode/composition shifts</div>
+    </div>
+  </section>
+
+  <!-- Main Visual Charts -->
+  <section class="chart-grid">
+    <!-- Chart 1: Health vs Anomaly Trajectory -->
+    <div class="chart-card">
+      <div class="chart-title">
+        <span>Stream Health Trajectory vs. AI Anomaly Score</span>
+        <span class="chart-legend-hint">Dual Y-Axis: Health Score [0..100%] (Left) vs. Anomaly Score [0.0..1.0] (Right)</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="healthAnomalyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 2: Payload Volume & Format Telemetry -->
+    <div class="chart-card">
+      <div class="chart-title">
+        <span>Activity & Format-Specific Telemetry</span>
+        <span class="chart-legend-hint">Payload Volume (KB) vs. PID Entropy (bits)</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Window Telemetry & Events Table -->
+  <section class="table-card">
+    <div class="chart-title">
+      <span>Sequential Window Telemetry & Discovered Events</span>
+      <span class="chart-legend-hint">Showing 91 windows with exact unit and byte offsets</span>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Window</th>
+            <th>Unit Range</th>
+            <th>Byte Range</th>
+            <th>Payload (KB)</th>
+            <th>Health Score</th>
+            <th>Anomaly Score</th>
+            <th>Severity</th>
+            <th>Format Telemetry</th>
+            <th>Events & Explanations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>W0</strong></td>
+            <td>0..200</td>
+            <td style="font-family: monospace;">0..37,600</td>
+            <td>35.90</td>
+            <td>100.0%</td>
+            <td>0.4768</td>
+            <td>NORMAL</td>
+            <td>PID 256 (98.5%) | H=0.136b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W1</strong></td>
+            <td>200..400</td>
+            <td style="font-family: monospace;">37,600..75,200</td>
+            <td>35.94</td>
+            <td>100.0%</td>
+            <td>0.5232</td>
+            <td>LOW</td>
+            <td>PID 256 (100.0%) | H=0.000b</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: LOW</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Multiplex composition shift in window 1: active PID distribution is concentrated on a single dominant elementary stream.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Single-PID concentration observed in this window. Transport sync framing remains 100% valid; the available capture does not establish multiplexer scheduling intent.</div></td>
+          </tr>
+          <tr>
+            <td><strong>W2</strong></td>
+            <td>400..600</td>
+            <td style="font-family: monospace;">75,200..112,800</td>
+            <td>35.82</td>
+            <td>100.0%</td>
+            <td>0.5305</td>
+            <td>LOW</td>
+            <td>PID 256 (100.0%) | H=0.000b</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: LOW</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Multiplex composition shift in window 2: active PID distribution is concentrated on a single dominant elementary stream.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Single-PID concentration observed in this window. Transport sync framing remains 100% valid; the available capture does not establish multiplexer scheduling intent.</div></td>
+          </tr>
+          <tr>
+            <td><strong>W3</strong></td>
+            <td>600..800</td>
+            <td style="font-family: monospace;">112,800..150,400</td>
+            <td>35.71</td>
+            <td>100.0%</td>
+            <td>0.2595</td>
+            <td>NORMAL</td>
+            <td>PID 256 (93.5%) | H=0.347b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W4</strong></td>
+            <td>800..1000</td>
+            <td style="font-family: monospace;">150,400..188,000</td>
+            <td>35.34</td>
+            <td>100.0%</td>
+            <td>0.1542</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W5</strong></td>
+            <td>1000..1200</td>
+            <td style="font-family: monospace;">188,000..225,600</td>
+            <td>35.69</td>
+            <td>100.0%</td>
+            <td>0.1985</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.5%) | H=0.437b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W6</strong></td>
+            <td>1200..1400</td>
+            <td style="font-family: monospace;">225,600..263,200</td>
+            <td>34.34</td>
+            <td>100.0%</td>
+            <td>0.2360</td>
+            <td>NORMAL</td>
+            <td>PID 256 (79.5%) | H=0.799b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W7</strong></td>
+            <td>1400..1600</td>
+            <td style="font-family: monospace;">263,200..300,800</td>
+            <td>35.64</td>
+            <td>100.0%</td>
+            <td>0.1840</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.5%) | H=0.437b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W8</strong></td>
+            <td>1600..1800</td>
+            <td style="font-family: monospace;">300,800..338,400</td>
+            <td>35.74</td>
+            <td>100.0%</td>
+            <td>0.2924</td>
+            <td>NORMAL</td>
+            <td>PID 256 (93.5%) | H=0.347b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W9</strong></td>
+            <td>1800..2000</td>
+            <td style="font-family: monospace;">338,400..376,000</td>
+            <td>35.55</td>
+            <td>100.0%</td>
+            <td>0.2536</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.0%) | H=0.482b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W10</strong></td>
+            <td>2000..2200</td>
+            <td style="font-family: monospace;">376,000..413,600</td>
+            <td>35.36</td>
+            <td>100.0%</td>
+            <td>0.2418</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.5%) | H=0.384b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W11</strong></td>
+            <td>2200..2400</td>
+            <td style="font-family: monospace;">413,600..451,200</td>
+            <td>35.70</td>
+            <td>100.0%</td>
+            <td>0.2355</td>
+            <td>NORMAL</td>
+            <td>PID 256 (93.5%) | H=0.397b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W12</strong></td>
+            <td>2400..2600</td>
+            <td style="font-family: monospace;">451,200..488,800</td>
+            <td>35.94</td>
+            <td>100.0%</td>
+            <td>0.5232</td>
+            <td>LOW</td>
+            <td>PID 256 (100.0%) | H=0.000b</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: LOW</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Multiplex composition shift in window 12: active PID distribution is concentrated on a single dominant elementary stream.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Single-PID concentration observed in this window. Transport sync framing remains 100% valid; the available capture does not establish multiplexer scheduling intent.</div></td>
+          </tr>
+          <tr>
+            <td><strong>W13</strong></td>
+            <td>2600..2800</td>
+            <td style="font-family: monospace;">488,800..526,400</td>
+            <td>35.60</td>
+            <td>100.0%</td>
+            <td>0.2402</td>
+            <td>NORMAL</td>
+            <td>PID 256 (93.5%) | H=0.347b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W14</strong></td>
+            <td>2800..3000</td>
+            <td style="font-family: monospace;">526,400..564,000</td>
+            <td>35.56</td>
+            <td>100.0%</td>
+            <td>0.2449</td>
+            <td>NORMAL</td>
+            <td>PID 256 (93.5%) | H=0.347b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W15</strong></td>
+            <td>3000..3200</td>
+            <td style="font-family: monospace;">564,000..601,600</td>
+            <td>35.48</td>
+            <td>100.0%</td>
+            <td>0.1762</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W16</strong></td>
+            <td>3200..3400</td>
+            <td style="font-family: monospace;">601,600..639,200</td>
+            <td>35.77</td>
+            <td>100.0%</td>
+            <td>0.3767</td>
+            <td>NORMAL</td>
+            <td>PID 256 (99.0%) | H=0.091b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W17</strong></td>
+            <td>3400..3600</td>
+            <td style="font-family: monospace;">639,200..676,800</td>
+            <td>35.25</td>
+            <td>100.0%</td>
+            <td>0.2467</td>
+            <td>NORMAL</td>
+            <td>PID 256 (87.0%) | H=0.557b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W18</strong></td>
+            <td>3600..3800</td>
+            <td style="font-family: monospace;">676,800..714,400</td>
+            <td>35.12</td>
+            <td>100.0%</td>
+            <td>0.2205</td>
+            <td>NORMAL</td>
+            <td>PID 256 (84.5%) | H=0.759b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W19</strong></td>
+            <td>3800..4000</td>
+            <td style="font-family: monospace;">714,400..752,000</td>
+            <td>35.30</td>
+            <td>100.0%</td>
+            <td>0.2260</td>
+            <td>NORMAL</td>
+            <td>PID 256 (87.0%) | H=0.557b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W20</strong></td>
+            <td>4000..4200</td>
+            <td style="font-family: monospace;">752,000..789,600</td>
+            <td>35.25</td>
+            <td>100.0%</td>
+            <td>0.1646</td>
+            <td>NORMAL</td>
+            <td>PID 256 (85.5%) | H=0.680b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W21</strong></td>
+            <td>4200..4400</td>
+            <td style="font-family: monospace;">789,600..827,200</td>
+            <td>35.68</td>
+            <td>100.0%</td>
+            <td>0.2265</td>
+            <td>NORMAL</td>
+            <td>PID 256 (93.0%) | H=0.392b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W22</strong></td>
+            <td>4400..4600</td>
+            <td style="font-family: monospace;">827,200..864,800</td>
+            <td>35.00</td>
+            <td>100.0%</td>
+            <td>0.2026</td>
+            <td>NORMAL</td>
+            <td>PID 256 (72.0%) | H=0.979b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W23</strong></td>
+            <td>4600..4800</td>
+            <td style="font-family: monospace;">864,800..902,400</td>
+            <td>35.47</td>
+            <td>100.0%</td>
+            <td>0.2458</td>
+            <td>NORMAL</td>
+            <td>PID 256 (90.0%) | H=0.469b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W24</strong></td>
+            <td>4800..5000</td>
+            <td style="font-family: monospace;">902,400..940,000</td>
+            <td>34.90</td>
+            <td>100.0%</td>
+            <td>0.2314</td>
+            <td>NORMAL</td>
+            <td>PID 256 (81.5%) | H=0.835b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W25</strong></td>
+            <td>5000..5200</td>
+            <td style="font-family: monospace;">940,000..977,600</td>
+            <td>35.18</td>
+            <td>100.0%</td>
+            <td>0.1779</td>
+            <td>NORMAL</td>
+            <td>PID 256 (79.5%) | H=0.799b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W26</strong></td>
+            <td>5200..5400</td>
+            <td style="font-family: monospace;">977,600..1,015,200</td>
+            <td>35.70</td>
+            <td>100.0%</td>
+            <td>0.1947</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.5%) | H=0.437b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W27</strong></td>
+            <td>5400..5600</td>
+            <td style="font-family: monospace;">1,015,200..1,052,800</td>
+            <td>34.33</td>
+            <td>100.0%</td>
+            <td>0.3204</td>
+            <td>NORMAL</td>
+            <td>PID 256 (71.5%) | H=1.022b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W28</strong></td>
+            <td>5600..5800</td>
+            <td style="font-family: monospace;">1,052,800..1,090,400</td>
+            <td>35.38</td>
+            <td>100.0%</td>
+            <td>0.2341</td>
+            <td>NORMAL</td>
+            <td>PID 256 (87.0%) | H=0.557b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W29</strong></td>
+            <td>5800..6000</td>
+            <td style="font-family: monospace;">1,090,400..1,128,000</td>
+            <td>35.06</td>
+            <td>100.0%</td>
+            <td>0.1569</td>
+            <td>NORMAL</td>
+            <td>PID 256 (78.5%) | H=0.867b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W30</strong></td>
+            <td>6000..6200</td>
+            <td style="font-family: monospace;">1,128,000..1,165,600</td>
+            <td>34.47</td>
+            <td>100.0%</td>
+            <td>0.2016</td>
+            <td>NORMAL</td>
+            <td>PID 256 (79.5%) | H=0.799b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W31</strong></td>
+            <td>6200..6400</td>
+            <td style="font-family: monospace;">1,165,600..1,203,200</td>
+            <td>35.50</td>
+            <td>100.0%</td>
+            <td>0.1630</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.5%) | H=0.437b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W32</strong></td>
+            <td>6400..6600</td>
+            <td style="font-family: monospace;">1,203,200..1,240,800</td>
+            <td>35.00</td>
+            <td>100.0%</td>
+            <td>0.2931</td>
+            <td>NORMAL</td>
+            <td>PID 256 (71.5%) | H=1.022b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W33</strong></td>
+            <td>6600..6800</td>
+            <td style="font-family: monospace;">1,240,800..1,278,400</td>
+            <td>35.00</td>
+            <td>100.0%</td>
+            <td>0.1684</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W34</strong></td>
+            <td>6800..7000</td>
+            <td style="font-family: monospace;">1,278,400..1,316,000</td>
+            <td>34.88</td>
+            <td>100.0%</td>
+            <td>0.1831</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W35</strong></td>
+            <td>7000..7200</td>
+            <td style="font-family: monospace;">1,316,000..1,353,600</td>
+            <td>34.30</td>
+            <td>100.0%</td>
+            <td>0.3659</td>
+            <td>NORMAL</td>
+            <td>PID 256 (71.5%) | H=1.022b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W36</strong></td>
+            <td>7200..7400</td>
+            <td style="font-family: monospace;">1,353,600..1,391,200</td>
+            <td>35.57</td>
+            <td>100.0%</td>
+            <td>0.2299</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.0%) | H=0.402b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W37</strong></td>
+            <td>7400..7600</td>
+            <td style="font-family: monospace;">1,391,200..1,428,800</td>
+            <td>34.91</td>
+            <td>100.0%</td>
+            <td>0.1481</td>
+            <td>NORMAL</td>
+            <td>PID 256 (80.0%) | H=0.836b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W38</strong></td>
+            <td>7600..7800</td>
+            <td style="font-family: monospace;">1,428,800..1,466,400</td>
+            <td>34.97</td>
+            <td>100.0%</td>
+            <td>0.1609</td>
+            <td>NORMAL</td>
+            <td>PID 256 (74.5%) | H=0.890b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W39</strong></td>
+            <td>7800..8000</td>
+            <td style="font-family: monospace;">1,466,400..1,504,000</td>
+            <td>35.56</td>
+            <td>100.0%</td>
+            <td>0.1593</td>
+            <td>NORMAL</td>
+            <td>PID 256 (91.0%) | H=0.492b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W40</strong></td>
+            <td>8000..8200</td>
+            <td style="font-family: monospace;">1,504,000..1,541,600</td>
+            <td>34.58</td>
+            <td>100.0%</td>
+            <td>0.2603</td>
+            <td>NORMAL</td>
+            <td>PID 256 (71.5%) | H=1.022b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W41</strong></td>
+            <td>8200..8400</td>
+            <td style="font-family: monospace;">1,541,600..1,579,200</td>
+            <td>35.48</td>
+            <td>100.0%</td>
+            <td>0.2328</td>
+            <td>NORMAL</td>
+            <td>PID 256 (93.5%) | H=0.347b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W42</strong></td>
+            <td>8400..8600</td>
+            <td style="font-family: monospace;">1,579,200..1,616,800</td>
+            <td>34.97</td>
+            <td>100.0%</td>
+            <td>0.1500</td>
+            <td>NORMAL</td>
+            <td>PID 256 (78.5%) | H=0.867b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W43</strong></td>
+            <td>8600..8800</td>
+            <td style="font-family: monospace;">1,616,800..1,654,400</td>
+            <td>34.78</td>
+            <td>100.0%</td>
+            <td>0.1654</td>
+            <td>NORMAL</td>
+            <td>PID 256 (79.5%) | H=0.799b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W44</strong></td>
+            <td>8800..9000</td>
+            <td style="font-family: monospace;">1,654,400..1,692,000</td>
+            <td>35.45</td>
+            <td>100.0%</td>
+            <td>0.2181</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.0%) | H=0.482b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W45</strong></td>
+            <td>9000..9200</td>
+            <td style="font-family: monospace;">1,692,000..1,729,600</td>
+            <td>34.41</td>
+            <td>100.0%</td>
+            <td>0.2502</td>
+            <td>NORMAL</td>
+            <td>PID 256 (72.0%) | H=0.979b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W46</strong></td>
+            <td>9200..9400</td>
+            <td style="font-family: monospace;">1,729,600..1,767,200</td>
+            <td>35.36</td>
+            <td>100.0%</td>
+            <td>0.2387</td>
+            <td>NORMAL</td>
+            <td>PID 256 (88.0%) | H=0.529b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W47</strong></td>
+            <td>9400..9600</td>
+            <td style="font-family: monospace;">1,767,200..1,804,800</td>
+            <td>35.15</td>
+            <td>100.0%</td>
+            <td>0.1620</td>
+            <td>NORMAL</td>
+            <td>PID 256 (84.0%) | H=0.741b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W48</strong></td>
+            <td>9600..9800</td>
+            <td style="font-family: monospace;">1,804,800..1,842,400</td>
+            <td>34.78</td>
+            <td>100.0%</td>
+            <td>0.2404</td>
+            <td>NORMAL</td>
+            <td>PID 256 (72.5%) | H=0.956b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W49</strong></td>
+            <td>9800..10000</td>
+            <td style="font-family: monospace;">1,842,400..1,880,000</td>
+            <td>35.61</td>
+            <td>100.0%</td>
+            <td>0.1687</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.5%) | H=0.437b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W50</strong></td>
+            <td>10000..10200</td>
+            <td style="font-family: monospace;">1,880,000..1,917,600</td>
+            <td>34.89</td>
+            <td>100.0%</td>
+            <td>0.1707</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W51</strong></td>
+            <td>10200..10400</td>
+            <td style="font-family: monospace;">1,917,600..1,955,200</td>
+            <td>35.28</td>
+            <td>100.0%</td>
+            <td>0.1561</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W52</strong></td>
+            <td>10400..10600</td>
+            <td style="font-family: monospace;">1,955,200..1,992,800</td>
+            <td>34.54</td>
+            <td>100.0%</td>
+            <td>0.1915</td>
+            <td>NORMAL</td>
+            <td>PID 256 (79.5%) | H=0.799b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W53</strong></td>
+            <td>10600..10800</td>
+            <td style="font-family: monospace;">1,992,800..2,030,400</td>
+            <td>35.47</td>
+            <td>100.0%</td>
+            <td>0.2459</td>
+            <td>NORMAL</td>
+            <td>PID 256 (85.5%) | H=0.691b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W54</strong></td>
+            <td>10800..11000</td>
+            <td style="font-family: monospace;">2,030,400..2,068,000</td>
+            <td>34.88</td>
+            <td>100.0%</td>
+            <td>0.1724</td>
+            <td>NORMAL</td>
+            <td>PID 256 (78.5%) | H=0.867b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W55</strong></td>
+            <td>11000..11200</td>
+            <td style="font-family: monospace;">2,068,000..2,105,600</td>
+            <td>34.77</td>
+            <td>100.0%</td>
+            <td>0.1615</td>
+            <td>NORMAL</td>
+            <td>PID 256 (79.5%) | H=0.799b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W56</strong></td>
+            <td>11200..11400</td>
+            <td style="font-family: monospace;">2,105,600..2,143,200</td>
+            <td>35.44</td>
+            <td>100.0%</td>
+            <td>0.1640</td>
+            <td>NORMAL</td>
+            <td>PID 256 (91.0%) | H=0.492b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W57</strong></td>
+            <td>11400..11600</td>
+            <td style="font-family: monospace;">2,143,200..2,180,800</td>
+            <td>34.77</td>
+            <td>100.0%</td>
+            <td>0.2642</td>
+            <td>NORMAL</td>
+            <td>PID 256 (73.0%) | H=1.000b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W58</strong></td>
+            <td>11600..11800</td>
+            <td style="font-family: monospace;">2,180,800..2,218,400</td>
+            <td>35.08</td>
+            <td>100.0%</td>
+            <td>0.1498</td>
+            <td>NORMAL</td>
+            <td>PID 256 (79.5%) | H=0.799b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W59</strong></td>
+            <td>11800..12000</td>
+            <td style="font-family: monospace;">2,218,400..2,256,000</td>
+            <td>35.13</td>
+            <td>100.0%</td>
+            <td>0.1437</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W60</strong></td>
+            <td>12000..12200</td>
+            <td style="font-family: monospace;">2,256,000..2,293,600</td>
+            <td>34.59</td>
+            <td>100.0%</td>
+            <td>0.2716</td>
+            <td>NORMAL</td>
+            <td>PID 256 (71.5%) | H=1.022b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W61</strong></td>
+            <td>12200..12400</td>
+            <td style="font-family: monospace;">2,293,600..2,331,200</td>
+            <td>35.33</td>
+            <td>100.0%</td>
+            <td>0.2293</td>
+            <td>NORMAL</td>
+            <td>PID 256 (87.0%) | H=0.557b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W62</strong></td>
+            <td>12400..12600</td>
+            <td style="font-family: monospace;">2,331,200..2,368,800</td>
+            <td>35.09</td>
+            <td>100.0%</td>
+            <td>0.1433</td>
+            <td>NORMAL</td>
+            <td>PID 256 (85.0%) | H=0.715b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W63</strong></td>
+            <td>12600..12800</td>
+            <td style="font-family: monospace;">2,368,800..2,406,400</td>
+            <td>34.67</td>
+            <td>100.0%</td>
+            <td>0.2323</td>
+            <td>NORMAL</td>
+            <td>PID 256 (72.0%) | H=0.979b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W64</strong></td>
+            <td>12800..13000</td>
+            <td style="font-family: monospace;">2,406,400..2,444,000</td>
+            <td>35.21</td>
+            <td>100.0%</td>
+            <td>0.2349</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.5%) | H=0.602b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W65</strong></td>
+            <td>13000..13200</td>
+            <td style="font-family: monospace;">2,444,000..2,481,600</td>
+            <td>35.06</td>
+            <td>100.0%</td>
+            <td>0.1456</td>
+            <td>NORMAL</td>
+            <td>PID 256 (85.0%) | H=0.715b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W66</strong></td>
+            <td>13200..13400</td>
+            <td style="font-family: monospace;">2,481,600..2,519,200</td>
+            <td>34.26</td>
+            <td>100.0%</td>
+            <td>0.2997</td>
+            <td>NORMAL</td>
+            <td>PID 256 (70.0%) | H=0.955b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W67</strong></td>
+            <td>13400..13600</td>
+            <td style="font-family: monospace;">2,519,200..2,556,800</td>
+            <td>35.58</td>
+            <td>100.0%</td>
+            <td>0.1819</td>
+            <td>NORMAL</td>
+            <td>PID 256 (89.0%) | H=0.558b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W68</strong></td>
+            <td>13600..13800</td>
+            <td style="font-family: monospace;">2,556,800..2,594,400</td>
+            <td>34.95</td>
+            <td>100.0%</td>
+            <td>0.2120</td>
+            <td>NORMAL</td>
+            <td>PID 256 (78.0%) | H=0.911b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W69</strong></td>
+            <td>13800..14000</td>
+            <td style="font-family: monospace;">2,594,400..2,632,000</td>
+            <td>34.80</td>
+            <td>100.0%</td>
+            <td>0.1934</td>
+            <td>NORMAL</td>
+            <td>PID 256 (76.0%) | H=0.865b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W70</strong></td>
+            <td>14000..14200</td>
+            <td style="font-family: monospace;">2,632,000..2,669,600</td>
+            <td>35.31</td>
+            <td>100.0%</td>
+            <td>0.1528</td>
+            <td>NORMAL</td>
+            <td>PID 256 (89.5%) | H=0.542b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W71</strong></td>
+            <td>14200..14400</td>
+            <td style="font-family: monospace;">2,669,600..2,707,200</td>
+            <td>34.89</td>
+            <td>100.0%</td>
+            <td>0.1533</td>
+            <td>NORMAL</td>
+            <td>PID 256 (78.5%) | H=0.867b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W72</strong></td>
+            <td>14400..14600</td>
+            <td style="font-family: monospace;">2,707,200..2,744,800</td>
+            <td>34.95</td>
+            <td>100.0%</td>
+            <td>0.2214</td>
+            <td>NORMAL</td>
+            <td>PID 256 (74.5%) | H=0.925b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W73</strong></td>
+            <td>14600..14800</td>
+            <td style="font-family: monospace;">2,744,800..2,782,400</td>
+            <td>35.30</td>
+            <td>100.0%</td>
+            <td>0.1585</td>
+            <td>NORMAL</td>
+            <td>PID 256 (90.0%) | H=0.526b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W74</strong></td>
+            <td>14800..15000</td>
+            <td style="font-family: monospace;">2,782,400..2,820,000</td>
+            <td>35.02</td>
+            <td>100.0%</td>
+            <td>0.1610</td>
+            <td>NORMAL</td>
+            <td>PID 256 (79.0%) | H=0.857b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W75</strong></td>
+            <td>15000..15200</td>
+            <td style="font-family: monospace;">2,820,000..2,857,600</td>
+            <td>34.69</td>
+            <td>100.0%</td>
+            <td>0.1980</td>
+            <td>NORMAL</td>
+            <td>PID 256 (73.0%) | H=0.913b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W76</strong></td>
+            <td>15200..15400</td>
+            <td style="font-family: monospace;">2,857,600..2,895,200</td>
+            <td>35.38</td>
+            <td>100.0%</td>
+            <td>0.2285</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.0%) | H=0.482b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W77</strong></td>
+            <td>15400..15600</td>
+            <td style="font-family: monospace;">2,895,200..2,932,800</td>
+            <td>34.28</td>
+            <td>100.0%</td>
+            <td>0.2761</td>
+            <td>NORMAL</td>
+            <td>PID 256 (72.0%) | H=0.979b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W78</strong></td>
+            <td>15600..15800</td>
+            <td style="font-family: monospace;">2,932,800..2,970,400</td>
+            <td>35.10</td>
+            <td>100.0%</td>
+            <td>0.1506</td>
+            <td>NORMAL</td>
+            <td>PID 256 (82.5%) | H=0.734b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W79</strong></td>
+            <td>15800..16000</td>
+            <td style="font-family: monospace;">2,970,400..3,008,000</td>
+            <td>35.55</td>
+            <td>100.0%</td>
+            <td>0.1751</td>
+            <td>NORMAL</td>
+            <td>PID 256 (89.5%) | H=0.542b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W80</strong></td>
+            <td>16000..16200</td>
+            <td style="font-family: monospace;">3,008,000..3,045,600</td>
+            <td>34.48</td>
+            <td>100.0%</td>
+            <td>0.2888</td>
+            <td>NORMAL</td>
+            <td>PID 256 (71.5%) | H=1.022b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W81</strong></td>
+            <td>16200..16400</td>
+            <td style="font-family: monospace;">3,045,600..3,083,200</td>
+            <td>35.10</td>
+            <td>100.0%</td>
+            <td>0.1434</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W82</strong></td>
+            <td>16400..16600</td>
+            <td style="font-family: monospace;">3,083,200..3,120,800</td>
+            <td>35.27</td>
+            <td>100.0%</td>
+            <td>0.1442</td>
+            <td>NORMAL</td>
+            <td>PID 256 (86.0%) | H=0.646b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W83</strong></td>
+            <td>16600..16800</td>
+            <td style="font-family: monospace;">3,120,800..3,158,400</td>
+            <td>34.71</td>
+            <td>100.0%</td>
+            <td>0.2730</td>
+            <td>NORMAL</td>
+            <td>PID 256 (71.5%) | H=1.022b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W84</strong></td>
+            <td>16800..17000</td>
+            <td style="font-family: monospace;">3,158,400..3,196,000</td>
+            <td>35.05</td>
+            <td>100.0%</td>
+            <td>0.1838</td>
+            <td>NORMAL</td>
+            <td>PID 256 (92.5%) | H=0.437b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W85</strong></td>
+            <td>17000..17200</td>
+            <td style="font-family: monospace;">3,196,000..3,233,600</td>
+            <td>35.53</td>
+            <td>100.0%</td>
+            <td>0.3270</td>
+            <td>NORMAL</td>
+            <td>PID 256 (99.0%) | H=0.091b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W86</strong></td>
+            <td>17200..17400</td>
+            <td style="font-family: monospace;">3,233,600..3,271,200</td>
+            <td>35.11</td>
+            <td>100.0%</td>
+            <td>0.3370</td>
+            <td>NORMAL</td>
+            <td>PID 256 (98.0%) | H=0.161b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W87</strong></td>
+            <td>17400..17600</td>
+            <td style="font-family: monospace;">3,271,200..3,308,800</td>
+            <td>34.81</td>
+            <td>100.0%</td>
+            <td>0.2789</td>
+            <td>NORMAL</td>
+            <td>PID 256 (97.5%) | H=0.207b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W88</strong></td>
+            <td>17600..17800</td>
+            <td style="font-family: monospace;">3,308,800..3,346,400</td>
+            <td>33.54</td>
+            <td>100.0%</td>
+            <td>0.6635</td>
+            <td>MEDIUM</td>
+            <td>PID 256 (97.0%) | H=0.224b</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: MEDIUM</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Elevated adaptation-field frequency in window 88 relative to baseline.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Elevated adaptation-field utilization was observed. The available capture does not establish the specific cause.</div></td>
+          </tr>
+          <tr>
+            <td><strong>W89</strong></td>
+            <td>17800..18000</td>
+            <td style="font-family: monospace;">3,346,400..3,384,000</td>
+            <td>34.38</td>
+            <td>100.0%</td>
+            <td>0.3539</td>
+            <td>NORMAL</td>
+            <td>PID 256 (96.5%) | H=0.270b</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W90</strong></td>
+            <td>18000..18176</td>
+            <td style="font-family: monospace;">3,384,000..3,417,088</td>
+            <td>29.04</td>
+            <td>100.0%</td>
+            <td>0.8576</td>
+            <td>CRITICAL</td>
+            <td>PID 256 (87.5%) | H=0.737b</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: CRITICAL</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Window 90 contains a reduced unit count (176 units) at stream termination.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Consistent with capture file end / recording termination boundary. This is an artifact of capture cessation and cannot be interpreted as packet loss, transmission failure, or system failure.</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    PRJ_111: DVB-S2 Receiver Output Stream Analysis — Review-2 Prototype Milestone &copy; 2026
+  </footer>
+
+  <!-- Chart.js Scripts -->
+  <script>
+    const labels = ["W0", "W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12", "W13", "W14", "W15", "W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25", "W26", "W27", "W28", "W29", "W30", "W31", "W32", "W33", "W34", "W35", "W36", "W37", "W38", "W39", "W40", "W41", "W42", "W43", "W44", "W45", "W46", "W47", "W48", "W49", "W50", "W51", "W52", "W53", "W54", "W55", "W56", "W57", "W58", "W59", "W60", "W61", "W62", "W63", "W64", "W65", "W66", "W67", "W68", "W69", "W70", "W71", "W72", "W73", "W74", "W75", "W76", "W77", "W78", "W79", "W80", "W81", "W82", "W83", "W84", "W85", "W86", "W87", "W88", "W89", "W90"];
+    const healthData = [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0];
+    const anomalyData = [0.4768, 0.5232, 0.5305, 0.2595, 0.1542, 0.1985, 0.236, 0.184, 0.2924, 0.2536, 0.2418, 0.2355, 0.5232, 0.2402, 0.2449, 0.1762, 0.3767, 0.2467, 0.2205, 0.226, 0.1646, 0.2265, 0.2026, 0.2458, 0.2314, 0.1779, 0.1947, 0.3204, 0.2341, 0.1569, 0.2016, 0.163, 0.2931, 0.1684, 0.1831, 0.3659, 0.2299, 0.1481, 0.1609, 0.1593, 0.2603, 0.2328, 0.15, 0.1654, 0.2181, 0.2502, 0.2387, 0.162, 0.2404, 0.1687, 0.1707, 0.1561, 0.1915, 0.2459, 0.1724, 0.1615, 0.164, 0.2642, 0.1498, 0.1437, 0.2716, 0.2293, 0.1433, 0.2323, 0.2349, 0.1456, 0.2997, 0.1819, 0.212, 0.1934, 0.1528, 0.1533, 0.2214, 0.1585, 0.161, 0.198, 0.2285, 0.2761, 0.1506, 0.1751, 0.2888, 0.1434, 0.1442, 0.273, 0.1838, 0.327, 0.337, 0.2789, 0.6635, 0.3539, 0.8576];
+    const payloadData = [35.903, 35.938, 35.822, 35.712, 35.338, 35.689, 34.341, 35.638, 35.741, 35.55, 35.361, 35.702, 35.938, 35.597, 35.557, 35.485, 35.768, 35.248, 35.12, 35.296, 35.25, 35.683, 35.0, 35.47, 34.902, 35.177, 35.703, 34.33, 35.382, 35.061, 34.471, 35.504, 34.999, 34.999, 34.885, 34.295, 35.566, 34.912, 34.973, 35.565, 34.576, 35.475, 34.967, 34.78, 35.449, 34.408, 35.36, 35.148, 34.784, 35.612, 34.887, 35.284, 34.544, 35.467, 34.876, 34.768, 35.438, 34.772, 35.075, 35.131, 34.594, 35.328, 35.093, 34.669, 35.213, 35.063, 34.263, 35.579, 34.955, 34.799, 35.312, 34.892, 34.953, 35.299, 35.021, 34.694, 35.382, 34.282, 35.098, 35.547, 34.485, 35.103, 35.271, 34.709, 35.047, 35.527, 35.113, 34.814, 33.538, 34.375, 29.038];
+    const fmtData = [0.1361, 0.0, 0.0, 0.347, 0.6462, 0.4368, 0.7995, 0.4368, 0.347, 0.4817, 0.3843, 0.3972, 0.0, 0.347, 0.347, 0.6462, 0.0908, 0.5574, 0.7591, 0.5574, 0.6805, 0.3919, 0.9794, 0.469, 0.8346, 0.7995, 0.4368, 1.0224, 0.5574, 0.8669, 0.7995, 0.4368, 1.0224, 0.6462, 0.6462, 1.0224, 0.4022, 0.8357, 0.89, 0.4918, 1.0224, 0.347, 0.8669, 0.7995, 0.4817, 0.9794, 0.5294, 0.7413, 0.9563, 0.4368, 0.6462, 0.6462, 0.7995, 0.6905, 0.8669, 0.7995, 0.4918, 0.9997, 0.7995, 0.6462, 1.0224, 0.5574, 0.7148, 0.9794, 0.6018, 0.7148, 0.9545, 0.5583, 0.9106, 0.865, 0.5423, 0.8669, 0.9252, 0.5259, 0.8568, 0.9132, 0.4817, 0.9794, 0.7343, 0.5423, 1.0224, 0.6462, 0.6462, 1.0224, 0.4368, 0.0908, 0.1614, 0.2067, 0.2244, 0.2696, 0.7368];
+    const anomalyThreshold = 0.5;
+
+    // Chart 1: Health vs Anomaly Trajectory
+    const ctx1 = document.getElementById('healthAnomalyChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Stream Health Score (%)',
+            data: healthData,
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52, 211, 153, 0.1)',
+            borderWidth: 2.5,
+            yAxisID: 'yHealth',
+            tension: 0.2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+          {
+            label: 'AI Anomaly Score',
+            data: anomalyData,
+            borderColor: '#f87171',
+            backgroundColor: 'rgba(248, 113, 113, 0.15)',
+            borderWidth: 2,
+            borderDash: [4, 4],
+            yAxisID: 'yAnomaly',
+            tension: 0.2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+          {
+            label: 'F2 Anomaly Decision Threshold (' + anomalyThreshold.toFixed(2) + ')',
+            data: Array(labels.length).fill(anomalyThreshold),
+            borderColor: '#fbbf24',
+            borderWidth: 1.5,
+            borderDash: [6, 6],
+            pointRadius: 0,
+            yAxisID: 'yAnomaly',
+            fill: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: {
+            grid: { color: '#334155' },
+            ticks: { color: '#94a3b8' }
+          },
+          yHealth: {
+            type: 'linear',
+            position: 'left',
+            min: 0,
+            max: 100,
+            grid: { color: '#334155' },
+            ticks: { color: '#34d399' },
+            title: { display: true, text: 'Health Score (%)', color: '#34d399' }
+          },
+          yAnomaly: {
+            type: 'linear',
+            position: 'right',
+            min: 0.0,
+            max: 1.0,
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#f87171' },
+            title: { display: true, text: 'Anomaly Score [0..1]', color: '#f87171' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#f8fafc' } }
+        }
+      }
+    });
+
+    // Chart 2: Payload Volume & Format Telemetry
+    const ctx2 = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Payload Volume (KB)',
+            data: payloadData,
+            backgroundColor: 'rgba(56, 189, 248, 0.4)',
+            borderColor: '#38bdf8',
+            borderWidth: 1.5,
+            yAxisID: 'yPayload',
+          },
+          {
+            type: 'line',
+            label: 'PID Entropy (bits)',
+            data: fmtData,
+            borderColor: '#c084fc',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 3,
+            yAxisID: 'yFmt',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: {
+            grid: { color: '#334155' },
+            ticks: { color: '#94a3b8' }
+          },
+          yPayload: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: '#334155' },
+            ticks: { color: '#38bdf8' },
+            title: { display: true, text: 'Payload (KB)', color: '#38bdf8' }
+          },
+          yFmt: {
+            type: 'linear',
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#c084fc' },
+            title: { display: true, text: 'PID Entropy (bits)', color: '#c084fc' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#f8fafc' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

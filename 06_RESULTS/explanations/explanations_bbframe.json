@@ -1,0 +1,735 @@
+{
+  "stream_name": "dvb-s2_bb_example.pcap",
+  "format": "BB_FRAME",
+  "total_windows": 87,
+  "anomaly_count": 5,
+  "anomaly_threshold": 0.5,
+  "summary_stats": {
+    "total_windows": 87,
+    "anomaly_windows": 5,
+    "explanations_generated": 5,
+    "mean_anomaly_score": 0.128
+  },
+  "explanations": [
+    {
+      "explanation_id": "EXP_BB_FRAME_W0",
+      "format": "BB_FRAME",
+      "window_index": 0,
+      "unit_offset_start": 0,
+      "unit_offset_end": 50,
+      "byte_offset_start": 0,
+      "byte_offset_end": 51363,
+      "anomaly_score": 0.6467,
+      "anomaly_severity": "MEDIUM",
+      "anomaly_threshold": 0.5,
+      "is_anomaly": true,
+      "what_happened": "Multiple Input Stream (MIS) header flag observed in window 0 alongside Single Input Stream (SIS) frames.",
+      "native_component": "DVB-S2 Baseband Header (MATYPE-1 Input Stream Mode SIS/MIS); Stream Payload Volume / Traffic Activity; Stream Payload Utilization",
+      "evidence_summary": "sis_ratio=0.98 (|z|=9.3 below baseline); log_total_payload=4.71 (|z|=2.7 above baseline)",
+      "safe_conclusion": "Valid CRC-8 confirms structural header integrity. The capture alone cannot determine whether the MIS configuration was intentional.",
+      "concise_summary": "Window 0 contains an isolated MIS header flag (score 0.6467, MEDIUM). Structural integrity is confirmed by valid CRC-8; operational intent cannot be determined.",
+      "primary_drivers": [
+        {
+          "feature_name": "sis_ratio",
+          "native_component": "DVB-S2 Baseband Header (MATYPE-1 Input Stream Mode SIS/MIS)",
+          "observed_value": 0.98,
+          "baseline_mean": 0.99977,
+          "baseline_std": 0.002132,
+          "z_score": 9.2736,
+          "direction": "BELOW_BASELINE",
+          "deviation_pct": -1.98,
+          "description": "Single Input Stream (SIS) ratio is 98.0% (below baseline 100.0%).",
+          "evidence": "sis_ratio=0.9800 (baseline 0.9998 +/- 0.0021, |z|=9.3 below baseline)",
+          "safe_inference": "Valid CRC-8 confirms structural header integrity. The capture alone cannot determine whether the MIS configuration was intentional."
+        },
+        {
+          "feature_name": "log_total_payload",
+          "native_component": "Stream Payload Volume / Traffic Activity",
+          "observed_value": 4.706402,
+          "baseline_mean": 4.322522,
+          "baseline_std": 0.143372,
+          "z_score": 2.6775,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 8.88,
+          "description": "Payload volume metric log_total_payload is above baseline (4.706 vs 4.323).",
+          "evidence": "log_total_payload=4.7064 (baseline 4.3225 +/- 0.1434, |z|=2.7 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        },
+        {
+          "feature_name": "payload_ratio",
+          "native_component": "Stream Payload Utilization",
+          "observed_value": 0.990265,
+          "baseline_mean": 0.976196,
+          "baseline_std": 0.005533,
+          "z_score": 2.5427,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 1.44,
+          "description": "Payload volume metric payload_ratio is above baseline (0.990 vs 0.976).",
+          "evidence": "payload_ratio=0.9903 (baseline 0.9762 +/- 0.0055, |z|=2.5 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        }
+      ],
+      "secondary_drivers": [],
+      "supporting_patterns": [
+        {
+          "pattern_type": "BB_DFL_DISTRIBUTION",
+          "description": "DFL spans 1432 to 8304 bits (mean: 8138.1 bits, std: 976.5). Modal DFL: 8304 bits (92.0% of frames).",
+          "evidence": "Analyzed 50 DVB-S2 header DFL fields",
+          "supporting_metrics": {
+            "min_dfl_bits": 1432,
+            "max_dfl_bits": 8304,
+            "mean_dfl_bits": 8138.08,
+            "std_dfl_bits": 976.51,
+            "modal_dfl_bits": 8304,
+            "modal_percentage": 92.0,
+            "unique_dfl_count": 5
+          }
+        },
+        {
+          "pattern_type": "BB_SIS_MIS_BEHAVIOR",
+          "description": "Stream operates in mixed SIS/MIS mode (98.00% SIS, 2.00% MIS).",
+          "evidence": "MATYPE-1 byte 0 bit 5 decoded over 50 frames",
+          "supporting_metrics": {
+            "sis_frames": 49,
+            "mis_frames": 1,
+            "sis_ratio": 0.98,
+            "mis_ratio": 0.02
+          }
+        },
+        {
+          "pattern_type": "BB_CCM_ACM_BEHAVIOR",
+          "description": "Modulation mode is 100% Adaptive Coding & Modulation (ACM).",
+          "evidence": "MATYPE-1 byte 0 bit 4 decoded over 50 frames",
+          "supporting_metrics": {
+            "ccm_frames": 0,
+            "acm_frames": 50,
+            "ccm_ratio": 0.0,
+            "acm_ratio": 1.0
+          }
+        },
+        {
+          "pattern_type": "BB_ROLLOFF_STABILITY",
+          "description": "Roll-off factor is strictly stable at alpha=0.35.",
+          "evidence": "MATYPE-1 roll-off bits over 50 frames",
+          "supporting_metrics": {
+            "roll_off_counts": {
+              "0.35": 50
+            },
+            "dominant_alpha": 0.35,
+            "is_stable": true
+          }
+        },
+        {
+          "pattern_type": "BB_MODE_ADAPTATION",
+          "description": "SatLabs mode adaptation is dominated by L.3 (4B) (100.0% of frames).",
+          "evidence": "SYNCD / Mode adaptation classification on 50 frames",
+          "supporting_metrics": {
+            "mode_adaptation_counts": {
+              "L.3 (4B)": 50
+            },
+            "dominant_type": "L.3 (4B)"
+          }
+        },
+        {
+          "pattern_type": "BB_STRUCTURAL_SUMMARY",
+          "description": "Transmission framing: GENERIC_CONTINUOUS stream.",
+          "evidence": "MATYPE-1 byte 0 bits 6-7 over 50 frames",
+          "supporting_metrics": {
+            "stream_types": {
+              "GENERIC_CONTINUOUS": 50
+            },
+            "dominant_stream_type": "GENERIC_CONTINUOUS"
+          }
+        }
+      ],
+      "unsupported_inferences": [
+        "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+        "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+        "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+        "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+        "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+      ],
+      "limitations": [
+        "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+        "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry."
+      ],
+      "timeline_event_id": "EV_BB_ANOM_0"
+    },
+    {
+      "explanation_id": "EXP_BB_FRAME_W83",
+      "format": "BB_FRAME",
+      "window_index": 83,
+      "unit_offset_start": 4150,
+      "unit_offset_end": 4200,
+      "byte_offset_start": 1863724,
+      "byte_offset_end": 1889175,
+      "anomaly_score": 0.521,
+      "anomaly_severity": "LOW",
+      "anomaly_threshold": 0.5,
+      "is_anomaly": true,
+      "what_happened": "Baseband frame payload volume and data field length shifted in window 83.",
+      "native_component": "Stream Payload Utilization; Stream Payload Volume / Traffic Activity; User Data Concentration / Packet Size",
+      "evidence_summary": "payload_ratio=0.98 (|z|=0.8 above baseline); log_total_payload=4.40 (|z|=0.5 above baseline)",
+      "safe_conclusion": "Payload volume and DFL distribution changed together. The capture does not by itself establish the operational cause.",
+      "concise_summary": "Window 83 exhibited payload volume and DFL distribution changes (score 0.5210, LOW). The capture does not by itself establish the operational cause.",
+      "primary_drivers": [
+        {
+          "feature_name": "payload_ratio",
+          "native_component": "Stream Payload Utilization",
+          "observed_value": 0.980354,
+          "baseline_mean": 0.976196,
+          "baseline_std": 0.005533,
+          "z_score": 0.7516,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 0.43,
+          "description": "Payload volume metric payload_ratio is above baseline (0.980 vs 0.976).",
+          "evidence": "payload_ratio=0.9804 (baseline 0.9762 +/- 0.0055, |z|=0.8 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        },
+        {
+          "feature_name": "log_total_payload",
+          "native_component": "Stream Payload Volume / Traffic Activity",
+          "observed_value": 4.397088,
+          "baseline_mean": 4.322522,
+          "baseline_std": 0.143372,
+          "z_score": 0.5201,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 1.73,
+          "description": "Payload volume metric log_total_payload is above baseline (4.397 vs 4.323).",
+          "evidence": "log_total_payload=4.3971 (baseline 4.3225 +/- 0.1434, |z|=0.5 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        },
+        {
+          "feature_name": "mean_payload_kb",
+          "native_component": "User Data Concentration / Packet Size",
+          "observed_value": 0.487324,
+          "baseline_mean": 0.451042,
+          "baseline_std": 0.219638,
+          "z_score": 0.1652,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 8.04,
+          "description": "Payload volume metric mean_payload_kb is above baseline (0.487 vs 0.451).",
+          "evidence": "mean_payload_kb=0.4873 (baseline 0.4510 +/- 0.2196, |z|=0.2 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        }
+      ],
+      "secondary_drivers": [],
+      "supporting_patterns": [
+        {
+          "pattern_type": "BB_DFL_DISTRIBUTION",
+          "description": "DFL spans 216 to 10000 bits (mean: 3992.2 bits, std: 2378.8). Modal DFL: 2992 bits (44.0% of frames).",
+          "evidence": "Analyzed 50 DVB-S2 header DFL fields",
+          "supporting_metrics": {
+            "min_dfl_bits": 216,
+            "max_dfl_bits": 10000,
+            "mean_dfl_bits": 3992.16,
+            "std_dfl_bits": 2378.83,
+            "modal_dfl_bits": 2992,
+            "modal_percentage": 44.0,
+            "unique_dfl_count": 12
+          }
+        },
+        {
+          "pattern_type": "BB_SIS_MIS_BEHAVIOR",
+          "description": "Stream operates in SIS (Single Input Stream) mode (100.00% SIS, 0.00% MIS).",
+          "evidence": "MATYPE-1 byte 0 bit 5 decoded over 50 frames",
+          "supporting_metrics": {
+            "sis_frames": 50,
+            "mis_frames": 0,
+            "sis_ratio": 1.0,
+            "mis_ratio": 0.0
+          }
+        },
+        {
+          "pattern_type": "BB_CCM_ACM_BEHAVIOR",
+          "description": "Modulation mode is 100% Adaptive Coding & Modulation (ACM).",
+          "evidence": "MATYPE-1 byte 0 bit 4 decoded over 50 frames",
+          "supporting_metrics": {
+            "ccm_frames": 0,
+            "acm_frames": 50,
+            "ccm_ratio": 0.0,
+            "acm_ratio": 1.0
+          }
+        },
+        {
+          "pattern_type": "BB_ROLLOFF_STABILITY",
+          "description": "Roll-off factor is strictly stable at alpha=0.35.",
+          "evidence": "MATYPE-1 roll-off bits over 50 frames",
+          "supporting_metrics": {
+            "roll_off_counts": {
+              "0.35": 50
+            },
+            "dominant_alpha": 0.35,
+            "is_stable": true
+          }
+        },
+        {
+          "pattern_type": "BB_MODE_ADAPTATION",
+          "description": "SatLabs mode adaptation is dominated by L.3 (4B) (100.0% of frames).",
+          "evidence": "SYNCD / Mode adaptation classification on 50 frames",
+          "supporting_metrics": {
+            "mode_adaptation_counts": {
+              "L.3 (4B)": 50
+            },
+            "dominant_type": "L.3 (4B)"
+          }
+        },
+        {
+          "pattern_type": "BB_STRUCTURAL_SUMMARY",
+          "description": "Transmission framing: GENERIC_CONTINUOUS stream.",
+          "evidence": "MATYPE-1 byte 0 bits 6-7 over 50 frames",
+          "supporting_metrics": {
+            "stream_types": {
+              "GENERIC_CONTINUOUS": 50
+            },
+            "dominant_stream_type": "GENERIC_CONTINUOUS"
+          }
+        }
+      ],
+      "unsupported_inferences": [
+        "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+        "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+        "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+        "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+        "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+      ],
+      "limitations": [
+        "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+        "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry."
+      ],
+      "timeline_event_id": "EV_BB_ANOM_83"
+    },
+    {
+      "explanation_id": "EXP_BB_FRAME_W84",
+      "format": "BB_FRAME",
+      "window_index": 84,
+      "unit_offset_start": 4200,
+      "unit_offset_end": 4250,
+      "byte_offset_start": 1889175,
+      "byte_offset_end": 1930532,
+      "anomaly_score": 0.5043,
+      "anomaly_severity": "LOW",
+      "anomaly_threshold": 0.5,
+      "is_anomaly": true,
+      "what_happened": "Baseband frame payload volume and data field length shifted in window 84.",
+      "native_component": "Stream Payload Utilization; Stream Payload Volume / Traffic Activity; User Data Concentration / Packet Size",
+      "evidence_summary": "payload_ratio=0.99 (|z|=2.1 above baseline); log_total_payload=4.61 (|z|=2.0 above baseline)",
+      "safe_conclusion": "Payload volume and DFL distribution changed together. The capture does not by itself establish the operational cause.",
+      "concise_summary": "Window 84 exhibited payload volume and DFL distribution changes (score 0.5043, LOW). The capture does not by itself establish the operational cause.",
+      "primary_drivers": [
+        {
+          "feature_name": "payload_ratio",
+          "native_component": "Stream Payload Utilization",
+          "observed_value": 0.98791,
+          "baseline_mean": 0.976196,
+          "baseline_std": 0.005533,
+          "z_score": 2.1171,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 1.2,
+          "description": "Payload volume metric payload_ratio is above baseline (0.988 vs 0.976).",
+          "evidence": "payload_ratio=0.9879 (baseline 0.9762 +/- 0.0055, |z|=2.1 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        },
+        {
+          "feature_name": "log_total_payload",
+          "native_component": "Stream Payload Volume / Traffic Activity",
+          "observed_value": 4.611266,
+          "baseline_mean": 4.322522,
+          "baseline_std": 0.143372,
+          "z_score": 2.0139,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 6.68,
+          "description": "Payload volume metric log_total_payload is above baseline (4.611 vs 4.323).",
+          "evidence": "log_total_payload=4.6113 (baseline 4.3225 +/- 0.1434, |z|=2.0 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        },
+        {
+          "feature_name": "mean_payload_kb",
+          "native_component": "User Data Concentration / Packet Size",
+          "observed_value": 0.797988,
+          "baseline_mean": 0.451042,
+          "baseline_std": 0.219638,
+          "z_score": 1.5796,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 76.92,
+          "description": "Payload volume metric mean_payload_kb is above baseline (0.798 vs 0.451).",
+          "evidence": "mean_payload_kb=0.7980 (baseline 0.4510 +/- 0.2196, |z|=1.6 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        }
+      ],
+      "secondary_drivers": [],
+      "supporting_patterns": [
+        {
+          "pattern_type": "BB_DFL_DISTRIBUTION",
+          "description": "DFL spans 752 to 9936 bits (mean: 6537.1 bits, std: 2660.5). Modal DFL: 6768 bits (36.0% of frames).",
+          "evidence": "Analyzed 50 DVB-S2 header DFL fields",
+          "supporting_metrics": {
+            "min_dfl_bits": 752,
+            "max_dfl_bits": 9936,
+            "mean_dfl_bits": 6537.12,
+            "std_dfl_bits": 2660.47,
+            "modal_dfl_bits": 6768,
+            "modal_percentage": 36.0,
+            "unique_dfl_count": 9
+          }
+        },
+        {
+          "pattern_type": "BB_SIS_MIS_BEHAVIOR",
+          "description": "Stream operates in SIS (Single Input Stream) mode (100.00% SIS, 0.00% MIS).",
+          "evidence": "MATYPE-1 byte 0 bit 5 decoded over 50 frames",
+          "supporting_metrics": {
+            "sis_frames": 50,
+            "mis_frames": 0,
+            "sis_ratio": 1.0,
+            "mis_ratio": 0.0
+          }
+        },
+        {
+          "pattern_type": "BB_CCM_ACM_BEHAVIOR",
+          "description": "Modulation mode is 100% Adaptive Coding & Modulation (ACM).",
+          "evidence": "MATYPE-1 byte 0 bit 4 decoded over 50 frames",
+          "supporting_metrics": {
+            "ccm_frames": 0,
+            "acm_frames": 50,
+            "ccm_ratio": 0.0,
+            "acm_ratio": 1.0
+          }
+        },
+        {
+          "pattern_type": "BB_ROLLOFF_STABILITY",
+          "description": "Roll-off factor is strictly stable at alpha=0.35.",
+          "evidence": "MATYPE-1 roll-off bits over 50 frames",
+          "supporting_metrics": {
+            "roll_off_counts": {
+              "0.35": 50
+            },
+            "dominant_alpha": 0.35,
+            "is_stable": true
+          }
+        },
+        {
+          "pattern_type": "BB_MODE_ADAPTATION",
+          "description": "SatLabs mode adaptation is dominated by L.3 (4B) (100.0% of frames).",
+          "evidence": "SYNCD / Mode adaptation classification on 50 frames",
+          "supporting_metrics": {
+            "mode_adaptation_counts": {
+              "L.3 (4B)": 50
+            },
+            "dominant_type": "L.3 (4B)"
+          }
+        },
+        {
+          "pattern_type": "BB_STRUCTURAL_SUMMARY",
+          "description": "Transmission framing: GENERIC_CONTINUOUS stream.",
+          "evidence": "MATYPE-1 byte 0 bits 6-7 over 50 frames",
+          "supporting_metrics": {
+            "stream_types": {
+              "GENERIC_CONTINUOUS": 50
+            },
+            "dominant_stream_type": "GENERIC_CONTINUOUS"
+          }
+        }
+      ],
+      "unsupported_inferences": [
+        "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+        "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+        "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+        "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+        "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+      ],
+      "limitations": [
+        "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+        "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry."
+      ],
+      "timeline_event_id": "EV_BB_ANOM_84"
+    },
+    {
+      "explanation_id": "EXP_BB_FRAME_W85",
+      "format": "BB_FRAME",
+      "window_index": 85,
+      "unit_offset_start": 4250,
+      "unit_offset_end": 4300,
+      "byte_offset_start": 1930532,
+      "byte_offset_end": 1990786,
+      "anomaly_score": 0.6013,
+      "anomaly_severity": "MEDIUM",
+      "anomaly_threshold": 0.5,
+      "is_anomaly": true,
+      "what_happened": "Baseband frame payload volume and data field length shifted in window 85.",
+      "native_component": "User Data Concentration / Packet Size; Stream Payload Volume / Traffic Activity; Stream Payload Utilization",
+      "evidence_summary": "mean_payload_kb=1.17 (|z|=3.3 above baseline); log_total_payload=4.78 (|z|=3.2 above baseline)",
+      "safe_conclusion": "Payload volume and DFL distribution changed together. The capture does not by itself establish the operational cause.",
+      "concise_summary": "Window 85 exhibited payload volume and DFL distribution changes (score 0.6013, MEDIUM). The capture does not by itself establish the operational cause.",
+      "primary_drivers": [
+        {
+          "feature_name": "mean_payload_kb",
+          "native_component": "User Data Concentration / Packet Size",
+          "observed_value": 1.16707,
+          "baseline_mean": 0.451042,
+          "baseline_std": 0.219638,
+          "z_score": 3.26,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 158.75,
+          "description": "Payload volume metric mean_payload_kb is above baseline (1.167 vs 0.451).",
+          "evidence": "mean_payload_kb=1.1671 (baseline 0.4510 +/- 0.2196, |z|=3.3 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        },
+        {
+          "feature_name": "log_total_payload",
+          "native_component": "Stream Payload Volume / Traffic Activity",
+          "observed_value": 4.776367,
+          "baseline_mean": 4.322522,
+          "baseline_std": 0.143372,
+          "z_score": 3.1655,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 10.5,
+          "description": "Payload volume metric log_total_payload is above baseline (4.776 vs 4.323).",
+          "evidence": "log_total_payload=4.7764 (baseline 4.3225 +/- 0.1434, |z|=3.2 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        },
+        {
+          "feature_name": "payload_ratio",
+          "native_component": "Stream Payload Utilization",
+          "observed_value": 0.991702,
+          "baseline_mean": 0.976196,
+          "baseline_std": 0.005533,
+          "z_score": 2.8023,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 1.59,
+          "description": "Payload volume metric payload_ratio is above baseline (0.992 vs 0.976).",
+          "evidence": "payload_ratio=0.9917 (baseline 0.9762 +/- 0.0055, |z|=2.8 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        }
+      ],
+      "secondary_drivers": [],
+      "supporting_patterns": [
+        {
+          "pattern_type": "BB_DFL_DISTRIBUTION",
+          "description": "DFL spans 6624 to 9936 bits (mean: 9560.6 bits, std: 784.1). Modal DFL: 9936 bits (78.0% of frames).",
+          "evidence": "Analyzed 50 DVB-S2 header DFL fields",
+          "supporting_metrics": {
+            "min_dfl_bits": 6624,
+            "max_dfl_bits": 9936,
+            "mean_dfl_bits": 9560.64,
+            "std_dfl_bits": 784.07,
+            "modal_dfl_bits": 9936,
+            "modal_percentage": 78.0,
+            "unique_dfl_count": 4
+          }
+        },
+        {
+          "pattern_type": "BB_SIS_MIS_BEHAVIOR",
+          "description": "Stream operates in SIS (Single Input Stream) mode (100.00% SIS, 0.00% MIS).",
+          "evidence": "MATYPE-1 byte 0 bit 5 decoded over 50 frames",
+          "supporting_metrics": {
+            "sis_frames": 50,
+            "mis_frames": 0,
+            "sis_ratio": 1.0,
+            "mis_ratio": 0.0
+          }
+        },
+        {
+          "pattern_type": "BB_CCM_ACM_BEHAVIOR",
+          "description": "Modulation mode is 100% Adaptive Coding & Modulation (ACM).",
+          "evidence": "MATYPE-1 byte 0 bit 4 decoded over 50 frames",
+          "supporting_metrics": {
+            "ccm_frames": 0,
+            "acm_frames": 50,
+            "ccm_ratio": 0.0,
+            "acm_ratio": 1.0
+          }
+        },
+        {
+          "pattern_type": "BB_ROLLOFF_STABILITY",
+          "description": "Roll-off factor is strictly stable at alpha=0.35.",
+          "evidence": "MATYPE-1 roll-off bits over 50 frames",
+          "supporting_metrics": {
+            "roll_off_counts": {
+              "0.35": 50
+            },
+            "dominant_alpha": 0.35,
+            "is_stable": true
+          }
+        },
+        {
+          "pattern_type": "BB_MODE_ADAPTATION",
+          "description": "SatLabs mode adaptation is dominated by L.3 (4B) (100.0% of frames).",
+          "evidence": "SYNCD / Mode adaptation classification on 50 frames",
+          "supporting_metrics": {
+            "mode_adaptation_counts": {
+              "L.3 (4B)": 50
+            },
+            "dominant_type": "L.3 (4B)"
+          }
+        },
+        {
+          "pattern_type": "BB_STRUCTURAL_SUMMARY",
+          "description": "Transmission framing: GENERIC_CONTINUOUS stream.",
+          "evidence": "MATYPE-1 byte 0 bits 6-7 over 50 frames",
+          "supporting_metrics": {
+            "stream_types": {
+              "GENERIC_CONTINUOUS": 50
+            },
+            "dominant_stream_type": "GENERIC_CONTINUOUS"
+          }
+        }
+      ],
+      "unsupported_inferences": [
+        "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+        "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+        "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+        "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+        "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+      ],
+      "limitations": [
+        "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+        "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry."
+      ],
+      "timeline_event_id": "EV_BB_ANOM_85"
+    },
+    {
+      "explanation_id": "EXP_BB_FRAME_W86",
+      "format": "BB_FRAME",
+      "window_index": 86,
+      "unit_offset_start": 4300,
+      "unit_offset_end": 4309,
+      "byte_offset_start": 1990786,
+      "byte_offset_end": 2001916,
+      "anomaly_score": 0.7406,
+      "anomaly_severity": "HIGH",
+      "anomaly_threshold": 0.5,
+      "is_anomaly": true,
+      "what_happened": "Window 86 contains a reduced unit count (9 units) at stream termination.",
+      "native_component": "Stream Slicing / Capture File Boundary",
+      "evidence_summary": "Window length of 9 units deviates from configured window size. Driven by log_total_units (|z| >= 2.0 below baseline). All framed packets retain 100% syntactic validity.",
+      "safe_conclusion": "Consistent with capture file end / recording termination boundary. This is an artifact of capture cessation and cannot be interpreted as packet loss, transmission failure, or system failure.",
+      "concise_summary": "Window 86 (score 0.7406, HIGH) contains 9 units at capture termination. Framing syntax remains valid; consistent with recording boundary, not transmission loss.",
+      "primary_drivers": [
+        {
+          "feature_name": "log_total_units",
+          "native_component": "Stream Slicing / Capture Boundary (Unit Count)",
+          "observed_value": 0.954243,
+          "baseline_mean": 1.69041,
+          "baseline_std": 0.079383,
+          "z_score": 9.2736,
+          "direction": "BELOW_BASELINE",
+          "deviation_pct": -43.55,
+          "description": "Window contains only 9 units, substantially fewer than baseline 49 units.",
+          "evidence": "log_total_units=0.954 (baseline 1.690 +/- 0.079, |z|=9.3 below baseline)",
+          "safe_inference": "Consistent with stream capture termination / recording boundary truncation; not a transmission drop-out or packet loss."
+        },
+        {
+          "feature_name": "mean_payload_kb",
+          "native_component": "User Data Concentration / Packet Size",
+          "observed_value": 1.197917,
+          "baseline_mean": 0.451042,
+          "baseline_std": 0.219638,
+          "z_score": 3.4005,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 165.59,
+          "description": "Payload volume metric mean_payload_kb is above baseline (1.198 vs 0.451).",
+          "evidence": "mean_payload_kb=1.1979 (baseline 0.4510 +/- 0.2196, |z|=3.4 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        },
+        {
+          "feature_name": "payload_ratio",
+          "native_component": "Stream Payload Utilization",
+          "observed_value": 0.991914,
+          "baseline_mean": 0.976196,
+          "baseline_std": 0.005533,
+          "z_score": 2.8406,
+          "direction": "ABOVE_BASELINE",
+          "deviation_pct": 1.61,
+          "description": "Payload volume metric payload_ratio is above baseline (0.992 vs 0.976).",
+          "evidence": "payload_ratio=0.9919 (baseline 0.9762 +/- 0.0055, |z|=2.8 above baseline)",
+          "safe_inference": "Payload volume variation observed relative to baseline. The capture does not by itself establish the operational cause."
+        }
+      ],
+      "secondary_drivers": [],
+      "supporting_patterns": [
+        {
+          "pattern_type": "BB_DFL_DISTRIBUTION",
+          "description": "DFL spans 8832 to 9936 bits (mean: 9813.3 bits, std: 347.0). Modal DFL: 9936 bits (88.9% of frames).",
+          "evidence": "Analyzed 9 DVB-S2 header DFL fields",
+          "supporting_metrics": {
+            "min_dfl_bits": 8832,
+            "max_dfl_bits": 9936,
+            "mean_dfl_bits": 9813.33,
+            "std_dfl_bits": 346.95,
+            "modal_dfl_bits": 9936,
+            "modal_percentage": 88.89,
+            "unique_dfl_count": 2
+          }
+        },
+        {
+          "pattern_type": "BB_SIS_MIS_BEHAVIOR",
+          "description": "Stream operates in SIS (Single Input Stream) mode (100.00% SIS, 0.00% MIS).",
+          "evidence": "MATYPE-1 byte 0 bit 5 decoded over 9 frames",
+          "supporting_metrics": {
+            "sis_frames": 9,
+            "mis_frames": 0,
+            "sis_ratio": 1.0,
+            "mis_ratio": 0.0
+          }
+        },
+        {
+          "pattern_type": "BB_CCM_ACM_BEHAVIOR",
+          "description": "Modulation mode is 100% Adaptive Coding & Modulation (ACM).",
+          "evidence": "MATYPE-1 byte 0 bit 4 decoded over 9 frames",
+          "supporting_metrics": {
+            "ccm_frames": 0,
+            "acm_frames": 9,
+            "ccm_ratio": 0.0,
+            "acm_ratio": 1.0
+          }
+        },
+        {
+          "pattern_type": "BB_ROLLOFF_STABILITY",
+          "description": "Roll-off factor is strictly stable at alpha=0.35.",
+          "evidence": "MATYPE-1 roll-off bits over 9 frames",
+          "supporting_metrics": {
+            "roll_off_counts": {
+              "0.35": 9
+            },
+            "dominant_alpha": 0.35,
+            "is_stable": true
+          }
+        },
+        {
+          "pattern_type": "BB_MODE_ADAPTATION",
+          "description": "SatLabs mode adaptation is dominated by L.3 (4B) (100.0% of frames).",
+          "evidence": "SYNCD / Mode adaptation classification on 9 frames",
+          "supporting_metrics": {
+            "mode_adaptation_counts": {
+              "L.3 (4B)": 9
+            },
+            "dominant_type": "L.3 (4B)"
+          }
+        },
+        {
+          "pattern_type": "BB_STRUCTURAL_SUMMARY",
+          "description": "Transmission framing: GENERIC_CONTINUOUS stream.",
+          "evidence": "MATYPE-1 byte 0 bits 6-7 over 9 frames",
+          "supporting_metrics": {
+            "stream_types": {
+              "GENERIC_CONTINUOUS": 9
+            },
+            "dominant_stream_type": "GENERIC_CONTINUOUS"
+          }
+        }
+      ],
+      "unsupported_inferences": [
+        "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+        "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+        "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+        "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+        "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+      ],
+      "limitations": [
+        "Physical demodulator parameters (SNR, Eb/N0, AGC, MER) are not present in digital stream captures.",
+        "Bit-error rate (BER) cannot be measured directly in the absence of uncorrected demodulator telemetry."
+      ],
+      "timeline_event_id": "EV_BB_ANOM_86"
+    }
+  ]
+}

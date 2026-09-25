@@ -1,0 +1,492 @@
+{
+  "comparison_id": "CMP_BB_FRAME_20260924_064642",
+  "timestamp": "2026-09-24T06:46:42.227728+00:00",
+  "stream_a_name": "BBFrame Pre-Transition (W0-W7)",
+  "stream_b_name": "BBFrame Post-Transition (W8-W86)",
+  "format_a": "BB_FRAME",
+  "format_b": "BB_FRAME",
+  "is_same_format": true,
+  "common": {
+    "metrics": {
+      "total_units": {
+        "metric_name": "total_units",
+        "stream_a_value": 400,
+        "stream_b_value": 3909,
+        "absolute_difference": 3509.0,
+        "relative_difference_pct": 877.25,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "CRITICAL",
+        "description": "total_units changed from 400 units to 3909 units (delta=+3509 units, +877.25%).",
+        "incompatibility_reason": null,
+        "unit": " units"
+      },
+      "valid_units": {
+        "metric_name": "valid_units",
+        "stream_a_value": 400,
+        "stream_b_value": 3909,
+        "absolute_difference": 3509.0,
+        "relative_difference_pct": 877.25,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "CRITICAL",
+        "description": "valid_units changed from 400 units to 3909 units (delta=+3509 units, +877.25%).",
+        "incompatibility_reason": null,
+        "unit": " units"
+      },
+      "invalid_units": {
+        "metric_name": "invalid_units",
+        "stream_a_value": 0,
+        "stream_b_value": 0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "invalid_units is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " units"
+      },
+      "truncated_units": {
+        "metric_name": "truncated_units",
+        "stream_a_value": 0,
+        "stream_b_value": 1,
+        "absolute_difference": 1.0,
+        "relative_difference_pct": null,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "CRITICAL",
+        "description": "Stream B observed non-zero value (1 units) while Stream A baseline is zero.",
+        "incompatibility_reason": null,
+        "unit": " units"
+      },
+      "integrity_ratio": {
+        "metric_name": "integrity_ratio",
+        "stream_a_value": 1.0,
+        "stream_b_value": 1.0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "integrity_ratio remained stable within equality tolerance (A=1.0, B=1.0, delta=+0.00%).",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "total_payload_bytes": {
+        "metric_name": "total_payload_bytes",
+        "stream_a_value": 411279,
+        "stream_b_value": 1547547,
+        "absolute_difference": 1136268.0,
+        "relative_difference_pct": 276.2767,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "CRITICAL",
+        "description": "total_payload_bytes changed from 411279 bytes to 1547547 bytes (delta=+1.13627e+06 bytes, +276.28%).",
+        "incompatibility_reason": null,
+        "unit": " bytes"
+      },
+      "mean_payload_bytes": {
+        "metric_name": "mean_payload_bytes",
+        "stream_a_value": 1028.1975,
+        "stream_b_value": 395.8933231005372,
+        "absolute_difference": -632.304177,
+        "relative_difference_pct": -61.4964,
+        "direction": "A_HIGHER",
+        "classification": "DECREASED",
+        "significance": "CRITICAL",
+        "description": "mean_payload_bytes changed from 1028.1975 B/unit to 395.8933231005372 B/unit (delta=-632.304 B/unit, -61.50%).",
+        "incompatibility_reason": null,
+        "unit": " B/unit"
+      },
+      "payload_ratio": {
+        "metric_name": "payload_ratio",
+        "stream_a_value": 1.0,
+        "stream_b_value": 1.0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "payload_ratio remained stable within equality tolerance (A=1.0, B=1.0, delta=+0.00%).",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "error_count": {
+        "metric_name": "error_count",
+        "stream_a_value": 0,
+        "stream_b_value": 0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "error_count is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " errors"
+      },
+      "error_rate": {
+        "metric_name": "error_rate",
+        "stream_a_value": 0.0,
+        "stream_b_value": 0.0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "error_rate is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": ""
+      },
+      "entropy": {
+        "metric_name": "entropy",
+        "stream_a_value": 0.0,
+        "stream_b_value": 0.0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "entropy is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " bits"
+      }
+    },
+    "summary_description": "Same-format comparison: All 11 common telemetry metrics evaluated under identical framing semantics.",
+    "cross_format_audited": false
+  },
+  "format_specific": {
+    "is_comparable": true,
+    "format_name": "BB_FRAME",
+    "metrics": {
+      "modal_dfl": {
+        "metric_name": "modal_dfl",
+        "stream_a_value": 0,
+        "stream_b_value": 0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "modal_dfl is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " bits"
+      },
+      "crc_error_count": {
+        "metric_name": "crc_error_count",
+        "stream_a_value": 0,
+        "stream_b_value": 0,
+        "absolute_difference": 0.0,
+        "relative_difference_pct": 0.0,
+        "direction": "EQUAL",
+        "classification": "UNCHANGED",
+        "significance": "NEGLIGIBLE",
+        "description": "crc_error_count is zero in both streams.",
+        "incompatibility_reason": null,
+        "unit": " errors"
+      }
+    },
+    "structural_differences": [
+      "Baseband Header Modal DFL consistent at 0 bits."
+    ],
+    "incompatibility_reason": null
+  },
+  "anomalies": {
+    "stream_a_anomaly_count": 1,
+    "stream_b_anomaly_count": 4,
+    "stream_a_anomaly_ratio": 0.125,
+    "stream_b_anomaly_ratio": 0.0506,
+    "stream_a_peak_score": 0.6467,
+    "stream_b_peak_score": 0.7406,
+    "stream_a_mean_score": 0.2757,
+    "stream_b_mean_score": 0.113,
+    "severity_breakdown_a": {
+      "NORMAL": 7,
+      "LOW": 0,
+      "MEDIUM": 1,
+      "HIGH": 0,
+      "CRITICAL": 0
+    },
+    "severity_breakdown_b": {
+      "NORMAL": 75,
+      "LOW": 2,
+      "MEDIUM": 1,
+      "HIGH": 1,
+      "CRITICAL": 0
+    },
+    "score_difference": {
+      "metric_name": "mean_anomaly_score",
+      "stream_a_value": 0.27572503557416306,
+      "stream_b_value": 0.11301786501381358,
+      "absolute_difference": -0.162707,
+      "relative_difference_pct": -59.0107,
+      "direction": "A_HIGHER",
+      "classification": "DECREASED",
+      "significance": "CRITICAL",
+      "description": "mean_anomaly_score changed from 0.27572503557416306 to 0.11301786501381358 (delta=-0.162707, -59.01%).",
+      "incompatibility_reason": null,
+      "unit": ""
+    },
+    "rate_difference": {
+      "metric_name": "anomaly_rate",
+      "stream_a_value": 0.125,
+      "stream_b_value": 0.05063291139240506,
+      "absolute_difference": -0.074367,
+      "relative_difference_pct": -59.4937,
+      "direction": "A_HIGHER",
+      "classification": "DECREASED",
+      "significance": "CRITICAL",
+      "description": "anomaly_rate changed from 0.125 to 0.05063291139240506 (delta=-0.0743671, -59.49%).",
+      "incompatibility_reason": null,
+      "unit": ""
+    },
+    "is_cross_format": false,
+    "comparison_notes": [
+      "Stream B experienced 3 more anomalous windows than Stream A."
+    ]
+  },
+  "patterns": {
+    "dominant_component_a": "UNKNOWN",
+    "dominant_component_b": "UNKNOWN",
+    "component_match": true,
+    "pattern_metrics": {
+      "transition_count": {
+        "metric_name": "transition_count",
+        "stream_a_value": 0,
+        "stream_b_value": 3,
+        "absolute_difference": 3.0,
+        "relative_difference_pct": null,
+        "direction": "B_HIGHER",
+        "classification": "INCREASED",
+        "significance": "SUBSTANTIAL",
+        "description": "Stream B observed non-zero value (3) while Stream A baseline is zero.",
+        "incompatibility_reason": null,
+        "unit": ""
+      }
+    },
+    "structural_findings": [
+      "Dominant traffic component remained unchanged: UNKNOWN."
+    ]
+  },
+  "windows": {
+    "alignment_mode": "DIRECT_INDEX",
+    "aligned_window_count": 8,
+    "unaligned_windows_a": 0,
+    "unaligned_windows_b": 71,
+    "health_delta_series": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "anomaly_delta_series": [
+      -0.1567,
+      -0.0193,
+      -0.0036,
+      -0.1065,
+      -0.0193,
+      0.0064,
+      -0.0292,
+      0.0064
+    ],
+    "payload_delta_series": [
+      -22.3398,
+      -32.4307,
+      -31.7354,
+      -31.0312,
+      -32.4307,
+      -32.4395,
+      -31.7266,
+      -32.4395
+    ],
+    "progress_deciles": [
+      {
+        "decile": 1,
+        "progress_range": "0-10%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.6467,
+        "mean_anomaly_b": 0.2355,
+        "mean_anomaly_delta": -0.4112,
+        "mean_payload_kb_a": 49.67,
+        "mean_payload_kb_b": 19.38,
+        "mean_payload_kb_delta": -30.29,
+        "anomalies_a": 1,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 2,
+        "progress_range": "10-20%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.2038,
+        "mean_anomaly_b": 0.106,
+        "mean_anomaly_delta": -0.0978,
+        "mean_payload_kb_a": 50.68,
+        "mean_payload_kb_b": 18.22,
+        "mean_payload_kb_delta": -32.46,
+        "anomalies_a": 0,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 3,
+        "progress_range": "20-30%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.2137,
+        "mean_anomaly_b": 0.108,
+        "mean_anomaly_delta": -0.1057,
+        "mean_payload_kb_a": 49.98,
+        "mean_payload_kb_b": 18.22,
+        "mean_payload_kb_delta": -31.76,
+        "anomalies_a": 0,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 4,
+        "progress_range": "30-40%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.2137,
+        "mean_anomaly_b": 0.0571,
+        "mean_anomaly_delta": -0.1566,
+        "mean_payload_kb_a": 49.98,
+        "mean_payload_kb_b": 18.26,
+        "mean_payload_kb_delta": -31.72,
+        "anomalies_a": 0,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 5,
+        "progress_range": "40-50%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.3166,
+        "mean_anomaly_b": 0.0571,
+        "mean_anomaly_delta": -0.2596,
+        "mean_payload_kb_a": 49.28,
+        "mean_payload_kb_b": 18.26,
+        "mean_payload_kb_delta": -31.02,
+        "anomalies_a": 0,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 6,
+        "progress_range": "50-60%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.2038,
+        "mean_anomaly_b": 0.0579,
+        "mean_anomaly_delta": -0.1458,
+        "mean_payload_kb_a": 50.68,
+        "mean_payload_kb_b": 18.26,
+        "mean_payload_kb_delta": -32.42,
+        "anomalies_a": 0,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 7,
+        "progress_range": "60-70%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.2038,
+        "mean_anomaly_b": 0.0602,
+        "mean_anomaly_delta": -0.1436,
+        "mean_payload_kb_a": 50.68,
+        "mean_payload_kb_b": 18.26,
+        "mean_payload_kb_delta": -32.42,
+        "anomalies_a": 0,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 8,
+        "progress_range": "70-80%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.2137,
+        "mean_anomaly_b": 0.0571,
+        "mean_anomaly_delta": -0.1566,
+        "mean_payload_kb_a": 49.98,
+        "mean_payload_kb_b": 18.26,
+        "mean_payload_kb_delta": -31.72,
+        "anomalies_a": 0,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 9,
+        "progress_range": "80-90%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.2137,
+        "mean_anomaly_b": 0.0602,
+        "mean_anomaly_delta": -0.1535,
+        "mean_payload_kb_a": 49.98,
+        "mean_payload_kb_b": 18.26,
+        "mean_payload_kb_delta": -31.72,
+        "anomalies_a": 0,
+        "anomalies_b": 0
+      },
+      {
+        "decile": 10,
+        "progress_range": "90-100%",
+        "mean_health_a": 100.0,
+        "mean_health_b": 100.0,
+        "mean_health_delta": 0.0,
+        "mean_anomaly_a": 0.2038,
+        "mean_anomaly_b": 0.3244,
+        "mean_anomaly_delta": 0.1207,
+        "mean_payload_kb_a": 50.68,
+        "mean_payload_kb_b": 25.8,
+        "mean_payload_kb_delta": -24.88,
+        "anomalies_a": 0,
+        "anomalies_b": 4
+      }
+    ],
+    "alignment_disclaimer": "Temporal alignment is unavailable without external receiver clock telemetry; streams are aligned by physical stream progress and sequential window index. Differences reflect spatial capture progression, not synchronized broadcast timestamps."
+  },
+  "summary": {
+    "key_differences": [
+      "User payload volume shifted by +1.13627e+06 bytes (+276.28%) (Classification: INCREASED, Significance: CRITICAL).",
+      "Detected anomaly occurrence changed by +3 windows (Stream A=1, Stream B=4)."
+    ],
+    "supporting_evidence": [
+      "Payload telemetry: Stream A=411279 bytes, Stream B=1547547 bytes.",
+      "Anomaly rate: Stream A=12.50%, Stream B=5.06%."
+    ],
+    "safe_conclusions": [
+      "Both streams maintained 100% syntactically valid framing integrity across all parsed units.",
+      "Dominant traffic component was consistent (UNKNOWN).",
+      "All reported observations are strictly grounded in parsed packet/frame telemetry."
+    ],
+    "unsupported_inferences": [
+      "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+      "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+      "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+      "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+      "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+    ],
+    "limitations": [
+      "Capture duration discrepancy: BBFrame Post-Transition (W8-W86) contains 71 trailing unaligned windows."
+    ]
+  },
+  "unsupported_inferences_guard": [
+    "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+    "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+    "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+    "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+    "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+  ]
+}

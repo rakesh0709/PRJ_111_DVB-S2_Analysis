@@ -47,8 +47,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -56,6 +54,17 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Node.js & Next.js Web Workstation
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+05_CODE/web/node_modules/
+05_CODE/web/.next/
+05_CODE/web/out/
+05_CODE/web/.turbo/
 
 # Testing & Code Coverage
 .tox/
@@ -86,9 +95,9 @@ coverage.xml
 !04_AI_MODELS/README.md
 !04_AI_MODELS/.gitkeep
 
-06_RESULTS/*
-!06_RESULTS/README.md
-!06_RESULTS/.gitkeep
+# 06_RESULTS are explicitly tracked analysis reports and outcomes
+!06_RESULTS/
+!06_RESULTS/**
 
 # ------------------------------------------------------------------------------
 # Explicitly Tracked Documentation & Media Assets (DO NOT IGNORE)
@@ -98,11 +107,11 @@ coverage.xml
 
 # ==============================================================================
 # PRJ_111 - Large Raw DVB-S2 Dataset Files
-# Keep large datasets locally; do not commit them to GitHub
+# Keep large raw datasets locally; do not commit them to GitHub
 # ==============================================================================
 
-# Transport Stream files
-*.ts
+# Scoped raw transport stream datasets
+01_RAW_DATA/**/*.ts
 
 # Packet Capture files
 *.pcap
@@ -117,6 +126,22 @@ coverage.xml
 *.raw
 *.bin
 
+# Explicitly ensure Next.js TypeScript sources and test inputs are never ignored
+!*.tsx
+!05_CODE/test_inputs/corrupted_sample.ts
+
 # Temporary files
 *.tmp
 *.temp
+
+# =============================================================================
+# Repository Reorganization Ignore Rules
+# =============================================================================
+07_DOCUMENTATION/RESEARCH_PAPER/build_cache/
+05_CODE/uploads/*
+!05_CODE/uploads/.gitkeep
+~$*.docx
+~$*.pptx
+*_prompt.txt
+final_audit_prompt.txt
+latest_user_prompt.txt

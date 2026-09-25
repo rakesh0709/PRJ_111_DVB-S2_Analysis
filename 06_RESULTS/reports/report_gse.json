@@ -1,0 +1,181 @@
+{
+  "report_id": "REP_GSE_20260924_064741",
+  "timestamp": "2026-09-24T06:47:41.503376+00:00",
+  "mode": "SINGLE_STREAM",
+  "executive_summary": "The analyzed digital receiver output stream (sample.ts) consists of 14 parsed GSE framing units (8,764 bytes of user payload). Syntactic framing integrity is 100.00%, yielding an overall stream health score of 100.00/100.00 (HEALTHY). The calibrated Isolation Forest model flagged 1 of 5 sequential windows (20.00%) as statistically anomalous (peak anomaly score: 0.5018). Multiplex telemetry indicates concentration on dominant component Protocol GSE_EXT_NPA (100.0% share). All findings are strictly grounded in parsed packet and baseband telemetry without external physical-layer inference.",
+  "stream_info": {
+    "stream_name": "sample.ts",
+    "file_path": "C:\\Users\\rakes\\Downloads\\Mini Project\\01_RAW_DATA\\02_GSE\\GSExtract\\sample.ts",
+    "file_size_bytes": 9324,
+    "detected_format": "GSE",
+    "format_description": "Generic Stream Encapsulation (Variable PDUs)",
+    "total_units": 14,
+    "valid_units": 14,
+    "invalid_units": 0,
+    "truncated_units": 1,
+    "total_payload_bytes": 8764,
+    "integrity_ratio": 1.0,
+    "error_count": 0
+  },
+  "tripartite_findings": [
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "FRAMING",
+      "title": "Framing Unit Count and Syntactic Validity",
+      "statement": "Parsed 14 total framing units (14 valid, 0 invalid).",
+      "evidence": "total_units=14, valid_units=14, invalid_units=0",
+      "source_layer": "PARSER",
+      "metrics": {
+        "total_units": 14,
+        "valid_units": 14
+      }
+    },
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "FRAMING",
+      "title": "User Payload Volume Extraction",
+      "statement": "Extracted 8764 total octets of user data payload.",
+      "evidence": "total_payload_bytes=8764",
+      "source_layer": "PARSER",
+      "metrics": {
+        "total_payload_bytes": 8764
+      }
+    },
+    {
+      "category": "OBSERVED_FACT",
+      "subsystem": "PATTERN",
+      "title": "GSE Encapsulation Header Identification",
+      "statement": "GSE protocol encapsulation observed as Protocol GSE_EXT_NPA.",
+      "evidence": "dominant_protocol=Protocol GSE_EXT_NPA",
+      "source_layer": "PARSER",
+      "metrics": {
+        "dominant_protocol": "Protocol GSE_EXT_NPA"
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "HEALTH",
+      "title": "Aggregated Stream Health Score",
+      "statement": "Mean stream health score computed as 100.00 / 100.00 (HEALTHY).",
+      "evidence": "health_score=100.00, status=HEALTHY",
+      "source_layer": "F1",
+      "metrics": {
+        "health_score": 100.0
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "ANOMALY",
+      "title": "Isolation Forest Anomaly Scoring",
+      "statement": "Calibrated Isolation Forest flagged 1 of 5 windows as anomalous (20.00%).",
+      "evidence": "anomalous_windows=1, peak_score=0.5018, mean_score=0.4156",
+      "source_layer": "F2",
+      "metrics": {
+        "anomalous_windows": 1,
+        "peak_anomaly_score": 0.50184785244587
+      }
+    },
+    {
+      "category": "STATISTICAL_FINDING",
+      "subsystem": "TIMELINE",
+      "title": "Payload Density Distribution Across Windows",
+      "statement": "Window payload density averages 1.71 KB/window with peak window payload of 2.59 KB.",
+      "evidence": "mean_kb=1.71, peak_kb=2.59",
+      "source_layer": "F4",
+      "metrics": {
+        "mean_payload_kb": 1.71171875,
+        "peak_payload_kb": 2.5859375
+      }
+    },
+    {
+      "category": "ENGINEERING_INTERPRETATION",
+      "subsystem": "FRAMING",
+      "title": "Capture Boundary Window Sizing",
+      "statement": "Window 4 unit count deviation (2 units vs nominal 3) occurs at the stream capture boundary.",
+      "evidence": "window_index=4, unit_count=2, nominal_size=3",
+      "source_layer": "F4",
+      "metrics": {}
+    }
+  ],
+  "health": {
+    "health_score": 100.0,
+    "health_status": "HEALTHY",
+    "selected_priority1_checks": {
+      "framing_sync_integrity": "100.00%",
+      "error_packet_count": 0,
+      "stream_continuity": "NO_GAPS"
+    },
+    "detected_issues": [],
+    "recommendations": [
+      "Maintain nominal receiver telemetry monitoring."
+    ]
+  },
+  "anomalies": {
+    "total_windows": 5,
+    "anomalous_windows": 1,
+    "anomaly_rate_pct": 20.0,
+    "peak_anomaly_score": 0.5018,
+    "mean_anomaly_score": 0.4156,
+    "decision_threshold": 0.5,
+    "severity_breakdown": {
+      "NORMAL": 4,
+      "LOW": 1,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0
+    },
+    "anomaly_window_indices": [
+      4
+    ]
+  },
+  "patterns": {
+    "dominant_component": "Protocol GSE_EXT_NPA",
+    "dominant_component_pct": 100.0,
+    "multiplex_entropy": null,
+    "active_component_count": 1,
+    "transition_count": 2,
+    "structural_findings": [
+      "GSE encapsulation using GSE_EXT_NPA."
+    ]
+  },
+  "timeline": {
+    "window_size": 3,
+    "total_windows": 5,
+    "payload_volume_kb_mean": 1.71,
+    "payload_volume_kb_peak": 2.59,
+    "total_events": 3,
+    "event_counts_by_type": {
+      "F2_ANOMALY": 1,
+      "F3_TRANSITION": 2
+    },
+    "activity_summary": "Stream sliced into 5 sequential windows with average payload density of 1.71 KB/window."
+  },
+  "explanations": {
+    "explained_anomalies_count": 1,
+    "subsystem_distribution": {
+      "Stream Slicing / Capture File Boundary": 1
+    },
+    "key_explanations": [
+      {
+        "window_index": 4,
+        "severity": "LOW",
+        "subsystem": "Stream Slicing / Capture File Boundary",
+        "summary": "Window 4 (score 0.5018, LOW) contains 2 units at capture termination. Framing syntax remains valid; consistent with recording boundary, not transmission loss."
+      }
+    ]
+  },
+  "comparison": null,
+  "limitations_and_uncertainty": [
+    "Analysis is based strictly on parsed digital receiver output units without external demodulator RF clock telemetry.",
+    "Temporal window progression reflects spatial sequential packet/frame ordering, not broadcast wall-clock timestamps.",
+    "Unsupervised anomaly detection identifies statistical outliers relative to stream baseline; does not establish physical transmission failure.",
+    "Stream contains 1 edge window(s) with unit count below nominal window size at the capture boundary."
+  ],
+  "unsupported_inferences_guard": [
+    "RF interference, jamming, or atmospheric rain fade (cannot be concluded; capture lacks RF carrier, signal power, or SNR telemetry).",
+    "Demodulator or tuner hardware failure (cannot be concluded; only post-demodulator digital output stream is captured).",
+    "Satellite transponder or uplink station failure (cannot be concluded; no transponder or satellite orbital telemetry available).",
+    "Signal-to-Noise Ratio (SNR) or link margin degradation (cannot be concluded; physical-layer parameters are absent from baseband stream).",
+    "Transmission path error or packet loss (cannot be concluded; framing syntax and CRC remain valid unless error bits are flagged)."
+  ]
+}

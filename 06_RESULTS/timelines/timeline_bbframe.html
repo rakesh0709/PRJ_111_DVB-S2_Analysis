@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRJ_111: dvb-s2_bb_example.pcap — Timeline & Activity Dashboard</title>
+  <!-- Chart.js CDN for interactive charting -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-red: #f87171;
+      --accent-purple: #c084fc;
+      --border-color: #334155;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+    .header-title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+    .header-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .header-badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .badge {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-format {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+    .badge-healthy {
+      background-color: rgba(52, 211, 153, 0.2);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+    }
+    .badge-warning {
+      background-color: rgba(251, 191, 36, 0.2);
+      color: var(--accent-amber);
+      border: 1px solid var(--accent-amber);
+    }
+    .badge-critical {
+      background-color: rgba(248, 113, 113, 0.2);
+      color: var(--accent-red);
+      border: 1px solid var(--accent-red);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+    .kpi-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 6px;
+      color: var(--text-primary);
+    }
+    .kpi-subtext {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chart-legend-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .chart-container {
+      position: relative;
+      height: 280px;
+      width: 100%;
+    }
+    .table-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .table-container {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: var(--text-secondary);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #283548;
+      color: var(--text-primary);
+    }
+    tr:hover {
+      background-color: #273549;
+    }
+    .event-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+    .event-anomaly {
+      background-color: rgba(248, 113, 113, 0.25);
+      color: #fca5a5;
+      border: 1px solid #f87171;
+    }
+    .event-transition {
+      background-color: rgba(251, 191, 36, 0.25);
+      color: #fde68a;
+      border: 1px solid #fbbf24;
+    }
+    .event-health {
+      background-color: rgba(56, 189, 248, 0.25);
+      color: #bae6fd;
+      border: 1px solid #38bdf8;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <h1>PRJ_111: Stream Timeline & Activity Visualization</h1>
+      <div class="header-subtitle">
+        Capture: <strong>dvb-s2_bb_example.pcap</strong> | Sequential Physical Offset Timeline | Grounded Telemetry
+      </div>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-format">BB_FRAME</span>
+      <span class="badge badge-warning">Status: 100.0% Health</span>
+    </div>
+  </header>
+
+  <!-- KPI Metrics Grid -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Units Monitored</div>
+      <div class="kpi-value">4,309</div>
+      <div class="kpi-subtext">87 sequential windows (50 units/window)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Average Health Score</div>
+      <div class="kpi-value">100.0%</div>
+      <div class="kpi-subtext">ETSI TR 101 290 metric synthesis</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Peak Anomaly Score</div>
+      <div class="kpi-value">0.7406</div>
+      <div class="kpi-subtext">F2 Threshold: 0.50 (5 flagged windows)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Payload Volume</div>
+      <div class="kpi-value">1,912.9 KB</div>
+      <div class="kpi-subtext">Physical data volume (no fake throughput)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Structural Transitions</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-subtext">Cross-window mode/composition shifts</div>
+    </div>
+  </section>
+
+  <!-- Main Visual Charts -->
+  <section class="chart-grid">
+    <!-- Chart 1: Health vs Anomaly Trajectory -->
+    <div class="chart-card">
+      <div class="chart-title">
+        <span>Stream Health Trajectory vs. AI Anomaly Score</span>
+        <span class="chart-legend-hint">Dual Y-Axis: Health Score [0..100%] (Left) vs. Anomaly Score [0.0..1.0] (Right)</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="healthAnomalyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 2: Payload Volume & Format Telemetry -->
+    <div class="chart-card">
+      <div class="chart-title">
+        <span>Activity & Format-Specific Telemetry</span>
+        <span class="chart-legend-hint">Payload Volume (KB) vs. Modal DFL (bits)</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Window Telemetry & Events Table -->
+  <section class="table-card">
+    <div class="chart-title">
+      <span>Sequential Window Telemetry & Discovered Events</span>
+      <span class="chart-legend-hint">Showing 87 windows with exact unit and byte offsets</span>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Window</th>
+            <th>Unit Range</th>
+            <th>Byte Range</th>
+            <th>Payload (KB)</th>
+            <th>Health Score</th>
+            <th>Anomaly Score</th>
+            <th>Severity</th>
+            <th>Format Telemetry</th>
+            <th>Events & Explanations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>W0</strong></td>
+            <td>0..50</td>
+            <td style="font-family: monospace;">0..51,363</td>
+            <td>49.67</td>
+            <td>100.0%</td>
+            <td>0.6467</td>
+            <td>MEDIUM</td>
+            <td>DFL: 8304b | &alpha;=0.35</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: MEDIUM</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Multiple Input Stream (MIS) header flag observed in window 0 alongside Single Input Stream (SIS) frames.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Valid CRC-8 confirms structural header integrity. The capture alone cannot determine whether the MIS configuration was intentional.</div></td>
+          </tr>
+          <tr>
+            <td><strong>W1</strong></td>
+            <td>50..100</td>
+            <td style="font-family: monospace;">51,363..103,763</td>
+            <td>50.68</td>
+            <td>100.0%</td>
+            <td>0.2038</td>
+            <td>NORMAL</td>
+            <td>DFL: 8304b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W2</strong></td>
+            <td>100..150</td>
+            <td style="font-family: monospace;">103,763..155,442</td>
+            <td>49.98</td>
+            <td>100.0%</td>
+            <td>0.2137</td>
+            <td>NORMAL</td>
+            <td>DFL: 8304b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W3</strong></td>
+            <td>150..200</td>
+            <td style="font-family: monospace;">155,442..206,400</td>
+            <td>49.27</td>
+            <td>100.0%</td>
+            <td>0.3166</td>
+            <td>NORMAL</td>
+            <td>DFL: 8304b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W4</strong></td>
+            <td>200..250</td>
+            <td style="font-family: monospace;">206,400..258,800</td>
+            <td>50.68</td>
+            <td>100.0%</td>
+            <td>0.2038</td>
+            <td>NORMAL</td>
+            <td>DFL: 8304b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W5</strong></td>
+            <td>250..300</td>
+            <td style="font-family: monospace;">258,800..311,200</td>
+            <td>50.68</td>
+            <td>100.0%</td>
+            <td>0.2038</td>
+            <td>NORMAL</td>
+            <td>DFL: 8304b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W6</strong></td>
+            <td>300..350</td>
+            <td style="font-family: monospace;">311,200..362,879</td>
+            <td>49.98</td>
+            <td>100.0%</td>
+            <td>0.2137</td>
+            <td>NORMAL</td>
+            <td>DFL: 8304b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W7</strong></td>
+            <td>350..400</td>
+            <td style="font-family: monospace;">362,879..415,279</td>
+            <td>50.68</td>
+            <td>100.0%</td>
+            <td>0.2038</td>
+            <td>NORMAL</td>
+            <td>DFL: 8304b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W8</strong></td>
+            <td>400..450</td>
+            <td style="font-family: monospace;">415,279..443,766</td>
+            <td>27.33</td>
+            <td>100.0%</td>
+            <td>0.4901</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span class="event-pill event-transition">TRANSITION</span><div style="font-size: 11px; color: #fde68a; margin-top: 2px;">Modal DFL frame length transitioned from 8304 to 2992 bits</div></td>
+          </tr>
+          <tr>
+            <td><strong>W9</strong></td>
+            <td>450..500</td>
+            <td style="font-family: monospace;">443,766..462,957</td>
+            <td>18.25</td>
+            <td>100.0%</td>
+            <td>0.1845</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W10</strong></td>
+            <td>500..550</td>
+            <td style="font-family: monospace;">462,957..482,139</td>
+            <td>18.24</td>
+            <td>100.0%</td>
+            <td>0.2101</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W11</strong></td>
+            <td>550..600</td>
+            <td style="font-family: monospace;">482,139..501,321</td>
+            <td>18.24</td>
+            <td>100.0%</td>
+            <td>0.2101</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W12</strong></td>
+            <td>600..650</td>
+            <td style="font-family: monospace;">501,321..520,512</td>
+            <td>18.25</td>
+            <td>100.0%</td>
+            <td>0.1845</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W13</strong></td>
+            <td>650..700</td>
+            <td style="font-family: monospace;">520,512..539,694</td>
+            <td>18.24</td>
+            <td>100.0%</td>
+            <td>0.2101</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W14</strong></td>
+            <td>700..750</td>
+            <td style="font-family: monospace;">539,694..558,885</td>
+            <td>18.25</td>
+            <td>100.0%</td>
+            <td>0.1845</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W15</strong></td>
+            <td>750..800</td>
+            <td style="font-family: monospace;">558,885..578,067</td>
+            <td>18.24</td>
+            <td>100.0%</td>
+            <td>0.2101</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W16</strong></td>
+            <td>800..850</td>
+            <td style="font-family: monospace;">578,067..596,955</td>
+            <td>17.96</td>
+            <td>100.0%</td>
+            <td>0.4421</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W17</strong></td>
+            <td>850..900</td>
+            <td style="font-family: monospace;">596,955..616,152</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W18</strong></td>
+            <td>900..950</td>
+            <td style="font-family: monospace;">616,152..635,352</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W19</strong></td>
+            <td>950..1000</td>
+            <td style="font-family: monospace;">635,352..654,549</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W20</strong></td>
+            <td>1000..1050</td>
+            <td style="font-family: monospace;">654,549..673,746</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W21</strong></td>
+            <td>1050..1100</td>
+            <td style="font-family: monospace;">673,746..692,943</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W22</strong></td>
+            <td>1100..1150</td>
+            <td style="font-family: monospace;">692,943..712,143</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W23</strong></td>
+            <td>1150..1200</td>
+            <td style="font-family: monospace;">712,143..731,340</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W24</strong></td>
+            <td>1200..1250</td>
+            <td style="font-family: monospace;">731,340..750,537</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W25</strong></td>
+            <td>1250..1300</td>
+            <td style="font-family: monospace;">750,537..769,737</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W26</strong></td>
+            <td>1300..1350</td>
+            <td style="font-family: monospace;">769,737..788,934</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W27</strong></td>
+            <td>1350..1400</td>
+            <td style="font-family: monospace;">788,934..807,838</td>
+            <td>17.97</td>
+            <td>100.0%</td>
+            <td>0.4331</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W28</strong></td>
+            <td>1400..1450</td>
+            <td style="font-family: monospace;">807,838..827,038</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W29</strong></td>
+            <td>1450..1500</td>
+            <td style="font-family: monospace;">827,038..846,235</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W30</strong></td>
+            <td>1500..1550</td>
+            <td style="font-family: monospace;">846,235..865,432</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W31</strong></td>
+            <td>1550..1600</td>
+            <td style="font-family: monospace;">865,432..884,632</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W32</strong></td>
+            <td>1600..1650</td>
+            <td style="font-family: monospace;">884,632..903,829</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W33</strong></td>
+            <td>1650..1700</td>
+            <td style="font-family: monospace;">903,829..923,026</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W34</strong></td>
+            <td>1700..1750</td>
+            <td style="font-family: monospace;">923,026..942,226</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W35</strong></td>
+            <td>1750..1800</td>
+            <td style="font-family: monospace;">942,226..961,423</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W36</strong></td>
+            <td>1800..1850</td>
+            <td style="font-family: monospace;">961,423..980,620</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W37</strong></td>
+            <td>1850..1900</td>
+            <td style="font-family: monospace;">980,620..999,817</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W38</strong></td>
+            <td>1900..1950</td>
+            <td style="font-family: monospace;">999,817..1,019,017</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W39</strong></td>
+            <td>1950..2000</td>
+            <td style="font-family: monospace;">1,019,017..1,038,214</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W40</strong></td>
+            <td>2000..2050</td>
+            <td style="font-family: monospace;">1,038,214..1,057,411</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W41</strong></td>
+            <td>2050..2100</td>
+            <td style="font-family: monospace;">1,057,411..1,076,611</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W42</strong></td>
+            <td>2100..2150</td>
+            <td style="font-family: monospace;">1,076,611..1,095,808</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W43</strong></td>
+            <td>2150..2200</td>
+            <td style="font-family: monospace;">1,095,808..1,115,005</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W44</strong></td>
+            <td>2200..2250</td>
+            <td style="font-family: monospace;">1,115,005..1,134,205</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W45</strong></td>
+            <td>2250..2300</td>
+            <td style="font-family: monospace;">1,134,205..1,153,402</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W46</strong></td>
+            <td>2300..2350</td>
+            <td style="font-family: monospace;">1,153,402..1,172,599</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W47</strong></td>
+            <td>2350..2400</td>
+            <td style="font-family: monospace;">1,172,599..1,191,796</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W48</strong></td>
+            <td>2400..2450</td>
+            <td style="font-family: monospace;">1,191,796..1,210,996</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W49</strong></td>
+            <td>2450..2500</td>
+            <td style="font-family: monospace;">1,210,996..1,230,193</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W50</strong></td>
+            <td>2500..2550</td>
+            <td style="font-family: monospace;">1,230,193..1,249,390</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W51</strong></td>
+            <td>2550..2600</td>
+            <td style="font-family: monospace;">1,249,390..1,268,590</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W52</strong></td>
+            <td>2600..2650</td>
+            <td style="font-family: monospace;">1,268,590..1,287,787</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W53</strong></td>
+            <td>2650..2700</td>
+            <td style="font-family: monospace;">1,287,787..1,306,984</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W54</strong></td>
+            <td>2700..2750</td>
+            <td style="font-family: monospace;">1,306,984..1,326,181</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W55</strong></td>
+            <td>2750..2800</td>
+            <td style="font-family: monospace;">1,326,181..1,345,381</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W56</strong></td>
+            <td>2800..2850</td>
+            <td style="font-family: monospace;">1,345,381..1,364,578</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W57</strong></td>
+            <td>2850..2900</td>
+            <td style="font-family: monospace;">1,364,578..1,383,775</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W58</strong></td>
+            <td>2900..2950</td>
+            <td style="font-family: monospace;">1,383,775..1,402,975</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W59</strong></td>
+            <td>2950..3000</td>
+            <td style="font-family: monospace;">1,402,975..1,422,172</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W60</strong></td>
+            <td>3000..3050</td>
+            <td style="font-family: monospace;">1,422,172..1,441,369</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W61</strong></td>
+            <td>3050..3100</td>
+            <td style="font-family: monospace;">1,441,369..1,460,569</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W62</strong></td>
+            <td>3100..3150</td>
+            <td style="font-family: monospace;">1,460,569..1,479,766</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W63</strong></td>
+            <td>3150..3200</td>
+            <td style="font-family: monospace;">1,479,766..1,498,963</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W64</strong></td>
+            <td>3200..3250</td>
+            <td style="font-family: monospace;">1,498,963..1,518,160</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W65</strong></td>
+            <td>3250..3300</td>
+            <td style="font-family: monospace;">1,518,160..1,537,360</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W66</strong></td>
+            <td>3300..3350</td>
+            <td style="font-family: monospace;">1,537,360..1,556,557</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W67</strong></td>
+            <td>3350..3400</td>
+            <td style="font-family: monospace;">1,556,557..1,575,754</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W68</strong></td>
+            <td>3400..3450</td>
+            <td style="font-family: monospace;">1,575,754..1,594,954</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W69</strong></td>
+            <td>3450..3500</td>
+            <td style="font-family: monospace;">1,594,954..1,614,151</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W70</strong></td>
+            <td>3500..3550</td>
+            <td style="font-family: monospace;">1,614,151..1,633,348</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W71</strong></td>
+            <td>3550..3600</td>
+            <td style="font-family: monospace;">1,633,348..1,652,545</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W72</strong></td>
+            <td>3600..3650</td>
+            <td style="font-family: monospace;">1,652,545..1,671,745</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W73</strong></td>
+            <td>3650..3700</td>
+            <td style="font-family: monospace;">1,671,745..1,690,942</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W74</strong></td>
+            <td>3700..3750</td>
+            <td style="font-family: monospace;">1,690,942..1,710,139</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W75</strong></td>
+            <td>3750..3800</td>
+            <td style="font-family: monospace;">1,710,139..1,729,339</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W76</strong></td>
+            <td>3800..3850</td>
+            <td style="font-family: monospace;">1,729,339..1,748,536</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W77</strong></td>
+            <td>3850..3900</td>
+            <td style="font-family: monospace;">1,748,536..1,767,733</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W78</strong></td>
+            <td>3900..3950</td>
+            <td style="font-family: monospace;">1,767,733..1,786,933</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W79</strong></td>
+            <td>3950..4000</td>
+            <td style="font-family: monospace;">1,786,933..1,806,130</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W80</strong></td>
+            <td>4000..4050</td>
+            <td style="font-family: monospace;">1,806,130..1,825,327</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W81</strong></td>
+            <td>4050..4100</td>
+            <td style="font-family: monospace;">1,825,327..1,844,524</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0508</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W82</strong></td>
+            <td>4100..4150</td>
+            <td style="font-family: monospace;">1,844,524..1,863,724</td>
+            <td>18.26</td>
+            <td>100.0%</td>
+            <td>0.0757</td>
+            <td>NORMAL</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span style="color: var(--text-secondary);">-</span></td>
+          </tr>
+          <tr>
+            <td><strong>W83</strong></td>
+            <td>4150..4200</td>
+            <td style="font-family: monospace;">1,863,724..1,889,175</td>
+            <td>24.37</td>
+            <td>100.0%</td>
+            <td>0.5210</td>
+            <td>LOW</td>
+            <td>DFL: 2992b | &alpha;=0.35</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: LOW</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Baseband frame payload volume and data field length shifted in window 83.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Payload volume and DFL distribution changed together. The capture does not by itself establish the operational cause.</div></td>
+          </tr>
+          <tr>
+            <td><strong>W84</strong></td>
+            <td>4200..4250</td>
+            <td style="font-family: monospace;">1,889,175..1,930,532</td>
+            <td>39.90</td>
+            <td>100.0%</td>
+            <td>0.5043</td>
+            <td>LOW</td>
+            <td>DFL: 6768b | &alpha;=0.35</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: LOW</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Baseband frame payload volume and data field length shifted in window 84.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Payload volume and DFL distribution changed together. The capture does not by itself establish the operational cause.</div><span class="event-pill event-transition">TRANSITION</span><div style="font-size: 11px; color: #fde68a; margin-top: 2px;">Modal DFL frame length transitioned from 2992 to 6768 bits</div></td>
+          </tr>
+          <tr>
+            <td><strong>W85</strong></td>
+            <td>4250..4300</td>
+            <td style="font-family: monospace;">1,930,532..1,990,786</td>
+            <td>58.35</td>
+            <td>100.0%</td>
+            <td>0.6013</td>
+            <td>MEDIUM</td>
+            <td>DFL: 9936b | &alpha;=0.35</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: MEDIUM</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Baseband frame payload volume and data field length shifted in window 85.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Payload volume and DFL distribution changed together. The capture does not by itself establish the operational cause.</div><span class="event-pill event-transition">TRANSITION</span><div style="font-size: 11px; color: #fde68a; margin-top: 2px;">Modal DFL frame length transitioned from 6768 to 9936 bits</div></td>
+          </tr>
+          <tr>
+            <td><strong>W86</strong></td>
+            <td>4300..4309</td>
+            <td style="font-family: monospace;">1,990,786..2,001,916</td>
+            <td>10.78</td>
+            <td>100.0%</td>
+            <td>0.7406</td>
+            <td>HIGH</td>
+            <td>DFL: 9936b | &alpha;=0.35</td>
+            <td><span class="event-pill event-anomaly">ANOMALY: HIGH</span><div style="font-size: 11px; color: #fca5a5; margin-top: 3px;"><strong>Diagnostic:</strong> Window 86 contains a reduced unit count (9 units) at stream termination.</div><div style="font-size: 10px; color: #94a3b8; margin-top: 1px;"><strong>Safe Conclusion:</strong> Consistent with capture file end / recording termination boundary. This is an artifact of capture cessation and cannot be interpreted as packet loss, transmission failure, or system failure.</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    PRJ_111: DVB-S2 Receiver Output Stream Analysis — Review-2 Prototype Milestone &copy; 2026
+  </footer>
+
+  <!-- Chart.js Scripts -->
+  <script>
+    const labels = ["W0", "W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12", "W13", "W14", "W15", "W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25", "W26", "W27", "W28", "W29", "W30", "W31", "W32", "W33", "W34", "W35", "W36", "W37", "W38", "W39", "W40", "W41", "W42", "W43", "W44", "W45", "W46", "W47", "W48", "W49", "W50", "W51", "W52", "W53", "W54", "W55", "W56", "W57", "W58", "W59", "W60", "W61", "W62", "W63", "W64", "W65", "W66", "W67", "W68", "W69", "W70", "W71", "W72", "W73", "W74", "W75", "W76", "W77", "W78", "W79", "W80", "W81", "W82", "W83", "W84", "W85", "W86"];
+    const healthData = [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0];
+    const anomalyData = [0.6467, 0.2038, 0.2137, 0.3166, 0.2038, 0.2038, 0.2137, 0.2038, 0.4901, 0.1845, 0.2101, 0.2101, 0.1845, 0.2101, 0.1845, 0.2101, 0.4421, 0.0508, 0.0757, 0.0508, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.4331, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0757, 0.0508, 0.0508, 0.0508, 0.0757, 0.521, 0.5043, 0.6013, 0.7406];
+    const payloadData = [49.671, 50.684, 49.979, 49.275, 50.684, 50.684, 49.979, 50.684, 27.331, 18.253, 18.244, 18.244, 18.253, 18.244, 18.253, 18.244, 17.957, 18.259, 18.262, 18.259, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 17.973, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.262, 18.259, 18.259, 18.259, 18.262, 24.366, 39.899, 58.354, 10.781];
+    const fmtData = [8304.0, 8304.0, 8304.0, 8304.0, 8304.0, 8304.0, 8304.0, 8304.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 2992.0, 6768.0, 9936.0, 9936.0];
+    const anomalyThreshold = 0.5;
+
+    // Chart 1: Health vs Anomaly Trajectory
+    const ctx1 = document.getElementById('healthAnomalyChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Stream Health Score (%)',
+            data: healthData,
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52, 211, 153, 0.1)',
+            borderWidth: 2.5,
+            yAxisID: 'yHealth',
+            tension: 0.2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+          {
+            label: 'AI Anomaly Score',
+            data: anomalyData,
+            borderColor: '#f87171',
+            backgroundColor: 'rgba(248, 113, 113, 0.15)',
+            borderWidth: 2,
+            borderDash: [4, 4],
+            yAxisID: 'yAnomaly',
+            tension: 0.2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+          {
+            label: 'F2 Anomaly Decision Threshold (' + anomalyThreshold.toFixed(2) + ')',
+            data: Array(labels.length).fill(anomalyThreshold),
+            borderColor: '#fbbf24',
+            borderWidth: 1.5,
+            borderDash: [6, 6],
+            pointRadius: 0,
+            yAxisID: 'yAnomaly',
+            fill: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: {
+            grid: { color: '#334155' },
+            ticks: { color: '#94a3b8' }
+          },
+          yHealth: {
+            type: 'linear',
+            position: 'left',
+            min: 0,
+            max: 100,
+            grid: { color: '#334155' },
+            ticks: { color: '#34d399' },
+            title: { display: true, text: 'Health Score (%)', color: '#34d399' }
+          },
+          yAnomaly: {
+            type: 'linear',
+            position: 'right',
+            min: 0.0,
+            max: 1.0,
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#f87171' },
+            title: { display: true, text: 'Anomaly Score [0..1]', color: '#f87171' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#f8fafc' } }
+        }
+      }
+    });
+
+    // Chart 2: Payload Volume & Format Telemetry
+    const ctx2 = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Payload Volume (KB)',
+            data: payloadData,
+            backgroundColor: 'rgba(56, 189, 248, 0.4)',
+            borderColor: '#38bdf8',
+            borderWidth: 1.5,
+            yAxisID: 'yPayload',
+          },
+          {
+            type: 'line',
+            label: 'Modal DFL (bits)',
+            data: fmtData,
+            borderColor: '#c084fc',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.2,
+            pointRadius: 3,
+            yAxisID: 'yFmt',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: {
+            grid: { color: '#334155' },
+            ticks: { color: '#94a3b8' }
+          },
+          yPayload: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: '#334155' },
+            ticks: { color: '#38bdf8' },
+            title: { display: true, text: 'Payload (KB)', color: '#38bdf8' }
+          },
+          yFmt: {
+            type: 'linear',
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#c084fc' },
+            title: { display: true, text: 'Modal DFL (bits)', color: '#c084fc' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#f8fafc' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
