@@ -1,0 +1,7 @@
+# GitHub Linguist Language Statistics Overrides
+# Treat research paper manuscripts, documentation renders, and experimental outputs as documentation
+07_DOCUMENTATION/** linguist-documentation
+06_RESULTS/** linguist-documentation
+
+# Vendor third-party libraries so they don't distort repository language breakdown
+05_CODE/dvbs2_analyzer/frontend/static/vendor/** linguist-vendored
