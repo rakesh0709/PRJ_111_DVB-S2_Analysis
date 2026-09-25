@@ -78,7 +78,7 @@ export const ComparisonMatrix: React.FC = () => {
                     {/* Stream A Value */}
                     <td className="p-3 border-r border-[#262626] whitespace-nowrap">
                       {typeof metric.stream_a_value === "number"
-                        ? metric.stream_a_value.toLocaleString()
+                        ? metric.stream_a_value.toLocaleString("en-US")
                         : String(metric.stream_a_value ?? "N/A")}
                       {metric.unit || ""}
                     </td>
@@ -86,7 +86,7 @@ export const ComparisonMatrix: React.FC = () => {
                     {/* Stream B Value */}
                     <td className="p-3 border-r border-[#262626] whitespace-nowrap">
                       {typeof metric.stream_b_value === "number"
-                        ? metric.stream_b_value.toLocaleString()
+                        ? metric.stream_b_value.toLocaleString("en-US")
                         : String(metric.stream_b_value ?? "N/A")}
                       {metric.unit || ""}
                     </td>

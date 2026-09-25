@@ -439,7 +439,7 @@ export const LiveAnalyzer: React.FC<LiveAnalyzerProps> = ({
                   <div className="flex justify-between border-b border-[#1A1A1A] pb-1.5">
                     <span className="text-[#737373]">TOTAL UNITS:</span>
                     <span className="text-[#E8E8E8]">
-                      {currentAnalysis.stream_info.total_units.toLocaleString()}
+                      {currentAnalysis.stream_info.total_units.toLocaleString("en-US")}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[#1A1A1A] pb-1.5">

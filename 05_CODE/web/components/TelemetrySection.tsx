@@ -108,14 +108,14 @@ export const TelemetrySection: React.FC<TelemetrySectionProps> = ({
                 <div className="p-3 bg-[#0A0A0A] border border-[#262626]">
                   <div className="text-[#737373] text-[12px]">RAW FILE SIZE:</div>
                   <div className="text-[#E8E8E8] font-semibold mt-0.5">
-                    {selectedData.file_size_bytes.toLocaleString()} bytes (
+                    {selectedData.file_size_bytes.toLocaleString("en-US")} bytes (
                     {(selectedData.file_size_bytes / 1024).toFixed(1)} KB)
                   </div>
                 </div>
                 <div className="p-3 bg-[#0A0A0A] border border-[#262626]">
                   <div className="text-[#737373] text-[12px]">TOTAL FRAMING UNITS:</div>
                   <div className="text-[#E8E8E8] font-semibold mt-0.5">
-                    {selectedData.total_units.toLocaleString()} {selectedData.unit_type}
+                    {selectedData.total_units.toLocaleString("en-US")} {selectedData.unit_type}
                   </div>
                 </div>
                 <div className="p-3 bg-[#0A0A0A] border border-[#262626]">
@@ -127,7 +127,7 @@ export const TelemetrySection: React.FC<TelemetrySectionProps> = ({
                 <div className="p-3 bg-[#0A0A0A] border border-[#262626]">
                   <div className="text-[#737373] text-[12px]">EXTRACTED USER PAYLOAD:</div>
                   <div className="text-[#E8E8E8] font-semibold mt-0.5">
-                    {selectedData.total_payload_bytes.toLocaleString()} bytes (
+                    {selectedData.total_payload_bytes.toLocaleString("en-US")} bytes (
                     {(selectedData.total_payload_bytes / 1024).toFixed(1)} KB)
                   </div>
                 </div>

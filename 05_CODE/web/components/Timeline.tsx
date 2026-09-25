@@ -155,14 +155,14 @@ export const Timeline: React.FC<TimelineProps> = ({ timeline }) => {
                   {currentPoint.byte_offset_end.toString(16).toUpperCase()}
                 </div>
                 <div className="text-[12px] text-[#737373] mt-0.5">
-                  Span: {(currentPoint.byte_offset_end - currentPoint.byte_offset_start).toLocaleString()} bytes
+                  Span: {(currentPoint.byte_offset_end - currentPoint.byte_offset_start).toLocaleString("en-US")} bytes
                 </div>
               </div>
 
               <div className="p-3 bg-[#0A0A0A] border border-[#262626]">
                 <div className="text-[#737373] text-[12px]">EXTRACTED PAYLOAD:</div>
                 <div className="text-[#E8E8E8] font-bold text-[14px] mt-0.5">
-                  {currentPoint.payload_bytes.toLocaleString()} bytes
+                  {currentPoint.payload_bytes.toLocaleString("en-US")} bytes
                 </div>
                 <div className="text-[12px] text-[#737373] mt-0.5">
                   Health: {currentPoint.health_score.toFixed(1)}%
