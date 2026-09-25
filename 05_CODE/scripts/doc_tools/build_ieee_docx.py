@@ -409,7 +409,7 @@ def build_paper():
     sec3 = doc.add_section(WD_SECTION.CONTINUOUS)
     set_section_cols(sec3, num=1)
 
-    fig1_path = "paper_assets/architecture_diagram.png"
+    fig1_path = "07_DOCUMENTATION/RESEARCH_PAPER/assets/architecture_diagram.png"
     if os.path.exists(fig1_path):
         p_img1 = doc.add_paragraph()
         p_img1.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -436,7 +436,7 @@ def build_paper():
     )
 
     # Fig. 2 (Single column)
-    fig2_path = "paper_assets/fig_dashboard_analyzed.png"
+    fig2_path = "07_DOCUMENTATION/RESEARCH_PAPER/assets/fig_dashboard_analyzed.png"
     if os.path.exists(fig2_path):
         p_img2 = doc.add_paragraph()
         p_img2.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -672,7 +672,7 @@ def build_paper():
     )
 
     # Fig. 3 (Single column)
-    fig3_path = "paper_assets/fig_timeline_view.png"
+    fig3_path = "07_DOCUMENTATION/RESEARCH_PAPER/assets/fig_timeline_view.png"
     if os.path.exists(fig3_path):
         p_img3 = doc.add_paragraph()
         p_img3.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -730,7 +730,7 @@ def build_paper():
     )
 
     # Fig. 4 (Single column)
-    fig4_path = "paper_assets/fig_anomaly_view.png"
+    fig4_path = "07_DOCUMENTATION/RESEARCH_PAPER/assets/fig_anomaly_view.png"
     if os.path.exists(fig4_path):
         p_img4 = doc.add_paragraph()
         p_img4.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -786,7 +786,7 @@ def build_paper():
     )
 
     # Fig. 5 (Single column)
-    fig5_path = "paper_assets/fig_comparison_view.png"
+    fig5_path = "07_DOCUMENTATION/RESEARCH_PAPER/assets/fig_comparison_view.png"
     if os.path.exists(fig5_path):
         p_img5 = doc.add_paragraph()
         p_img5.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -805,7 +805,7 @@ def build_paper():
     )
 
     # Fig. 6 (Single column)
-    fig6_path = "paper_assets/fig_report_view.png"
+    fig6_path = "07_DOCUMENTATION/RESEARCH_PAPER/assets/fig_report_view.png"
     if os.path.exists(fig6_path):
         p_img6 = doc.add_paragraph()
         p_img6.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -1197,7 +1197,7 @@ def build_paper():
         r.font.name = 'Times New Roman'
         r.font.size = Pt(8.5)
 
-    output_path = "PRJ_111_Research_Paper_Final.docx"
+    output_path = "07_DOCUMENTATION/RESEARCH_PAPER/PRJ_111_Research_Paper_Final.docx"
     doc.save(output_path)
     print(f"Successfully generated: {output_path} (Size: {os.path.getsize(output_path)} bytes)")
 
