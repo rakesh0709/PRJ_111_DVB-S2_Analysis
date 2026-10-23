@@ -10,7 +10,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 import logging
 from pathlib import Path
-from typing import Any, BinaryIO, Dict, Iterator, Optional, Union
+from typing import Any, BinaryIO, Dict, Iterable, Iterator, Optional, Union
 
 from dvbs2_analyzer.config import (
     AFC_ADAPTATION_AND_PAYLOAD,
@@ -32,7 +32,7 @@ from dvbs2_analyzer.parsers.base import (
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(slots=True)
 class TSPacket:
     """
     Structured representation of a single 188-byte MPEG-TS packet.
@@ -119,11 +119,18 @@ class TSParser(BaseStreamParser):
         self.strict_mode = strict_mode
         self.stats = TSStreamStatistics()
         self._last_cc_per_pid: Dict[int, int] = {}
+        self._buffer = bytearray()
 
     def reset_statistics(self) -> None:
         """Resets all internal packet counters and continuity trackers."""
         self.stats = TSStreamStatistics()
         self._last_cc_per_pid.clear()
+        self._buffer.clear()
+
+    def reset(self) -> None:
+        """Resets parser internal residual buffer and statistics for stream re-use."""
+        self.reset_statistics()
+
 
     def parse_packet(self, packet_bytes: bytes) -> TSPacket:
         """
@@ -331,6 +338,154 @@ class TSParser(BaseStreamParser):
             yield from self.parse_stream(f, max_packets=max_packets)
         logger.info("Finished MPEG-TS parsing for %s (%d packets)", path.name, self.stats.total_packets)
 
+    def parse_chunk(
+        self,
+        chunk_data: bytes,
+        is_last: bool = False,
+    ) -> Iterator[TSPacket]:
+        """
+        Parses MPEG-TS packets incrementally from a binary chunk.
+        Retains unparsed bytes across arbitrary chunk boundaries.
+
+        Args:
+            chunk_data: Binary chunk bytes.
+            is_last: True if this is the final chunk in the stream.
+
+        Yields:
+            Decoded TSPacket instances.
+        """
+        self._buffer.extend(chunk_data)
+        buf_len = len(self._buffer)
+        offset = 0
+
+        while buf_len - offset >= TS_PACKET_SIZE:
+            if self._buffer[offset] != TS_SYNC_BYTE:
+                self.stats.sync_byte_errors += 1
+                if self.strict_mode:
+                    raise SyncLossError(
+                        f"Stream lost sync at byte offset {self.stats.total_bytes_read}: "
+                        f"byte=0x{self._buffer[offset]:02x}"
+                    )
+                # Resynchronization: find next 0x47 in buffer
+                next_sync = self._buffer.find(bytes([TS_SYNC_BYTE]), offset + 1)
+                if next_sync != -1:
+                    self.stats.total_bytes_read += (next_sync - offset)
+                    offset = next_sync
+                    continue
+                else:
+                    self.stats.total_bytes_read += (buf_len - offset)
+                    offset = buf_len
+                    break
+
+            b1 = self._buffer[offset + 1]
+            b2 = self._buffer[offset + 2]
+            b3 = self._buffer[offset + 3]
+
+            pid = ((b1 & 0x1F) << 8) | b2
+            if pid > TS_MAX_PID:
+                self.stats.malformed_packet_count += 1
+                self.stats.total_bytes_read += TS_PACKET_SIZE
+                self.stats.total_packets += 1
+                offset += TS_PACKET_SIZE
+                continue
+
+            afc = (b3 & 0x30) >> 4
+            has_af = afc in (AFC_ADAPTATION_ONLY, AFC_ADAPTATION_AND_PAYLOAD)
+            has_pl = afc in (AFC_PAYLOAD_ONLY, AFC_ADAPTATION_AND_PAYLOAD)
+
+            if has_af:
+                afl = self._buffer[offset + 4]
+                pl_off = TS_HEADER_SIZE + 1 + afl
+                if pl_off > TS_PACKET_SIZE:
+                    self.stats.malformed_packet_count += 1
+                    self.stats.total_bytes_read += TS_PACKET_SIZE
+                    self.stats.total_packets += 1
+                    offset += TS_PACKET_SIZE
+                    continue
+            else:
+                afl = 0
+                pl_off = TS_HEADER_SIZE
+
+            raw_pkt = bytes(self._buffer[offset : offset + TS_PACKET_SIZE])
+            payload = raw_pkt[pl_off:] if has_pl else b""
+            offset += TS_PACKET_SIZE
+
+            self.stats.total_bytes_read += TS_PACKET_SIZE
+            self.stats.total_packets += 1
+            self.stats.valid_sync_packets += 1
+
+            tei = bool(b1 & 0x80)
+            if tei:
+                self.stats.tei_error_count += 1
+
+            is_null = (pid == TS_NULL_PID)
+            if is_null:
+                self.stats.null_packet_count += 1
+
+            if has_pl:
+                self.stats.payload_packet_count += 1
+                self.stats.total_payload_bytes += len(payload)
+
+            if has_af:
+                self.stats.adaptation_field_count += 1
+                if has_pl:
+                    self.stats.adaptation_and_payload_count += 1
+                else:
+                    self.stats.adaptation_only_count += 1
+
+            self.stats.pid_counts[pid] += 1
+
+            # Continuity tracking
+            cc = b3 & 0x0F
+            if has_pl and not is_null:
+                if pid in self._last_cc_per_pid:
+                    expected_cc = (self._last_cc_per_pid[pid] + 1) % TS_CONTINUITY_COUNTER_MOD
+                    if cc != expected_cc:
+                        self.stats.continuity_errors[pid] += 1
+                self._last_cc_per_pid[pid] = cc
+
+            yield TSPacket(
+                sync_byte=TS_SYNC_BYTE,
+                tei=tei,
+                pusi=bool(b1 & 0x40),
+                transport_priority=bool(b1 & 0x20),
+                pid=pid,
+                transport_scrambling_control=(b3 & 0xC0) >> 6,
+                adaptation_field_control=afc,
+                continuity_counter=cc,
+                has_adaptation_field=has_af,
+                has_payload=has_pl,
+                adaptation_field_length=afl,
+                is_null_packet=is_null,
+                raw_bytes=raw_pkt,
+                payload=payload,
+            )
+
+        if offset > 0:
+            del self._buffer[:offset]
+
+        if is_last and self._buffer:
+            self.stats.total_bytes_read += len(self._buffer)
+            self._buffer.clear()
+
+    def parse_chunks(
+        self,
+        chunks: Iterable[bytes],
+    ) -> Iterator[TSPacket]:
+        """
+        Parses an iterable of binary chunks sequentially.
+
+        Args:
+            chunks: Iterable yielding binary byte chunks.
+
+        Yields:
+            Decoded TSPacket instances.
+        """
+        for chunk in chunks:
+            yield from self.parse_chunk(chunk, is_last=False)
+        yield from self.parse_chunk(b"", is_last=True)
+
     def get_statistics(self) -> Dict[str, Any]:
         """Returns computed stream diagnostic metrics."""
         return self.stats.to_dict()
+

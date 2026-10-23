@@ -13,7 +13,7 @@ from enum import Enum, IntEnum
 import logging
 from pathlib import Path
 import struct
-from typing import Any, BinaryIO, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, BinaryIO, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from dvbs2_analyzer.parsers.base import (
     BaseStreamParser,
@@ -149,10 +149,21 @@ class GSEParser(BaseStreamParser):
         self.strict_mode = strict_mode
         self.length_includes_header = length_includes_header
         self.stats = GSEStreamStatistics()
+        self._buffer = bytearray()
+        self._has_bbframe_wrapper: Optional[bool] = None
+        self._inc_hdr_mode = length_includes_header
 
     def reset_statistics(self) -> None:
         """Resets all internal PDU counters and stats."""
         self.stats = GSEStreamStatistics()
+        self._buffer.clear()
+        self._has_bbframe_wrapper = None
+        self._inc_hdr_mode = self.length_includes_header
+
+    def reset(self) -> None:
+        """Resets parser internal residual buffer and statistics for stream re-use."""
+        self.reset_statistics()
+
 
     @staticmethod
     def _resolve_protocol_name(proto_type: Optional[int]) -> str:
@@ -616,6 +627,176 @@ class GSEParser(BaseStreamParser):
             yield from self.parse_stream(f, max_pdus=max_packets)
         logger.info("Finished GSE parsing for %s (%d PDUs decoded)", path.name, self.stats.total_pdus)
 
+    def parse_chunk(
+        self,
+        chunk_data: bytes,
+        is_last: bool = False,
+    ) -> Iterator[GSEPDU]:
+        """
+        Parses GSE PDUs incrementally from a binary chunk.
+        Retains unparsed bytes across arbitrary chunk boundaries.
+
+        Args:
+            chunk_data: Binary chunk bytes.
+            is_last: True if this is the final chunk in the stream.
+
+        Yields:
+            Decoded GSEPDU instances.
+        """
+        self._buffer.extend(chunk_data)
+        self.stats.total_bytes_read += len(chunk_data)
+
+        # Detect BBFrame wrapper once we have enough bytes (or at EOF)
+        if self._has_bbframe_wrapper is None:
+            if len(self._buffer) >= 512 or is_last:
+                self._has_bbframe_wrapper = False
+                for off in range(min(512, max(0, len(self._buffer) - 10))):
+                    if self._is_valid_bbheader(self._buffer[off : off + 10]):
+                        self._has_bbframe_wrapper = True
+                        break
+
+        if self._has_bbframe_wrapper is None:
+            return
+
+        if self._has_bbframe_wrapper:
+            # Auto-detect header length mode from first complete BBHeader
+            if self._inc_hdr_mode is None:
+                chk_off = 0
+                while chk_off + 10 <= len(self._buffer):
+                    hdr = self._buffer[chk_off : chk_off + 10]
+                    if self._is_valid_bbheader(hdr):
+                        upl, dfl, sync, syncd, crc8 = struct.unpack(">HHBHB", hdr[2:10])
+                        dfl_bytes = dfl // 8
+                        if chk_off + 10 + dfl_bytes <= len(self._buffer):
+                            b_data = self._buffer[chk_off + 10 : chk_off + 10 + dfl_bytes]
+                            df = b_data[:-4] if len(b_data) >= 4 else b_data
+                            self._inc_hdr_mode = self._detect_bbframe_gse_mode(df)
+                            break
+                        else:
+                            break
+                    chk_off += 1
+
+            while len(self._buffer) >= 10:
+                hdr = self._buffer[:10]
+                if self._is_valid_bbheader(hdr):
+                    upl, dfl, sync, syncd, crc8 = struct.unpack(">HHBHB", hdr[2:10])
+                    dfl_bytes = dfl // 8
+                    frame_total = 10 + dfl_bytes
+                    if len(self._buffer) < frame_total and not is_last:
+                        break
+
+                    bb_data = bytes(self._buffer[10 : min(len(self._buffer), frame_total)])
+                    data_field = bb_data[:-4] if len(bb_data) >= 4 else bb_data
+
+                    p_offset = 0
+                    while p_offset < len(data_field):
+                        avail_field = len(data_field) - p_offset
+                        if avail_field < 2:
+                            if len(self._buffer) >= frame_total:
+                                self.stats.truncated_pdus += 1
+                            break
+
+                        b0 = data_field[p_offset]
+                        if (b0 & 0xF0) == 0x00 and (b0 & 0x0F) == 0:
+                            padding_pdu = GSEPDU(
+                                start_indicator=False,
+                                end_indicator=False,
+                                label_type=GSELabelType.LABEL_6B,
+                                gse_length=0,
+                                frag_id=None,
+                                total_length=None,
+                                protocol_type=None,
+                                protocol_name="PADDING",
+                                label=b"",
+                                crc32=None,
+                                payload=b"",
+                                payload_length=0,
+                                is_padding=True,
+                                is_unfragmented=False,
+                                is_first_fragment=False,
+                                is_intermediate_fragment=False,
+                                is_last_fragment=False,
+                                encapsulated_protocol=None,
+                                raw_bytes=data_field[p_offset : len(data_field)],
+                            )
+                            self._update_statistics(padding_pdu)
+                            break
+
+                        try:
+                            pdu, consumed = self.parse_pdu(
+                                data_field,
+                                p_offset,
+                                length_includes_header=self._inc_hdr_mode or False,
+                            )
+                        except PacketCorruptionError:
+                            self.stats.truncated_pdus += 1
+                            break
+
+                        if consumed == 0:
+                            break
+
+                        self._update_statistics(pdu)
+                        yield pdu
+                        p_offset += consumed
+
+                    del self._buffer[:min(len(self._buffer), frame_total)]
+                else:
+                    # Scan forward for next valid header
+                    next_hdr_pos = -1
+                    for off in range(1, len(self._buffer) - 10):
+                        if self._is_valid_bbheader(self._buffer[off : off + 10]):
+                            next_hdr_pos = off
+                            break
+                    if next_hdr_pos != -1:
+                        del self._buffer[:next_hdr_pos]
+                    else:
+                        if is_last:
+                            self._buffer.clear()
+                        else:
+                            del self._buffer[:max(0, len(self._buffer) - 10)]
+                        break
+        else:
+            # Direct raw GSE stream
+            while len(self._buffer) >= 2:
+                try:
+                    pdu, consumed = self.parse_pdu(bytes(self._buffer), 0)
+                except PacketCorruptionError:
+                    if not is_last:
+                        break
+                    self.stats.truncated_pdus += 1
+                    self._buffer.clear()
+                    break
+
+                if consumed == 0:
+                    break
+
+                self._update_statistics(pdu)
+                yield pdu
+                del self._buffer[:consumed]
+
+        if is_last and self._buffer:
+            if not self._has_bbframe_wrapper:
+                self.stats.truncated_pdus += 1
+            self._buffer.clear()
+
+    def parse_chunks(
+        self,
+        chunks: Iterable[bytes],
+    ) -> Iterator[GSEPDU]:
+        """
+        Parses an iterable of binary chunks sequentially.
+
+        Args:
+            chunks: Iterable yielding binary byte chunks.
+
+        Yields:
+            Decoded GSEPDU instances.
+        """
+        for chunk in chunks:
+            yield from self.parse_chunk(chunk, is_last=False)
+        yield from self.parse_chunk(b"", is_last=True)
+
     def get_statistics(self) -> Dict[str, Any]:
         """Returns accumulated stream diagnostic metrics."""
         return self.stats.to_dict()
+

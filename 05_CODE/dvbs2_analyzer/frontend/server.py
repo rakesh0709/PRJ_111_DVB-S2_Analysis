@@ -184,6 +184,9 @@ class FrontendRequestHandler(BaseHTTPRequestHandler):
             file_path = payload.get("file_path")
             forced_format = payload.get("format", "AUTO")
             window_size = payload.get("window_size")
+            processing_mode = payload.get("processing_mode", "STANDARD")
+            chunk_size = payload.get("chunk_size", 65536)
+            use_mmap = payload.get("use_mmap", False)
 
             if not file_path:
                 self._send_error_json("Missing required parameter: 'file_path'")
@@ -194,6 +197,9 @@ class FrontendRequestHandler(BaseHTTPRequestHandler):
                     file_path=file_path,
                     forced_format=forced_format,
                     window_size=window_size,
+                    processing_mode=processing_mode,
+                    chunk_size=chunk_size,
+                    use_mmap=use_mmap,
                 )
                 # Cache last report for export
                 FrontendRequestHandler.last_analysis_report = res
@@ -206,6 +212,37 @@ class FrontendRequestHandler(BaseHTTPRequestHandler):
                 FrontendRequestHandler.last_analysis_report = None
                 logger.exception("Analysis execution failed for %s", file_path)
                 self._send_error_json(f"Analysis failed: {str(exc)}", status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            return
+
+        # REST API: Controlled Fault Injection (Benchmark)
+        if path == "/api/fault-inject":
+            file_path = payload.get("file_path")
+            fault_type = payload.get("fault_type", "TS_TEI")
+            target_unit = payload.get("target_unit", 150)
+            unit_count = payload.get("unit_count", 5)
+            forced_format = payload.get("format", "AUTO")
+            window_size = payload.get("window_size")
+
+            if not file_path:
+                self._send_error_json("Missing required parameter: 'file_path'")
+                return
+
+            try:
+                res = self.coordinator.run_fault_injection(
+                    file_path=file_path,
+                    fault_type=fault_type,
+                    target_unit=target_unit,
+                    unit_count=unit_count,
+                    forced_format=forced_format,
+                    window_size=window_size,
+                )
+                self._send_json(res)
+            except (ValueError, FileNotFoundError) as exc:
+                logger.warning("Fault injection client error: %s", exc)
+                self._send_error_json(f"Fault injection failed: {str(exc)}", status=HTTPStatus.BAD_REQUEST)
+            except Exception as exc:
+                logger.exception("Fault injection failed for %s", file_path)
+                self._send_error_json(f"Fault injection failed: {str(exc)}", status=HTTPStatus.INTERNAL_SERVER_ERROR)
             return
 
         # REST API: Compare Streams

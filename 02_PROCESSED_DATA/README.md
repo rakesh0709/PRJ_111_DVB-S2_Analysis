@@ -1,14 +1,11 @@
 # 02_PROCESSED_DATA — Processed & Normalized Data
 
 ## Purpose
-This directory is designated for storing cleaned, de-encapsulated, and normalized intermediate datasets generated from the raw streams in `01_RAW_DATA/`.
+This directory is designated for storing intermediate cleaned, de-encapsulated, and normalized stream datasets.
 
-## Current Status
-* **Status:** Planned / Future Implementation
-* No processed datasets are stored here yet. Processing pipelines will be implemented in subsequent phases.
-
-## Intended Contents
-* Decoded/parsed Baseband (BB) frame headers and payload dumps.
-* De-encapsulated GSE packet structures and extracted network-layer payloads.
-* Demultiplexed and sanitized MPEG-TS packet tables, Continuity Counter logs, and PID streams.
-* Synchronized time-series logs for stream evaluation.
+## Operational Model & Architecture
+In the verified PRJ_111 streaming architecture:
+- Stream de-encapsulation, sanitization, and parsing (MPEG-TS, GSE, BBFrame) execute **in-memory** through streaming generators (`05_CODE/dvbs2_analyzer/streaming/engine.py`) and chunk readers (`05_CODE/dvbs2_analyzer/ingestion/chunk_reader.py`).
+- Operating in-memory avoids redundant multi-gigabyte disk writes during high-throughput analysis.
+- When intermediate normalized dumps or exports are needed, they can be staged here.
+- Finalized analytical outputs, reports, timelines, and comparisons are persisted directly to `06_RESULTS/`.

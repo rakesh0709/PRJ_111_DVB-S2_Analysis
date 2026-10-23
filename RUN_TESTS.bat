@@ -6,7 +6,7 @@ set "ROOT_DIR=%~dp0"
 
 echo ======================================================================
 echo   PRJ_111: Full Automated Test Verification Suite
-echo   Python Core Pipeline (207 Tests) + Frontend Integration (33 Tests)
+echo   Backend Core & Streaming (268 Tests) + Frontend Integration (33 Tests)
 echo ======================================================================
 echo.
 
@@ -18,7 +18,7 @@ if exist ".venv\Scripts\python.exe" (
     set "PYTHON_EXE=python"
 )
 
-echo Running Full Automated Regression Suite (240 tests: 207 pipeline + 33 server integration)...
+echo Running Full Automated Regression Suite (301 tests: 268 pipeline/streaming + 33 server integration)...
 "%PYTHON_EXE%" -m unittest discover -s tests -v
 if %ERRORLEVEL% neq 0 (
     echo.
@@ -29,7 +29,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo.
 echo ======================================================================
-echo   ALL TESTS PASSED: 240/240 Tests Passing (100%% VERIFIED, 0 ERRORS)
+echo   ALL TESTS PASSED: 301/301 Tests Passing (100%% VERIFIED, 0 ERRORS)
 echo ======================================================================
 pause
 

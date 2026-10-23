@@ -11,7 +11,7 @@ import io
 import logging
 from pathlib import Path
 import struct
-from typing import Any, BinaryIO, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, BinaryIO, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from dvbs2_analyzer.parsers.base import BaseStreamParser, PacketCorruptionError
 
@@ -43,6 +43,10 @@ def crc8_dvbs2(data_bytes: bytes) -> int:
     for b in data_bytes:
         crc = CRC8_TABLE[crc ^ b]
     return crc
+
+
+_ROLLOFF_STR = ("alpha=0.35", "alpha=0.25", "alpha=0.2", "alpha=0.15")
+_SYNC_STR = [f"0x{i:02x}" for i in range(256)]
 
 
 @dataclass
@@ -145,10 +149,25 @@ class BBFrameParser(BaseStreamParser):
         """
         self.strict_mode = strict_mode
         self.stats = BBFrameStreamStatistics()
+        self._buffer = bytearray()
+        self._format_type: Optional[str] = None
+        self._pcap_header_parsed: bool = False
+        self._endian: str = "<"
+        self._frames_yielded: int = 0
 
     def reset_statistics(self) -> None:
         """Resets all internal frame counters and diagnostic statistics."""
         self.stats = BBFrameStreamStatistics()
+        self._buffer.clear()
+        self._format_type = None
+        self._pcap_header_parsed = False
+        self._endian = "<"
+        self._frames_yielded = 0
+
+    def reset(self) -> None:
+        """Resets parser internal residual buffer and statistics for stream re-use."""
+        self.reset_statistics()
+
 
     @staticmethod
     def _decode_tsgs(tsgs_bits: int) -> str:
@@ -276,31 +295,32 @@ class BBFrameParser(BaseStreamParser):
 
     def _update_statistics(self, frame: BBFrame) -> None:
         """Updates diagnostic counters with the parsed frame."""
-        self.stats.total_frames += 1
+        stats = self.stats
+        stats.total_frames += 1
 
         if frame.is_valid:
-            self.stats.valid_frames += 1
+            stats.valid_frames += 1
         else:
-            self.stats.invalid_crc_frames += 1
+            stats.invalid_crc_frames += 1
 
         if frame.is_truncated:
-            self.stats.truncated_frames += 1
+            stats.truncated_frames += 1
 
-        self.stats.total_payload_bytes += frame.payload_length
-        self.stats.dfl_values.append(frame.dfl)
-        self.stats.upl_values.append(frame.upl)
+        stats.total_payload_bytes += frame.payload_length
+        stats.dfl_values.append(frame.dfl)
+        stats.upl_values.append(frame.upl)
 
-        self.stats.stream_type_counts[frame.ts_gs] += 1
-        self.stats.input_stream_mode_counts["SIS" if frame.is_sis else "MIS"] += 1
-        self.stats.coding_modulation_counts["CCM" if frame.is_ccm else "ACM"] += 1
-        self.stats.roll_off_counts[f"alpha={frame.ro_rolloff}"] += 1
-        self.stats.sync_byte_counts[f"0x{frame.sync:02x}"] += 1
+        stats.stream_type_counts[frame.ts_gs] += 1
+        stats.input_stream_mode_counts["SIS" if frame.is_sis else "MIS"] += 1
+        stats.coding_modulation_counts["CCM" if frame.is_ccm else "ACM"] += 1
+        stats.roll_off_counts[_ROLLOFF_STR[frame.matype1 & 0x03]] += 1
+        stats.sync_byte_counts[_SYNC_STR[frame.sync]] += 1
 
         if frame.isi is not None:
-            self.stats.isi_counts[frame.isi] += 1
+            stats.isi_counts[frame.isi] += 1
 
         if frame.mode_adaptation_type:
-            self.stats.mode_adaptation_counts[frame.mode_adaptation_type] += 1
+            stats.mode_adaptation_counts[frame.mode_adaptation_type] += 1
 
     def _stream_from_pcapng(
         self,
@@ -589,6 +609,238 @@ class BBFrameParser(BaseStreamParser):
             self.stats.valid_frames
         )
 
+    def parse_chunk(
+        self,
+        chunk_data: bytes,
+        is_last: bool = False,
+    ) -> Iterator[BBFrame]:
+        """
+        Parses DVB-S2 Baseband Frames incrementally from a binary chunk.
+        Retains unparsed bytes across arbitrary chunk boundaries.
+
+        Supports classic PCAP, PCAP-NG, and raw continuous framing.
+
+        Args:
+            chunk_data: Binary chunk bytes.
+            is_last: True if this is the final chunk in the stream.
+
+        Yields:
+            Decoded BBFrame instances.
+        """
+        self._buffer.extend(chunk_data)
+        self.stats.total_bytes_read += len(chunk_data)
+
+        if self._format_type is None:
+            if len(self._buffer) >= 4:
+                magic_4 = bytes(self._buffer[:4])
+                if magic_4 == b"\x0a\x0d\x0d\x0a":
+                    self._format_type = "PCAPNG"
+                elif magic_4 in (b"\xa1\xb2\xc3\xd4", b"\xd4\xc3\xb2\xa1"):
+                    self._format_type = "PCAP"
+                    self._endian = "<" if magic_4 == b"\xd4\xc3\xb2\xa1" else ">"
+                else:
+                    self._format_type = "RAW"
+            elif is_last:
+                self._format_type = "RAW"
+
+        if self._format_type is None:
+            return
+
+        if self._format_type == "PCAPNG":
+            offset = 0
+            buf_len = len(self._buffer)
+            buf = self._buffer
+            while buf_len - offset >= 8:
+                b_type, b_len = struct.unpack_from("<II", buf, offset)
+                if b_len < 12:
+                    offset += 1
+                    continue
+                if buf_len - offset < b_len:
+                    break
+
+                pkt_data = None
+                if b_type == 0x00000006 and b_len >= 32:  # Enhanced Packet Block
+                    cap_len = struct.unpack_from("<I", buf, offset + 20)[0]
+                    pkt_data = bytes(buf[offset + 28 : offset + 28 + cap_len])
+                elif b_type == 0x00000003 and b_len >= 16:  # Simple Packet Block
+                    orig_len = struct.unpack_from("<I", buf, offset + 8)[0]
+                    cap_len = min(orig_len, b_len - 16)
+                    pkt_data = bytes(buf[offset + 12 : offset + 12 + cap_len])
+
+                offset += b_len
+
+                if not pkt_data or len(pkt_data) < 14:
+                    continue
+
+                payload = pkt_data
+                if pkt_data[12:14] == b"\x08\x00" and len(pkt_data) >= 34:
+                    ip_proto = pkt_data[23]
+                    ihl = (pkt_data[14] & 0x0F) * 4
+                    if ip_proto == 17 and len(pkt_data) >= 14 + ihl + 8:
+                        payload = pkt_data[14 + ihl + 8 :]
+                    else:
+                        continue
+                elif len(pkt_data) < 10:
+                    continue
+
+                if len(payload) < 10:
+                    continue
+
+                ma_offset = 0
+                ma_type = None
+                if len(payload) >= 14 and payload[0] == 0xB8:
+                    if crc8_dvbs2(payload[4:13]) == payload[13]:
+                        ma_offset = 4
+                        ma_type = "L.3 (4B)"
+                    elif crc8_dvbs2(payload[2:11]) == payload[11]:
+                        ma_offset = 2
+                        ma_type = "L.2 (2B)"
+                    elif len(payload) >= 13 and crc8_dvbs2(payload[3:12]) == payload[12]:
+                        ma_offset = 3
+                        ma_type = "L.4 (3B)"
+                    else:
+                        continue
+                else:
+                    if crc8_dvbs2(payload[:9]) != payload[9]:
+                        continue
+
+                try:
+                    frame, _ = self.parse_frame(
+                        payload,
+                        offset=ma_offset,
+                        frame_index=self._frames_yielded + 1,
+                        mode_adaptation=ma_type,
+                    )
+                except PacketCorruptionError as err:
+                    self.stats.malformed_headers += 1
+                    if self.strict_mode:
+                        raise
+                    logger.warning("BBFrame parse error in PCAP-NG: %s", err)
+                    continue
+
+                self._update_statistics(frame)
+                self._frames_yielded += 1
+                yield frame
+
+            if offset > 0:
+                del self._buffer[:offset]
+
+        elif self._format_type == "PCAP":
+            if not self._pcap_header_parsed:
+                if len(self._buffer) < 24:
+                    return
+                del self._buffer[:24]
+                self._pcap_header_parsed = True
+
+            offset = 0
+            buf_len = len(self._buffer)
+            while buf_len - offset >= 16:
+                pkt_hdr = bytes(self._buffer[offset : offset + 16])
+                ts_sec, ts_usec, incl_len, orig_len = struct.unpack(self._endian + "IIII", pkt_hdr)
+                if buf_len - offset < 16 + incl_len:
+                    break
+
+                pkt_data = bytes(self._buffer[offset + 16 : offset + 16 + incl_len])
+                offset += 16 + incl_len
+
+                if len(pkt_data) < 10:
+                    continue
+
+                payload = pkt_data
+                if len(pkt_data) >= 34 and pkt_data[12:14] == b"\x08\x00":
+                    ip_proto = pkt_data[23]
+                    ihl = (pkt_data[14] & 0x0F) * 4
+                    if ip_proto == 17 and len(pkt_data) >= 14 + ihl + 8:
+                        payload = pkt_data[14 + ihl + 8 :]
+
+                if len(payload) < 10:
+                    continue
+
+                ma_offset = 0
+                ma_type = None
+                if len(payload) >= 14 and payload[0] == 0xB8:
+                    if crc8_dvbs2(payload[4:13]) == payload[13]:
+                        ma_offset = 4
+                        ma_type = "L.3 (4B)"
+                    elif crc8_dvbs2(payload[2:11]) == payload[11]:
+                        ma_offset = 2
+                        ma_type = "L.2 (2B)"
+                else:
+                    if crc8_dvbs2(payload[:9]) != payload[9]:
+                        continue
+
+                try:
+                    frame, _ = self.parse_frame(
+                        payload,
+                        offset=ma_offset,
+                        frame_index=self._frames_yielded + 1,
+                        mode_adaptation=ma_type,
+                    )
+                except PacketCorruptionError as err:
+                    self.stats.malformed_headers += 1
+                    if self.strict_mode:
+                        raise
+                    logger.warning("BBFrame parse error in PCAP: %s", err)
+                    continue
+
+                self._update_statistics(frame)
+                self._frames_yielded += 1
+                yield frame
+
+            if offset > 0:
+                del self._buffer[:offset]
+
+        elif self._format_type == "RAW":
+            offset = 0
+            buf_len = len(self._buffer)
+            while buf_len - offset >= 10:
+                if crc8_dvbs2(self._buffer[offset : offset + 9]) == self._buffer[offset + 9]:
+                    upl, dfl = struct.unpack(">HH", self._buffer[offset + 2 : offset + 6])
+                    dfl_bytes = dfl // 8
+                    frame_len = 10 + dfl_bytes
+                    if buf_len - offset < frame_len and not is_last:
+                        break
+
+                    try:
+                        frame, consumed = self.parse_frame(
+                            bytes(self._buffer[offset : offset + min(buf_len - offset, frame_len)]),
+                            offset=0,
+                            frame_index=self._frames_yielded + 1,
+                        )
+                    except PacketCorruptionError:
+                        offset += 1
+                        continue
+
+                    self._update_statistics(frame)
+                    self._frames_yielded += 1
+                    yield frame
+                    offset += min(buf_len - offset, frame_len)
+                else:
+                    offset += 1
+
+            if offset > 0:
+                del self._buffer[:offset]
+
+        if is_last and self._buffer:
+            self._buffer.clear()
+
+    def parse_chunks(
+        self,
+        chunks: Iterable[bytes],
+    ) -> Iterator[BBFrame]:
+        """
+        Parses an iterable of binary chunks sequentially.
+
+        Args:
+            chunks: Iterable yielding binary byte chunks.
+
+        Yields:
+            Decoded BBFrame instances.
+        """
+        for chunk in chunks:
+            yield from self.parse_chunk(chunk, is_last=False)
+        yield from self.parse_chunk(b"", is_last=True)
+
     def get_statistics(self) -> Dict[str, Any]:
         """Returns accumulated stream diagnostic metrics."""
-        return self.stats.to_dict()
+        return self.stats.to_dict()

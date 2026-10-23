@@ -7,7 +7,7 @@ ensuring consistent error handling and metric extraction.
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, Iterator, Union
+from typing import Any, Dict, Iterable, Iterator, Union
 
 
 class StreamParserError(Exception):
@@ -55,3 +55,47 @@ class BaseStreamParser(ABC):
         Returns accumulated diagnostic metrics and counts for the parsed stream.
         """
         raise NotImplementedError
+
+    def parse_chunk(
+        self,
+        chunk_data: bytes,
+        is_last: bool = False
+    ) -> Iterator[Any]:
+        """
+        Processes a single binary chunk incrementally. Subclasses implement
+        residual buffering across chunk boundaries.
+
+        Args:
+            chunk_data: Raw byte slice.
+            is_last: True if this is the final chunk in the stream.
+
+        Yields:
+            Decoded framing units.
+        """
+        raise NotImplementedError
+
+    def parse_chunks(
+        self,
+        chunks: Iterable[bytes]
+    ) -> Iterator[Any]:
+        """
+        Processes an iterable of binary chunks sequentially, yielding framing
+        units as complete protocol structures are assembled.
+
+        Args:
+            chunks: Iterable yielding binary chunks.
+
+        Yields:
+            Decoded framing units.
+        """
+        for chunk in chunks:
+            yield from self.parse_chunk(chunk, is_last=False)
+        yield from self.parse_chunk(b"", is_last=True)
+
+    def reset(self) -> None:
+        """
+        Resets parser internal residual buffers and statistics to allow
+        re-use for a new independent stream without state leakage.
+        """
+        pass
+

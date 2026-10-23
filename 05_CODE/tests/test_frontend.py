@@ -254,7 +254,52 @@ class TestFrontendHTTPServer(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertTrue(data["success"])
         self.assertEqual(data["stream_info"]["total_windows"], 91)
+        self.assertEqual(data["stream_info"]["processing_mode"], "STANDARD_BATCH")
         self.assertEqual(data["f1_health"]["overall_health_score"], 100.0)
+
+    def test_api_analyze_chunked_mode(self):
+        payload = {
+            "file_path": str(TS_FILE),
+            "format": "MPEG_TS",
+            "window_size": 200,
+            "processing_mode": "CHUNKED",
+            "chunk_size": 65536,
+        }
+        status, data = self._http_post_json("/api/analyze", payload)
+        self.assertEqual(status, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["stream_info"]["processing_mode"], "INCREMENTAL_CHUNKED")
+        self.assertEqual(data["stream_info"]["chunk_size"], 65536)
+
+    def test_api_analyze_streaming_fast_mode(self):
+        payload = {
+            "file_path": str(TS_FILE),
+            "format": "MPEG_TS",
+            "window_size": 200,
+            "processing_mode": "HIGH_THROUGHPUT",
+            "use_mmap": False,
+        }
+        status, data = self._http_post_json("/api/analyze", payload)
+        self.assertEqual(status, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["stream_info"]["processing_mode"], "HIGH_THROUGHPUT_STREAMING")
+
+    def test_api_fault_inject_endpoint(self):
+        payload = {
+            "file_path": str(TS_FILE),
+            "fault_type": "TS_TEI",
+            "target_unit": 200,
+            "unit_count": 5,
+            "format": "MPEG_TS",
+            "window_size": 200,
+        }
+        status, data = self._http_post_json("/api/fault-inject", payload)
+        self.assertEqual(status, 200)
+        self.assertTrue(data["success"])
+        self.assertIn("evaluation", data)
+        eval_data = data["evaluation"]
+        self.assertTrue(eval_data["f2_metrics"]["f2_response_observed"])
+        self.assertEqual(eval_data["target_window_index"], 1)
 
     def test_api_analyze_missing_file_path(self):
         status, data = self._http_post_json("/api/analyze", {})
@@ -435,7 +480,11 @@ class TestFrontendHTTPServer(unittest.TestCase):
         """Verifies exact diagnostic accounting and Priority-1 checks on corrupted TS capture."""
         corr_path = Path("test_inputs/corrupted_sample.ts")
         if not corr_path.exists():
-            self.skipTest("test_inputs/corrupted_sample.ts not found")
+            corr_path = Path("05_CODE/test_inputs/corrupted_sample.ts")
+        if not corr_path.exists():
+            corr_path = RAW_DATA_DIR / "03_TS" / "DVBS2_toolkit" / "corrupted_sample.ts"
+        if not corr_path.exists():
+            self.skipTest("corrupted_sample.ts not found in any search path")
 
         coordinator = AnalysisCoordinator()
         res = coordinator.analyze_stream(corr_path, forced_format="MPEG_TS")

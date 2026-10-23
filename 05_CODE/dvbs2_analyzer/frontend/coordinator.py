@@ -138,10 +138,31 @@ class AnalysisCoordinator:
         file_path: Union[str, Path],
         forced_format: Optional[str] = None,
         window_size: Optional[int] = None,
+        processing_mode: str = "STANDARD",
+        chunk_size: int = 65536,
+        use_mmap: bool = False,
     ) -> Dict[str, Any]:
         """
         Executes single-stream analysis (F1-F5 + F7) and returns unified JSON-ready dictionary.
+        Supports STANDARD, CHUNKED, or HIGH_THROUGHPUT streaming execution modes.
         """
+        mode = (processing_mode or "STANDARD").upper()
+        if mode == "CHUNKED":
+            return self.analyze_stream_chunked(
+                file_path=file_path,
+                chunk_size=chunk_size,
+                forced_format=forced_format,
+                window_size=window_size,
+            )
+        elif mode in ("FAST", "HIGH_THROUGHPUT", "STREAMING"):
+            return self.analyze_stream_fast(
+                file_path=file_path,
+                chunk_size=chunk_size,
+                use_mmap=use_mmap,
+                forced_format=forced_format,
+                window_size=window_size,
+            )
+
         path = self._resolve_path(file_path)
         if not path.exists():
             raise FileNotFoundError(f"Stream file not found: {path}")
@@ -202,6 +223,7 @@ class AnalysisCoordinator:
                 "total_payload_kb": round(timeline.total_bytes / 1024.0, 2),
                 "window_size": win_size,
                 "total_windows": timeline.total_windows,
+                "processing_mode": "STANDARD_BATCH",
             },
             "f1_health": f1_summary,
             "f2_anomalies": f2_summary,
@@ -216,7 +238,180 @@ class AnalysisCoordinator:
             },
         }
 
+    def analyze_stream_chunked(
+        self,
+        file_path: Union[str, Path],
+        chunk_size: int = 65536,
+        forced_format: Optional[str] = None,
+        window_size: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """
+        Executes single-stream analysis via incremental binary chunk processing
+        and returns the unified JSON-ready dictionary equivalent to analyze_stream.
+
+        Args:
+            file_path: Path to stream file.
+            chunk_size: Size in bytes of each binary chunk.
+            forced_format: Optional format override (MPEG_TS, GSE, BB_FRAME, or AUTO).
+            window_size: Window size in units.
+
+        Returns:
+            Dictionary equivalent to analyze_stream output.
+        """
+        from dvbs2_analyzer.ingestion.chunk_reader import ChunkReader
+
+        path = self._resolve_path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Stream file not found: {path}")
+
+        fmt_enum = None
+        if forced_format and forced_format != "AUTO":
+            try:
+                fmt_enum = StreamFormat(forced_format)
+            except ValueError:
+                raise ValueError(f"Unknown stream format: {forced_format}")
+
+        handler = StreamHandler(path, forced_format=fmt_enum)
+        detected_fmt = handler.format
+
+        if window_size is None or window_size <= 0:
+            if detected_fmt == StreamFormat.MPEG_TS:
+                win_size = 200
+            elif detected_fmt == StreamFormat.GSE:
+                win_size = 3
+            elif detected_fmt == StreamFormat.BB_FRAME:
+                win_size = 50
+            else:
+                win_size = 50
+        else:
+            win_size = int(window_size)
+
+        with ChunkReader(path, chunk_size=chunk_size) as reader:
+            timeline = self.tl_gen.generate_from_chunks(
+                chunks=reader,
+                format=detected_fmt,
+                window_size=win_size,
+                stream_name=path.name,
+            )
+
+        explanation_report = self.expl_engine.explain_timeline(timeline)
+
+        report = self.report_gen.generate_from_timeline(
+            timeline=timeline,
+            explanation_report=explanation_report,
+            comparison_report=None,
+            stream_path=path,
+            file_size_bytes=handler.size_bytes,
+        )
+
+        f1_summary = self._extract_f1_summary(timeline, handler, report)
+        f2_summary = self._extract_f2_summary(timeline)
+        f3_summary = self._extract_f3_summary(timeline, report)
+
+        return {
+            "success": True,
+            "stream_info": {
+                "file_name": path.name,
+                "file_path": str(path),
+                "file_size_bytes": handler.size_bytes,
+                "file_size_kb": round(handler.size_bytes / 1024.0, 2),
+                "detected_format": detected_fmt.value,
+                "total_units": timeline.total_units,
+                "total_payload_bytes": timeline.total_bytes,
+                "total_payload_kb": round(timeline.total_bytes / 1024.0, 2),
+                "window_size": win_size,
+                "total_windows": timeline.total_windows,
+                "chunk_size": chunk_size,
+                "processing_mode": "INCREMENTAL_CHUNKED",
+            },
+            "f1_health": f1_summary,
+            "f2_anomalies": f2_summary,
+            "f3_patterns": f3_summary,
+            "f4_timeline": timeline.to_dict(),
+            "f5_explanations": explanation_report.to_dict(),
+            "f7_report": report.to_dict(),
+            "report_renders": {
+                "markdown": report.render_markdown(),
+                "text": report.render_text(),
+                "html": report.render_html(),
+            },
+        }
+
+    def analyze_stream_fast(
+        self,
+        file_path: Union[str, Path],
+        chunk_size: int = 65536,
+        use_mmap: bool = False,
+        forced_format: Optional[str] = None,
+        window_size: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """
+        Executes single-stream analysis via the Chunk 3 High-Throughput Streaming Engine.
+
+        Args:
+            file_path: Path to stream file.
+            chunk_size: Binary chunk size in bytes (default: 64 KB).
+            use_mmap: Whether to use memory-mapped I/O.
+            forced_format: Optional format override (MPEG_TS, GSE, BB_FRAME, AUTO).
+            window_size: Window size in units.
+
+        Returns:
+            Dictionary equivalent to analyze_stream and analyze_stream_chunked.
+        """
+        path = self._resolve_path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Stream file not found: {path}")
+
+        from dvbs2_analyzer.streaming.engine import HighThroughputStreamingEngine, StreamingEngineConfig
+
+        cfg = StreamingEngineConfig(
+            chunk_size=chunk_size,
+            use_mmap=use_mmap,
+        )
+        engine = HighThroughputStreamingEngine(cfg)
+        res = engine.analyze_stream(
+            source=path,
+            forced_format=forced_format,
+            window_size=window_size,
+        )
+
+        handler = StreamHandler(path, forced_format=res.detected_format)
+        f1_summary = self._extract_f1_summary(res.timeline, handler, res.report)
+        f2_summary = self._extract_f2_summary(res.timeline)
+        f3_summary = self._extract_f3_summary(res.timeline, res.report)
+
+        return {
+            "success": True,
+            "stream_info": {
+                "file_name": path.name,
+                "file_path": str(path),
+                "file_size_bytes": handler.size_bytes,
+                "file_size_kb": round(handler.size_bytes / 1024.0, 2),
+                "detected_format": res.detected_format.value,
+                "total_units": res.timeline.total_units,
+                "total_payload_bytes": res.timeline.total_bytes,
+                "total_payload_kb": round(res.timeline.total_bytes / 1024.0, 2),
+                "window_size": res.window_size,
+                "total_windows": res.timeline.total_windows,
+                "chunk_size": chunk_size,
+                "processing_mode": "HIGH_THROUGHPUT_STREAMING",
+                "use_mmap": use_mmap,
+            },
+            "f1_health": f1_summary,
+            "f2_anomalies": f2_summary,
+            "f3_patterns": f3_summary,
+            "f4_timeline": res.timeline.to_dict(),
+            "f5_explanations": res.explanation_report.to_dict(),
+            "f7_report": res.report.to_dict(),
+            "report_renders": {
+                "markdown": res.report.render_markdown(),
+                "text": res.report.render_text(),
+                "html": res.report.render_html(),
+            },
+        }
+
     def compare_streams(
+
         self,
         file_path_a: Union[str, Path],
         file_path_b: Optional[Union[str, Path]] = None,
@@ -291,6 +486,92 @@ class AnalysisCoordinator:
                 "text": report.render_text(),
                 "html": report.render_html(),
             },
+        }
+
+    def run_fault_injection(
+        self,
+        file_path: Union[str, Path],
+        fault_type: str = "TS_TEI",
+        target_unit: int = 150,
+        unit_count: int = 5,
+        forced_format: Optional[str] = None,
+        window_size: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """
+        Executes controlled synthetic fault injection and returns baseline vs faulted evaluation.
+        """
+        from dvbs2_analyzer.fault_injection import (
+            StreamFaultInjector,
+            FaultEvaluator,
+            InjectionTarget,
+        )
+
+        path = self._resolve_path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Stream file not found: {path}")
+
+        fmt_enum = None
+        if forced_format and forced_format != "AUTO":
+            try:
+                fmt_enum = StreamFormat(forced_format)
+            except ValueError:
+                raise ValueError(f"Unknown stream format: {forced_format}")
+
+        handler = StreamHandler(path, forced_format=fmt_enum)
+        detected_fmt = handler.format
+
+        if window_size is None or window_size <= 0:
+            if detected_fmt == StreamFormat.MPEG_TS:
+                win_size = 200
+            elif detected_fmt == StreamFormat.GSE:
+                win_size = 3
+            elif detected_fmt == StreamFormat.BB_FRAME:
+                win_size = 50
+            else:
+                win_size = 50
+        else:
+            win_size = int(window_size)
+
+        original_data = path.read_bytes()
+        injector = StreamFaultInjector(seed=42)
+        evaluator = FaultEvaluator()
+        target = InjectionTarget(
+            unit_start_index=max(0, int(target_unit)),
+            unit_count=max(1, int(unit_count)),
+            window_size=win_size,
+        )
+
+        ft = fault_type.upper()
+        if ft in ("TS_TEI", "TEI"):
+            pert = injector.inject_ts_tei(original_data, target)
+        elif ft in ("TS_CC_DISCONTINUITY", "CC"):
+            pert = injector.inject_ts_cc_discontinuity(original_data, target)
+        elif ft in ("TS_PID_PERTURBATION", "PID"):
+            pert = injector.inject_ts_pid_perturbation(original_data, target)
+        elif ft in ("GSE_PDU_TRUNCATION", "TRUNCATION"):
+            pert = injector.inject_gse_truncation(original_data, target)
+        elif ft in ("GSE_S_E_PERTURBATION", "S_E"):
+            pert = injector.inject_gse_fragmentation_perturbation(original_data, target)
+        elif ft in ("BB_CRC_CORRUPTION", "CRC"):
+            pert = injector.inject_bbframe_crc_corruption(original_data, target)
+        elif ft in ("BB_MATYPE_MODE_SHIFT", "MODE"):
+            pert = injector.inject_bbframe_mode_shift(original_data, target)
+        else:
+            pert = injector.inject_control_null(original_data, target)
+
+        report = evaluator.evaluate_perturbation(
+            original_data=original_data,
+            perturbation=pert,
+            format_enum=detected_fmt,
+            window_size=win_size,
+            stream_name=path.name,
+        )
+
+        return {
+            "success": True,
+            "stream_name": path.name,
+            "format": detected_fmt.value,
+            "evaluation": report.to_dict(),
         }
 
     # -------------------------------------------------------------------------

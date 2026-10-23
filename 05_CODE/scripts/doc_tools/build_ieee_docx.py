@@ -1,3 +1,4 @@
+import re
 """
 build_ieee_docx.py
 Generates the authoritative PRJ_111 IEEE-style TWO-COLUMN Microsoft Word (.docx) document.
@@ -74,6 +75,162 @@ def add_omml_equation(doc, math_inner_xml, eq_num, col_width_in=3.3):
     r_num.font.name = "Times New Roman"
     r_num.font.size = Pt(9.5)
 
+
+def add_formatted_runs(paragraph, text, base_font_size=Pt(10)):
+    tokens = re.split(r'(G\(x\) = x\^8 \+ x\^7 \+ x\^6 \+ x\^4 \+ x\^2 \+ 1|2\^12 - 1 = 4095|2\^12|x_i ∈ R\^m|s\(x\) ∈ \[0\.0, 1\.0\]|d\(x\) ∈ R|s\(x\) ≥ 0\.5000|d\(x\) = 0\.0|d\(x\) < 0|d\(x\) > 0|s > 0\.5000|s < 0\.5000|O\(n log n\)|roll-off α)', text)
+    for token in tokens:
+        if not token:
+            continue
+        if token == "G(x) = x^8 + x^7 + x^6 + x^4 + x^2 + 1":
+            rG = paragraph.add_run("G")
+            rG.font.italic = True
+            rG.font.name = "Times New Roman"
+            rG.font.size = base_font_size
+            r_lp = paragraph.add_run("(")
+            r_lp.font.name = "Times New Roman"
+            r_lp.font.size = base_font_size
+            rx1 = paragraph.add_run("x")
+            rx1.font.italic = True
+            rx1.font.name = "Times New Roman"
+            rx1.font.size = base_font_size
+            r_eq = paragraph.add_run(") = ")
+            r_eq.font.name = "Times New Roman"
+            r_eq.font.size = base_font_size
+            for pwr in [8, 7, 6, 4, 2]:
+                rx = paragraph.add_run("x")
+                rx.font.italic = True
+                rx.font.name = "Times New Roman"
+                rx.font.size = base_font_size
+                rsup = paragraph.add_run(str(pwr))
+                rsup.font.superscript = True
+                rsup.font.name = "Times New Roman"
+                rsup.font.size = base_font_size
+                rplus = paragraph.add_run(" + ")
+                rplus.font.name = "Times New Roman"
+                rplus.font.size = base_font_size
+            r1 = paragraph.add_run("1")
+            r1.font.name = "Times New Roman"
+            r1.font.size = base_font_size
+        elif token == "2^12 - 1 = 4095":
+            r1 = paragraph.add_run("2")
+            r1.font.name = "Times New Roman"
+            r1.font.size = base_font_size
+            r2 = paragraph.add_run("12")
+            r2.font.superscript = True
+            r2.font.name = "Times New Roman"
+            r2.font.size = base_font_size
+            r3 = paragraph.add_run(" - 1 = 4,095")
+            r3.font.name = "Times New Roman"
+            r3.font.size = base_font_size
+        elif token == "2^12":
+            r1 = paragraph.add_run("2")
+            r1.font.name = "Times New Roman"
+            r1.font.size = base_font_size
+            r2 = paragraph.add_run("12")
+            r2.font.superscript = True
+            r2.font.name = "Times New Roman"
+            r2.font.size = base_font_size
+        elif token == "x_i ∈ R^m":
+            rx = paragraph.add_run("x")
+            rx.font.italic = True
+            rx.font.name = "Times New Roman"
+            rx.font.size = base_font_size
+            ri = paragraph.add_run("i")
+            ri.font.subscript = True
+            ri.font.name = "Times New Roman"
+            ri.font.size = base_font_size
+            r_in = paragraph.add_run(" ∈ ")
+            r_in.font.name = "Times New Roman"
+            r_in.font.size = base_font_size
+            rR = paragraph.add_run("R")
+            rR.font.italic = True
+            rR.font.name = "Times New Roman"
+            rR.font.size = base_font_size
+            rm = paragraph.add_run("m")
+            rm.font.superscript = True
+            rm.font.name = "Times New Roman"
+            rm.font.size = base_font_size
+        elif token == "s(x) ∈ [0.0, 1.0]":
+            rs = paragraph.add_run("s")
+            rs.font.italic = True
+            rs.font.name = "Times New Roman"
+            rs.font.size = base_font_size
+            r1 = paragraph.add_run("(")
+            r1.font.name = "Times New Roman"
+            r1.font.size = base_font_size
+            rx = paragraph.add_run("x")
+            rx.font.italic = True
+            rx.font.name = "Times New Roman"
+            rx.font.size = base_font_size
+            r2 = paragraph.add_run(") ∈ [0.0, 1.0]")
+            r2.font.name = "Times New Roman"
+            r2.font.size = base_font_size
+        elif token == "s(x) ≥ 0.5000":
+            rs = paragraph.add_run("s")
+            rs.font.italic = True
+            rs.font.name = "Times New Roman"
+            rs.font.size = base_font_size
+            r1 = paragraph.add_run("(")
+            r1.font.name = "Times New Roman"
+            r1.font.size = base_font_size
+            rx = paragraph.add_run("x")
+            rx.font.italic = True
+            rx.font.name = "Times New Roman"
+            rx.font.size = base_font_size
+            r2 = paragraph.add_run(") ≥ 0.5000")
+            r2.font.name = "Times New Roman"
+            r2.font.size = base_font_size
+        elif token == "d(x) ∈ R":
+            rd = paragraph.add_run("d")
+            rd.font.italic = True
+            rd.font.name = "Times New Roman"
+            rd.font.size = base_font_size
+            r1 = paragraph.add_run("(")
+            r1.font.name = "Times New Roman"
+            r1.font.size = base_font_size
+            rx = paragraph.add_run("x")
+            rx.font.italic = True
+            rx.font.name = "Times New Roman"
+            rx.font.size = base_font_size
+            r2 = paragraph.add_run(") ∈ ")
+            r2.font.name = "Times New Roman"
+            r2.font.size = base_font_size
+            rR = paragraph.add_run("R")
+            rR.font.italic = True
+            rR.font.name = "Times New Roman"
+            rR.font.size = base_font_size
+        elif token == "O(n log n)":
+            r1 = paragraph.add_run("O(")
+            r1.font.name = "Times New Roman"
+            r1.font.size = base_font_size
+            r2 = paragraph.add_run("n")
+            r2.font.italic = True
+            r2.font.name = "Times New Roman"
+            r2.font.size = base_font_size
+            r3 = paragraph.add_run(" log ")
+            r3.font.name = "Times New Roman"
+            r3.font.size = base_font_size
+            r4 = paragraph.add_run("n")
+            r4.font.italic = True
+            r4.font.name = "Times New Roman"
+            r4.font.size = base_font_size
+            r5 = paragraph.add_run(")")
+            r5.font.name = "Times New Roman"
+            r5.font.size = base_font_size
+        elif token == "roll-off α":
+            r1 = paragraph.add_run("roll-off ")
+            r1.font.name = "Times New Roman"
+            r1.font.size = base_font_size
+            r2 = paragraph.add_run("α")
+            r2.font.italic = True
+            r2.font.name = "Times New Roman"
+            r2.font.size = base_font_size
+        else:
+            r = paragraph.add_run(token)
+            r.font.name = "Times New Roman"
+            r.font.size = base_font_size
+
+
 def build_paper():
     doc = Document()
     
@@ -106,7 +263,7 @@ def build_paper():
     p_title.paragraph_format.space_after = Pt(12)
     r_title = p_title.add_run("Development of a Multi-Format DVB-S2 Receiver Output\nStream Analyzer with Anomaly Detection and Diagnostic Reporting")
     r_title.font.name = 'Times New Roman'
-    r_title.font.size = Pt(17)
+    r_title.font.size = Pt(24.0)
     r_title.font.bold = True
 
     # Author Table (3 Columns across 7.0 inches)
@@ -189,9 +346,7 @@ def build_paper():
             p.paragraph_format.first_line_indent = Inches(0.18)
         else:
             p.paragraph_format.first_line_indent = Inches(0)
-        r = p.add_run(text)
-        r.font.name = 'Times New Roman'
-        r.font.size = Pt(10)
+        add_formatted_runs(p, text, base_font_size=Pt(10))
         return p
 
     def add_fig_caption(num, title):
@@ -202,11 +357,11 @@ def build_paper():
         p.paragraph_format.first_line_indent = Inches(0)
         r_lbl = p.add_run(f"Fig. {num}. ")
         r_lbl.font.name = 'Times New Roman'
-        r_lbl.font.size = Pt(8.5)
+        r_lbl.font.size = Pt(8.0)
         r_lbl.font.bold = True
         r_txt = p.add_run(title)
         r_txt.font.name = 'Times New Roman'
-        r_txt.font.size = Pt(8.5)
+        r_txt.font.size = Pt(8.0)
         return p
 
     def add_tbl_caption(num_str, title):
@@ -290,60 +445,46 @@ def build_paper():
     # Section I
     add_sec_h1("I. Introduction")
     add_body_p(
-        "The Second Generation Digital Video Broadcasting via Satellite standard (DVB-S2, ETSI EN 302 307-1) "
-        "represents the foundational physical and framing specification for modern satellite telecommunications [1]. "
-        "Operating downstream of the satellite low-noise block downconverter (LNB) and intermediate-frequency (IF) tuner, "
-        "the satellite receiver demodulator performs carrier acquisition, matched filtering, forward error correction (FEC) "
-        "decoding using coupled Low-Density Parity-Check (LDPC) and Bose-Chaudhuri-Hocquenghem (BCH) codes, and baseband "
-        "deframing [2]. The resulting post-demodulator digital output stream forms the critical boundary between "
-        "satellite physical-layer transmission and terrestrial networking appliances."
+        "In contemporary broadband satellite communications, physical-layer signaling identification and frame boundary synchronization under impaired channel conditions require robust joint detection methods as established by Liao et al. [1]. "
+        "Furthermore, evaluating receiver resilience against malformed stream containers requires rigorous test-creation methodologies such as the transport stream fuzzing framework established by Izumi et al. [2]. "
+        "Additionally, monitoring continuous streaming telemetry under concept drift necessitates modern streaming anomaly detection benchmarks, as systematically evaluated by Cao et al. [3]. "
+        "The Second Generation Digital Video Broadcasting via Satellite standard (DVB-S2, ETSI EN 302 307-1) represents the foundational physical and framing specification for modern satellite telecommunications [4]. "
+        "Operating downstream of the satellite low-noise block downconverter (LNB) and intermediate-frequency (IF) tuner, the satellite receiver demodulator performs carrier acquisition, matched filtering, forward error correction (FEC) decoding using coupled Low-Density Parity-Check (LDPC) and Bose-Chaudhuri-Hocquenghem (BCH) codes, and baseband deframing [8]. "
+        "The resulting post-demodulator digital output stream forms the critical boundary between satellite physical-layer transmission and terrestrial networking appliances."
     )
     add_body_p(
         "In operational satellite ground stations, television distribution networks, and satellite broadband terminals, "
         "post-demodulator output is not uniform. Depending on transponder service profiles and downstream equipment, "
         "receivers emit digital data in one of three standardized digital framing representations:\n"
-        "1) MPEG-2 Transport Stream (MPEG-TS): Fixed 188-byte containers featuring periodic synchronization markers (0x47), "
-        "13-bit Program Identifiers (PIDs), and continuity counters, standard in linear television broadcasting [3].\n"
-        "2) Generic Stream Encapsulation (GSE): Variable-length protocol data units (PDUs) featuring 2-bit start/end "
-        "fragmentation flags, 16-bit EtherType protocol identifiers, and cyclic redundancy checks, standard in satellite IP broadband [4].\n"
-        "3) DVB-S2 Baseband Frames (BBFrame): The native physical-layer container defined by an 80-bit Baseband Header (BBHeader), "
-        "Mode Adaptation flags (MATYPE-1/2), User Packet Length (UPL), Data Field Length (DFL), and CRC-8 header protection [1]."
+        "(1) MPEG-2 Transport Stream (MPEG-TS): Fixed 188-byte containers featuring periodic synchronization markers (0x47), "
+        "13-bit Program Identifiers (PIDs), and continuity counters, standard in linear television broadcasting [5].\n"
+        "(2) Generic Stream Encapsulation (GSE): Variable-length protocol data units (PDUs) featuring 2-bit start/end "
+        "fragmentation flags, 16-bit EtherType protocol identifiers, and cyclic redundancy checks, standard in satellite IP broadband [6].\n"
+        "(3) DVB-S2 Baseband Frames (BBFrame): The native physical-layer container defined by an 80-bit Baseband Header (BBHeader), "
+        "Mode Adaptation flags (MATYPE-1/2), User Packet Length (UPL), Data Field Length (DFL), and CRC-8 header protection [4]."
     )
     add_body_p(
         "Analyzing receiver output streams is essential for ground station commissioning, transponder capacity verification, "
         "stream integrity assessment, and transmission debugging. However, analyzing these heterogeneous representations "
-        "using conventional tools presents operational limitations [5]. Generic packet analyzers (such as Wireshark) "
-        "treat captures as Ethernet frames, requiring specialized external dissectors that lack native support for raw "
-        "concatenated transport streams or raw baseband frame telemetry [6]. Conversely, dedicated broadcast hardware "
-        "instruments are tailored primarily to MPEG-TS, providing limited native support for modern DVB-S2 baseband frames "
-        "or GSE IP encapsulation [5]."
+        "using conventional tools presents operational limitations [9]. Generic packet analyzers (such as Wireshark) "
+        "treat captures as Ethernet frames, requiring specialized external dissectors that lack native support "
+        "for raw concatenated transport streams or unencapsulated baseband bitstreams [10]. Commercial broadcast "
+        "analyzers provide robust MPEG-TS analysis but exhibit minimal native support for modern DVB-S2 baseband frames "
+        "or GSE IP encapsulations [9]. Furthermore, evaluating receiver resilience against malformed stream containers "
+        "requires rigorous test-creation methodologies such as the transport stream fuzzing framework established by Izumi et al. [2]."
     )
     add_body_p(
-        "Furthermore, existing analysis tools suffer from three fundamental engineering deficiencies: "
-        "1) Framing Heterogeneity and Parser Brittleness: Digital captures arrive as unindexed raw binary bitstreams (.ts, .gse, .bin, .pcap). "
-        "Naive file-extension parsers misidentify formats, while streaming parsers without robust synchronization recovery fail when encountering bit errors. "
-        "2) Lack of Cross-Format Telemetry: Comparing packet counts, PDU counts, and baseband frame counts directly creates false equivalence, "
-        "misleading ground station operators by comparing metrics with incompatible physical dimensions. "
-        "3) Epistemic Over-Claiming in Stream Telemetry: Many commercial monitoring tools calculate synthetic clock timestamps or fictitious "
-        "Megabits-per-second (Mbps) throughputs in offline files where no receiver clock telemetry exists, or assert speculative physical-layer "
-        "causal inferences (e.g., attributing a continuity counter error to 'rain fade' without demodulator signal-to-noise ratio measurements)."
+        "Field telemetry diagnostics encounter three persistent challenges:\n"
+        "(1) Format Identification Fragility: Off-air captures frequently lack standardized metadata headers, causing generic sniffers to misclassify payload boundaries.\n"
+        "(2) Cross-Format Semantic Conflation: Directly contrasting raw container metrics across heterogeneous protocols (such as comparing 188-byte TS packets against multi-kilobyte Baseband Frames) leads to invalid diagnostic deductions.\n"
+        "(3) Epistemic Over-Claiming: Monitoring software frequently computes synthetic clock timestamps or speculates regarding physical RF conditions (e.g. rain fade) without access to demodulator constellation metrics."
     )
     add_body_p(
-        "To resolve these challenges, this paper presents PRJ_111, a specialized, modular software application engineered for "
-        "multi-format DVB-S2 receiver output stream analysis. PRJ_111 establishes an integrated seven-feature analytical pipeline (F1–F7) "
-        "that performs content-aware format sniffer ingestion, deterministic framing parsing, unified feature extraction, rule-based stream "
-        "health analysis (F1), unsupervised Isolation Forest anomaly detection (F2), structural pattern and entropy analysis (F3), physical "
-        "spatial activity timelines (F4), bounded Z-score diagnostic anomaly explanations (F5), semantically guarded stream comparisons (F6), "
-        "and automated multi-format diagnostic report generation (F7)."
+        "To resolve these challenges, this paper presents PRJ_111, an extensible, modular software suite for unified DVB-S2 receiver output stream analysis. "
+        "PRJ_111 implements an end-to-end analytical pipeline comprising seven integrated features (F1–F7) that ingest raw bitstreams, execute deterministic framing decoders, "
+        "evaluate deductive stream health (F1), discover structural outliers via unsupervised Isolation Forest modeling (F2), analyze multiplex entropy (F3), "
+        "render spatial timeline telemetry (F4), attribute anomaly deviations using bounded Z-scores (F5), enforce semantic comparison shields (F6), and export tripartite diagnostic reports (F7)."
     )
-    add_body_p(
-        "The remainder of this paper is organized as follows: Section II reviews related literature. Section III presents the system architecture. "
-        "Section IV details multi-format parsing. Section V elaborates the seven-feature analytical pipeline. Section VI outlines the experimental "
-        "setup and datasets. Section VII analyzes empirical results. Section VIII details automated software verification. Section IX presents "
-        "limitations and domain-safety considerations. Section X concludes the paper with directions for future work."
-    )
-
-    # Section II
     add_sec_h1("II. Related Work")
     add_body_p(
         "The technical foundation of PRJ_111 synthesizes international telecommunications standards, satellite protocol engineering, "
@@ -351,50 +492,57 @@ def build_paper():
     )
     add_sec_h2("A. DVB-S2 Framing and Encapsulation Protocols")
     add_body_p(
-        "The DVB-S2 standard (ETSI EN 302 307-1) defines framing, channel coding, and modulation for satellite communications, establishing "
-        "Adaptive Coding and Modulation (ACM) and Native Baseband Framing [1]. Morello and Mignone [2] analyzed the physical layer mechanisms "
-        "of DVB-S2, demonstrating how variable-length user packets are encapsulated into baseband frames protected by inner LDPC and outer "
-        "BCH codes. Casini et al. [7] analyzed modulation constellations ranging from QPSK to 32-APSK, detailing the role of the 80-bit Baseband "
-        "Header (BBHeader), Roll-Off factors (α ∈ {0.20, 0.25, 0.35}), and Data Field Length (DFL) bit allocation. Sklar [8] provided the "
-        "foundational framework for digital modulation, channel coding limits, and baseband framing boundaries in digital communication channels."
+        "The DVB-S2 standard (ETSI EN 302 307-1) defines the framing structure, channel coding, and modulation "
+        "systems for satellite broadcast and broadband applications, introducing Adaptive Coding and Modulation (ACM) "
+        "and Native Baseband Framing [4]. Morello et al. [8] detailed the physical-layer mechanisms of DVB-S2, "
+        "demonstrating how variable-length user data packets are encapsulated into fixed-size baseband frames "
+        "protected by concatenated inner LDPC and outer BCH codes. Casini et al. [11] analyzed modulation schemes "
+        "ranging from QPSK to 32-APSK, establishing the operational roles of the 80-bit Baseband Header (BBHeader), "
+        "Roll-Off factors (α ∈ {0.20, 0.25, 0.35}), and Data Field Length (DFL). For physical-layer signaling and frame boundary "
+        "synchronization under low-SNR reception, Liao et al. [1] developed an efficient joint detection method for DVB-S2 signaling codes."
     )
     add_body_p(
-        "For network layer transport, Fairhurst and Collini-Nocker [9] formulated Generic Stream Encapsulation (ETSI TS 102 606-1) [4] to replace "
-        "legacy Multi-Protocol Encapsulation (MPE over MPEG-TS) and Unidirectional Lightweight Encapsulation (ULE, RFC 4326) [10]. GSE defines "
-        "variable-size protocol data units carrying native IP datagrams with fragment-level CRC-32 protection, eliminating transport stream "
-        "packing overhead. Digital television distribution continues to rely on the MPEG-2 Transport Stream (ISO/IEC 13818-1) [3]. Operational "
-        "measurement guidelines for DVB broadcast systems are standardized in ETSI TR 101 290 [11], which defines Priority-1 stream parameters: "
-        "loss of synchronization, Transport Error Indicator (TEI) assertions, and Continuity Counter (CC) errors. DVB Service Information (SI) "
-        "standards are specified in ETSI EN 300 468 [12]."
+        "For network layer transport, Fairhurst et al. [12] formulated the Generic Stream Encapsulation (GSE) "
+        "protocol (ETSI TS 102 606), designed to replace Multi-Protocol Encapsulation (MPE over MPEG-TS) by reducing "
+        "framing overhead [6], [13]. GSE defines variable-size protocol data units carrying native IP packets with "
+        "optional label re-use and fragment-level CRC-32 protection. Meanwhile, digital television broadcast "
+        "transmission continues to rely on the MPEG-2 Transport Stream standard (ISO/IEC 13818-1) [5]. Measurement "
+        "guidelines for digital television broadcast systems are standardized in ETSI TR 101 290 [7], defining "
+        "three priority levels of measurement parameters. Priority-1 parameters represent fundamental transmission "
+        "integrity: TS synchronization loss, Transport Error Indicator (TEI) assertions, and Continuity Counter (CC) errors [7]."
     )
     add_sec_h2("B. Broadcast Stream Monitoring and Protocol Inspection")
     add_body_p(
-        "Luisi et al. [5] evaluated digital video broadcast stream monitoring techniques, demonstrating that while hardware TS analyzers "
-        "reliably evaluate ETSI TR 101 290 Priority-1 errors, they lack native decoding for modern multi-protocol IP encapsulations (GSE and "
-        "BBFrames) emitted by satellite broadband receivers. Minoli [6] surveyed network packet inspection tools, noting that packet sniffers "
-        "treat raw digital bitstreams as unstructured payloads unless encapsulated in network capture wrappers (such as PCAP). PRJ_111 resolves "
-        "these limitations by providing native, modular parsers for MPEG-TS, GSE, and BBFrames directly from raw receiver bitstreams."
+        "Luisi et al. [9] evaluated digital video broadcast stream monitoring techniques, demonstrating that while "
+        "hardware-based TS analyzers reliably measure ETSI TR 101 290 Priority-1 errors, they fail to support modern "
+        "multi-protocol IP encapsulations (GSE and BBFrames) emitted by hybrid ground terminals. Generic network "
+        "packet inspection tools, surveyed by Minoli [10], provide inspection of terrestrial Ethernet stacks but "
+        "treat raw post-demodulator digital bitstreams as unstructured payloads unless wrapped in network capture "
+        "headers (such as PCAP). To systematically evaluate receiver resilience against malformed streams, Izumi et al. [2] "
+        "formulated a fuzzing-based test-creation methodology that mutates transport stream headers and payloads. "
+        "PRJ_111 adapts these concepts to incorporate a deterministic fault injection module for empirical parser validation."
     )
-    add_sec_h2("C. Unsupervised Anomaly Detection in Telecommunications")
+    add_sec_h2("C. Unsupervised Anomaly Detection in Communication Streams")
     add_body_p(
-        "Anomaly detection in streaming telemetry has been surveyed by Chandola et al. [13] and Pimentel et al. [14]. Traditional statistical "
-        "process control relies on static thresholds, which present difficulties in multiplexed channels where bitrates fluctuate dynamically "
-        "with statistical multiplexing. Supervised classification approaches require extensive ground-truth labeled anomaly datasets [13]. "
-        "In operational DVB-S2 receiver monitoring, labeled anomalous bitstreams are rarely available; captured receiver data reflects "
-        "proprietary commercial broadcasts, encrypted carrier feeds, or transient operational anomalies."
+        "Anomaly detection in streaming telemetry has been surveyed by Chandola et al. [14] and Pimentel et al. [15]. "
+        "Traditional statistical process control (SPC) relies on fixed thresholding, which presents difficulties in "
+        "multiplexed broadcast channels where packet rates vary dynamically with video complexity and statistical "
+        "multiplexing. Supervised classification approaches require extensive collections of ground-truth labeled anomaly "
+        "datasets [14]. In operational DVB-S2 receiver output monitoring, labeled anomalous bitstreams are rarely available; "
+        "receiver streams reflect proprietary transmissions, encrypted carrier feeds, or transient operational errors."
     )
     add_body_p(
-        "To address unlabeled streaming data, Liu et al. [15], [16] introduced the Isolation Forest algorithm. Isolation Forest isolates anomalies "
-        "explicitly rather than profiling normal instances, constructing ensembles of random isolation trees (iTrees). Because anomalies "
-        "possess distinct feature attributes, they are isolated closer to tree roots, resulting in shorter average path lengths [15]. Baggio et al. "
-        "[17] evaluated unsupervised machine learning models for network traffic anomaly detection, demonstrating that Isolation Forest achieves "
-        "superior computational efficiency (O(n log n) training complexity) and robust outlier detection in streaming feature spaces compared to "
-        "distance-based models such as k-means++ [18] or density-based clustering such as DBSCAN [19]. Shannon [20] established the mathematical "
-        "foundation of information entropy, utilized in this work to evaluate PID multiplex distribution concentration. PRJ_111 adapts Isolation "
-        "Forest to DVB-S2 telemetry, executing format-isolated, spatial-window anomaly detection with calibrated logistic decision boundaries."
+        "To address unlabeled streaming data, Liu et al. [16], [17] introduced the Isolation Forest algorithm. "
+        "Isolation Forest isolates anomalies explicitly rather than profiling normal data points, constructing ensembles "
+        "of random isolation trees (iTrees). Because anomalies possess distinct feature attributes, they are isolated closer "
+        "to the root of the tree, resulting in shorter average path lengths [16]. Baggio et al. [18] evaluated unsupervised "
+        "machine learning models for network traffic anomaly detection, demonstrating that Isolation Forest achieves computational "
+        "efficiency (O(n log n) training complexity) and robust outlier detection in streaming feature spaces compared to "
+        "distance-based models or density-based clustering such as k-means++ [19] and DBSCAN [20]. Furthermore, Cao et al. [3] "
+        "established a systematic benchmark for streaming anomaly detection under continuous concept drift, validating that "
+        "windowed tree ensembles effectively capture evolving temporal anomalies. PRJ_111 grounds its streaming anomaly detection "
+        "on these windowed principles."
     )
-
-    # Section III
     add_sec_h1("III. System Architecture and Workstation Design")
     add_body_p(
         "The architecture of PRJ_111 is illustrated in Fig. 1. The system is structured as a six-stage pipeline that ingests raw post-demodulator "
@@ -429,7 +577,7 @@ def build_paper():
     add_body_p(
         "PRJ_111 is implemented in Python 3.12 as a local engineering workstation with zero external cloud or proprietary licensing dependencies:\n"
         "• Backend Core: Pure Python modular architecture (dvbs2_analyzer/ingestion/, parsers/, features/, analysis/).\n"
-        "• Machine Learning Layer: Scikit-learn (IsolationForest) coupled with NumPy and SciPy for numerical vector operations.\n"
+        "(b) Machine Learning Layer: Scikit-learn (IsolationForest) coupled with NumPy and SciPy for numerical vector operations.\n"
         "• HTTP Gateway: Multi-threaded native Python HTTP server (ThreadingHTTPServer) exposing a RESTful JSON API (/api/status, /api/analyze, /api/compare, /api/upload, /api/export).\n"
         "• Frontend Workstation: Single-Page Application (SPA) built with vanilla HTML5, CSS3, and ES6 JavaScript. Visualizations are rendered offline using vendored Chart.js (205 KB local bundle), eliminating external CDN dependencies and enabling air-gapped field operation.\n"
         "• Local Staging Security: Direct browser file uploads are staged locally under 05_CODE/uploads/ with alphanumeric token sanitization and directory traversal prevention (os.path.commonpath)."
@@ -454,7 +602,7 @@ def build_paper():
     )
     add_sec_h2("A. MPEG-2 Transport Stream (MPEG-TS) Processing")
     add_body_p(
-        "The MPEG-TS parser processes continuous 188-byte containers specified in ISO/IEC 13818-1 [3]. Each packet header is decoded as:\n"
+        "The MPEG-TS parser processes continuous 188-byte containers specified in ISO/IEC 13818-1 [5]. Each packet header is decoded as:\n"
         "• Sync Byte: Must equal 0x47 (01000111 binary). If the parser encounters a non-0x47 byte, it increments sync_byte_errors and scans forward byte-by-byte for the next valid synchronization byte.\n"
         "• Transport Error Indicator (TEI): Bit 7 of byte 1. When asserted (TEI = 1), indicates that an uncorrected error exists within the packet container.\n"
         "• Payload Unit Start Indicator (PUSI): Bit 6 of byte 1. Indicates that the packet payload begins with a Program Association Table (PAT), Program Map Table (PMT), or Packetized Elementary Stream (PES) header.\n"
@@ -466,7 +614,7 @@ def build_paper():
     )
     add_sec_h2("B. Generic Stream Encapsulation (GSE) Processing")
     add_body_p(
-        "The GSE parser decodes variable-size protocol data units adhering to ETSI TS 102 606-1 [4]:\n"
+        "The GSE parser decodes variable-size protocol data units adhering to ETSI TS 102 606-1 [6]:\n"
         "• Start/End Flags (S, E): 2 bits defining PDU fragmentation. S=1, E=1 indicates an unfragmented PDU; S=1, E=0 indicates the first fragment; S=0, E=0 intermediate fragments; S=0, E=1 the last fragment.\n"
         "• GSE Length Field Specification: In ETSI TS 102 606-1, the GSE Length field is a 12-bit binary field encoding integer values from 0 to 4,095 (2^12 - 1 = 4095). It explicitly indicates the length in octets of the GSE payload and optional fields following the 2-byte GSE base header. Therefore, the maximum representable encapsulated payload is 4,095 bytes, and including the 2-byte base header, the maximum theoretical total PDU length is 4,097 bytes. In our implementation and in the captured validation dataset, all PDUs satisfy this constraint, with the maximum observed PDU length being 1,444 bytes.\n"
         "• Protocol Type: 16-bit EtherType identifier (e.g., 0x0800 for IPv4, 0x86DD for IPv6) or GSE extension header type (GSE_EXT_NPA).\n"
@@ -476,7 +624,7 @@ def build_paper():
     )
     add_sec_h2("C. DVB-S2 Baseband Frame (BBFrame) Processing")
     add_body_p(
-        "The BBFrame parser decodes native satellite baseband frames specified in ETSI EN 302 307-1 [1]. Each frame contains an 80-bit (10-byte) BBHeader followed by the data field:\n"
+        "The BBFrame parser decodes native satellite baseband frames specified in ETSI EN 302 307-1 [4] and evaluated by Liao et al. [1]. Each frame contains an 80-bit (10-byte) BBHeader followed by the data field:\n"
         "• MATYPE-1 (Mode Adaptation Type 1):\n"
         "  - Stream Input (TS/GS): Bits 7–6 indicate Single Input Stream (SIS) or Multiple Input Streams (MIS).\n"
         "  - Modulation & Coding: Bit 5 indicates Constant Coding & Modulation (CCM) or Adaptive Coding & Modulation (ACM).\n"
@@ -513,7 +661,7 @@ def build_paper():
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         r = p.add_run(h_text)
         r.font.name = 'Times New Roman'
-        r.font.size = Pt(7.5)
+        r.font.size = Pt(8.0)
         r.font.bold = True
     for r_idx, row_data in enumerate(tbl1_data):
         for c_idx, val in enumerate(row_data):
@@ -524,7 +672,7 @@ def build_paper():
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_idx != 0 else WD_ALIGN_PARAGRAPH.LEFT
             r = p.add_run(val)
             r.font.name = 'Times New Roman'
-            r.font.size = Pt(7.5)
+            r.font.size = Pt(8.0)
 
     # Section V
     add_sec_h1("V. Feature Engineering and Analytical Pipeline")
@@ -930,7 +1078,7 @@ def build_paper():
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         r = p.add_run(h_text)
         r.font.name = 'Times New Roman'
-        r.font.size = Pt(7.5)
+        r.font.size = Pt(8.0)
         r.font.bold = True
     for r_idx, row_data in enumerate(tbl3_data):
         for c_idx, val in enumerate(row_data):
@@ -941,7 +1089,7 @@ def build_paper():
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_idx == 2 else WD_ALIGN_PARAGRAPH.LEFT
             r = p.add_run(val)
             r.font.name = 'Times New Roman'
-            r.font.size = Pt(7.5)
+            r.font.size = Pt(8.0)
 
     add_sec_h2("C. DVB-S2 Baseband Frame Transmission Analysis")
     add_body_p(
@@ -980,7 +1128,7 @@ def build_paper():
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         r = p.add_run(h_text)
         r.font.name = 'Times New Roman'
-        r.font.size = Pt(7.5)
+        r.font.size = Pt(8.0)
         r.font.bold = True
     for r_idx, row_data in enumerate(tbl4_data):
         for c_idx, val in enumerate(row_data):
@@ -991,7 +1139,7 @@ def build_paper():
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_idx in [2, 3] else WD_ALIGN_PARAGRAPH.LEFT
             r = p.add_run(val)
             r.font.name = 'Times New Roman'
-            r.font.size = Pt(7.5)
+            r.font.size = Pt(8.0)
 
     add_sec_h2("D. Unsupervised Isolation Forest Anomaly Analysis")
     add_body_p(
@@ -1024,7 +1172,7 @@ def build_paper():
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         r = p.add_run(h_text)
         r.font.name = 'Times New Roman'
-        r.font.size = Pt(7.5)
+        r.font.size = Pt(8.0)
         r.font.bold = True
     for r_idx, row_data in enumerate(tbl5_data):
         for c_idx, val in enumerate(row_data):
@@ -1035,7 +1183,7 @@ def build_paper():
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_idx in [1, 2, 3] else WD_ALIGN_PARAGRAPH.LEFT
             r = p.add_run(val)
             r.font.name = 'Times New Roman'
-            r.font.size = Pt(7.5)
+            r.font.size = Pt(8.0)
 
     # ----------------------------------------------------
     # SECTION 7: Continuous Break -> 1 COLUMN (Full-Width Table VI)
@@ -1164,40 +1312,63 @@ def build_paper():
     # References
     add_sec_h1("References")
     
-    references_data = [
-        "[1] “Digital Video Broadcasting (DVB); Second Generation Framing Structure, Channel Coding and Modulation Systems for Broadcasting, Interactive Services, News Gathering and Other Broadband Satellite Applications; Part 1: DVB-S2,” no. ETSI EN 302 307-1 V1.4.1. Sophia Antipolis, France, 2014.",
-        "[2] A. Morello and V. Mignone, “DVB-S2: The Second Generation Standard for Satellite Broadband Services,” Proceedings of the IEEE, vol. 94, no. 1, pp. 210–227, 2006.",
-        "[3] “Information Technology — Generic Coding of Moving Pictures and Associated Audio Information — Part 1: Systems (MPEG-2 Transport Stream),” no. ISO/IEC 13818-1:2022. Geneva, Switzerland, 2022.",
-        "[4] “Digital Video Broadcasting (DVB); Generic Stream Encapsulation (GSE); Part 1: Protocol,” no. ETSI TS 102 606-1 V1.2.1. Sophia Antipolis, France, 2014.",
-        "[5] P. L. Luisi, A. B. Sampaio, and C. A. C. Marcondes, “Empirical Evaluation of Digital Video Broadcasting Systems and Transport Stream Analysis,” IEEE Transactions on Broadcasting, vol. 66, no. 2, pp. 431–444, 2020.",
-        "[6] D. Minoli, Innovations in Satellite Communications and the Global Information Infrastructure. Hoboken, NJ, USA: John Wiley & Sons, 2015.",
-        "[7] E. Casini, R. De Gaudenzi, and A. Ginesi, “DVB-S2 Modern Modulation and Coding Techniques for Satellite Broadcast and Broadband Transmissions,” IEEE Communications Magazine, vol. 42, no. 11, pp. 146–156, 2004.",
-        "[8] B. Sklar, Digital Communications: Fundamentals and Applications, 2nd ed. Upper Saddle River, NJ, USA: Prentice Hall PTR, 2001.",
-        "[9] G. Fairhurst and B. Collini-Nocker, “Generic Stream Encapsulation (GSE) for DVB-S2: Design and Evaluation,” International Journal of Satellite Communications and Networking, vol. 28, no. 5–6, pp. 287–305, 2010.",
-        "[10] G. Fairhurst and B. Collini-Nocker, “Unidirectional Lightweight Encapsulation (ULE) for Transmission of IP Datagrams over an MPEG-2 Transport Stream,” RFC 4326, Dec. 2005.",
-        "[11] “Digital Video Broadcasting (DVB); Measurement Guidelines for DVB Systems,” no. ETSI TR 101 290 V1.4.1. Sophia Antipolis, France, 2020.",
-        "[12] “Digital Video Broadcasting (DVB); Specification for Service Information (SI) in DVB Systems,” no. ETSI EN 300 468 V1.17.1. Sophia Antipolis, France, 2021.",
-        "[13] V. Chandola, A. Banerjee, and V. Kumar, “Anomaly Detection: A Survey,” ACM Computing Surveys, vol. 41, no. 3, pp. 1–58, 2009.",
-        "[14] M. A. F. Pimentel, D. A. Clifton, L. Clifton, and L. Tarassenko, “A Review of Novelty Detection,” Signal Processing, vol. 99, pp. 215–249, 2014.",
-        "[15] F. T. Liu, K. M. Ting, and Z.-H. Zhou, “Isolation Forest,” in Proceedings of the 8th IEEE International Conference on Data Mining (ICDM), Pisa, Italy, 2008, pp. 413–422.",
-        "[16] F. T. Liu, K. M. Ting, and Z.-H. Zhou, “Isolation-Based Anomaly Detection,” ACM Transactions on Knowledge Discovery from Data, vol. 6, no. 1, pp. 1–39, 2012.",
-        "[17] R. S. Baggio, P. R. L. Gondim, and F. L. L. Mendonca, “Network Traffic Anomaly Detection Using Unsupervised Learning Models: A Comparative Study,” IEEE Access, vol. 9, pp. 15982–15998, 2021.",
-        "[18] D. Arthur and S. Vassilvitskii, “k-means++: The Advantages of Careful Seeding,” in Proceedings of the 18th Annual ACM-SIAM Symposium on Discrete Algorithms (SODA), New Orleans, LA, USA, 2007, pp. 1027–1035.",
-        "[19] M. Ester, H.-P. Kriegel, J. Sander, and X. Xu, “A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise,” in Proceedings of the 2nd International Conference on Knowledge Discovery and Data Mining (KDD), Portland, OR, USA, 1996, pp. 226–231.",
-        "[20] C. E. Shannon, “A Mathematical Theory of Communication,” Bell System Technical Journal, vol. 27, no. 3, pp. 379–423, 1948."
+    references_entries = [
+        (1, "X.-Q. Liao et al.", "An Efficient Joint Frame and Physical Layer Signaling Code Detection Method for DVB-S2", "IEEE Access", "vol. 12, pp. 41819–41825, 2024", "10.1109/ACCESS.2024.3378292"),
+        (2, "F. Izumi et al.", "A fuzzing-based test-creation approach for evaluating digital TV receivers via transport streams", "Softw. Test. Verif. Reliab.", "vol. 33, no. 4, p. e1833, 2023", "10.1002/stvr.1833"),
+        (3, "Y. Cao et al.", "Revisiting streaming anomaly detection: benchmark and evaluation", "Artif. Intell. Rev.", "vol. 58, no. 1, art. no. 8, 2025", "10.1007/s10462-024-10995-w"),
+        (4, "ETSI", "Digital Video Broadcasting (DVB); Second Generation Framing Structure, Channel Coding and Modulation Systems for Broadcasting, Interactive Services, News Gathering and Other Broadband Satellite Applications; Part 1: DVB-S2", "ETSI Standard", "EN 302 307-1 V1.4.1, 2014", None),
+        (5, "ISO/IEC", "Information Technology — Generic Coding of Moving Pictures and Associated Audio Information — Part 1: Systems (MPEG-2 Transport Stream)", "ISO/IEC Standard", "13818-1:2022, 2022", None),
+        (6, "ETSI", "Digital Video Broadcasting (DVB); Generic Stream Encapsulation (GSE); Part 1: Protocol", "ETSI Standard", "TS 102 606-1 V1.2.1, 2014", None),
+        (7, "ETSI", "Measurement Guidelines for DVB Systems", "ETSI Technical Report", "TR 101 290 V1.4.1, 2020", None),
+        (8, "A. Morello et al.", "DVB-S2: The Second Generation Standard for Satellite Broadband Services", "Proc. IEEE", "vol. 94, no. 1, pp. 210–227, 2006", "10.1109/JPROC.2005.861013"),
+        (9, "P. L. Luisi et al.", "Empirical Evaluation of Digital Video Broadcasting Systems and Transport Stream Analysis", "IEEE Trans. Broadcast.", "vol. 66, no. 2, pp. 431–444, 2020", "10.1109/TBC.2019.2954067"),
+        (10, "D. Minoli", "Innovations in Satellite Communications and the Global Information Infrastructure", "John Wiley & Sons", "Hoboken, NJ, 2015", "10.1002/9781118984086"),
+        (11, "E. Casini et al.", "DVB-S2 Modern Modulation and Coding Techniques for Satellite Broadcast and Broadband Transmissions", "IEEE Commun. Mag.", "vol. 42, no. 11, pp. 146–156, 2004", "10.1109/MCOM.2004.1362547"),
+        (12, "G. Fairhurst et al.", "Generic Stream Encapsulation (GSE) for DVB-S2: Design and Evaluation", "Int. J. Satell. Commun. Netw.", "vol. 28, no. 5–6, pp. 287–305, 2010", "10.1002/sat.946"),
+        (13, "G. Fairhurst et al.", "Unidirectional Lightweight Encapsulation (ULE) for Transmission of IP Datagrams over an MPEG-2 Transport Stream", "IETF RFC 4326", "Dec. 2005", None),
+        (14, "V. Chandola et al.", "Anomaly Detection: A Survey", "ACM Comput. Surv.", "vol. 41, no. 3, pp. 1–58, 2009", "10.1145/1541880.1541882"),
+        (15, "M. A. F. Pimentel et al.", "A Review of Novelty Detection", "Signal Process.", "vol. 99, pp. 215–249, 2014", "10.1016/j.sigpro.2013.12.026"),
+        (16, "F. T. Liu et al.", "Isolation Forest", "in Proc. IEEE ICDM", "pp. 413–422, 2008", "10.1109/ICDM.2008.17"),
+        (17, "F. T. Liu et al.", "Isolation-Based Anomaly Detection", "ACM TKDD", "vol. 6, no. 1, pp. 1–39, 2012", "10.1145/2133360.2133363"),
+        (18, "R. S. Baggio et al.", "Network Traffic Anomaly Detection Using Unsupervised Learning Models: A Comparative Study", "IEEE Access", "vol. 9, pp. 15982–15998, 2021", "10.1109/ACCESS.2021.3052800"),
+        (19, "D. Arthur et al.", "k-means++: The Advantages of Careful Seeding", "in Proc. ACM-SIAM SODA", "pp. 1027–1035, 2007", None),
+        (20, "M. Ester et al.", "A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise", "in Proc. KDD", "pp. 226–231, 1996", None)
     ]
 
-    for ref in references_data:
+    for num, auth, title, venue, details, doi in references_entries:
         p_ref = doc.add_paragraph()
         p_ref.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        p_ref.paragraph_format.left_indent = Inches(0.22)
-        p_ref.paragraph_format.first_line_indent = Inches(-0.22)
-        p_ref.paragraph_format.space_after = Pt(3)
-        r = p_ref.add_run(ref)
-        r.font.name = 'Times New Roman'
-        r.font.size = Pt(8.5)
+        p_ref.paragraph_format.left_indent = Inches(0.18)
+        p_ref.paragraph_format.first_line_indent = Inches(-0.18)
+        p_ref.paragraph_format.space_after = Pt(2)
+        p_ref.paragraph_format.line_spacing = 1.0
 
-    output_path = "07_DOCUMENTATION/RESEARCH_PAPER/PRJ_111_Research_Paper_Final.docx"
+        r_num = p_ref.add_run(f"[{num}] ")
+        r_num.font.name = 'Times New Roman'
+        r_num.font.size = Pt(8.0)
+
+        r_auth = p_ref.add_run(f"{auth}, ")
+        r_auth.font.name = 'Times New Roman'
+        r_auth.font.size = Pt(8.0)
+
+        r_title = p_ref.add_run(f"“{title},” ")
+        r_title.font.name = 'Times New Roman'
+        r_title.font.size = Pt(8.0)
+
+        r_venue = p_ref.add_run(f"{venue}, ")
+        r_venue.font.name = 'Times New Roman'
+        r_venue.font.size = Pt(8.0)
+        r_venue.font.italic = True
+
+        if doi:
+            det_text = f"{details}, doi: {doi}."
+        else:
+            det_text = f"{details}."
+        r_det = p_ref.add_run(det_text)
+        r_det.font.name = 'Times New Roman'
+        r_det.font.size = Pt(8.0)
+
+        output_path = "07_DOCUMENTATION/RESEARCH_PAPER/PRJ_111_Research_Paper_Final.docx"
     doc.save(output_path)
     print(f"Successfully generated: {output_path} (Size: {os.path.getsize(output_path)} bytes)")
 

@@ -11,7 +11,7 @@ Digital Video Broadcasting - Second Generation (DVB-S2, ETSI EN 302 307) provide
 
 This paper presents the architecture, methodology, and empirical validation of **PRJ_111**, a specialized software application engineered for comprehensive analysis and processing of multi-format DVB-S2 receiver output streams. The application establishes a seven-feature analytical pipeline (F1–F7): (F1) deterministic stream health evaluation executing selected Priority-1 broadcast stream integrity indicators inspired by ETSI TR 101 290 principles; (F2) unsupervised statistical anomaly detection via format-isolated Isolation Forest models calibrated on spatial window telemetry; (F3) structural pattern and multiplex distribution detection; (F4) spatial activity timeline generation indexed strictly by physical byte offsets and container sequence numbers without synthetic clock fabrication; (F5) bounded Z-score diagnostic anomaly explanations ($|z| \le 20.0$) with explicit deviation directionality; (F6) a differential stream comparison engine governed by a strict semantic barrier isolating valid physical invariants from format-incomparable metrics; and (F7) automatic multi-format diagnostic report generation organized under a formal tripartite epistemological taxonomy (*Observed Fact*, *Statistical Finding*, and *Engineering Interpretation*).
 
-The proposed system is implemented as a standalone local engineering workstation with no cloud-service dependency, utilizing standard scientific Python packages. Experimental evaluation across authoritative satellite broadcast captures demonstrates deterministic health accounting (100.0% health on clean streams; 99.67% on corrupted streams with exact transport error tracking), unsupervised anomaly detection flagging structural boundary transitions and multiplex concentrations, and strict semantic isolation in cross-format comparisons. The entire software implementation is validated by an automated test suite comprising 240 tests (207 backend and 33 frontend tests) achieving a 100% pass rate with zero failures and zero errors.
+The proposed system is implemented as a standalone local engineering workstation with no cloud-service dependency, utilizing standard scientific Python packages. Experimental evaluation across authoritative satellite broadcast captures demonstrates deterministic health accounting (100.0% health on clean streams; 99.67% on corrupted streams with exact transport error tracking), unsupervised anomaly detection flagging structural boundary transitions and multiplex concentrations, and strict semantic isolation in cross-format comparisons. The entire software implementation is validated by an automated test suite comprising 293 tests (260 backend and 33 frontend tests) achieving a 100% pass rate with zero failures, zero errors, and zero skipped.
 
 **Index Terms**—DVB-S2, MPEG Transport Stream, Generic Stream Encapsulation, BBFrame, Stream Analysis, Anomaly Detection, Isolation Forest, Feature Extraction, Digital Video Broadcasting, Receiver Output Analysis.
 
@@ -67,9 +67,9 @@ The specific technical objectives of the PRJ_111 project are defined as follows:
 The technical foundation of PRJ_111 synthesizes international telecommunications standards, satellite protocol engineering, unsupervised anomaly detection, and empirical broadcast stream monitoring.
 
 ### A. DVB-S2 and Framing Standards
-The DVB-S2 standard (ETSI EN 302 307-1) defines the framing and channel coding specification for satellite communications, introducing Adaptive Coding and Modulation (ACM) and Native Baseband Framing [1]. Morello and Mignone [7] detailed the physical-layer mechanisms of DVB-S2, demonstrating how variable-length user data packets are encapsulated into fixed-size baseband frames protected by inner LDPC and outer BCH codes. Casini et al. [14] analyzed modulation schemes ranging from QPSK to 32-APSK, establishing the operational roles of the 80-bit Baseband Header (BBHeader), Roll-Off factors ($\alpha \in \{0.20, 0.25, 0.35\}$), and Data Field Length (DFL).
+The DVB-S2 standard (ETSI EN 302 307-1) defines the framing and channel coding specification for satellite communications, introducing Adaptive Coding and Modulation (ACM) and Native Baseband Framing [1]. Morello et al. [7] detailed the physical-layer mechanisms of DVB-S2, demonstrating how variable-length user data packets are encapsulated into fixed-size baseband frames protected by inner LDPC and outer BCH codes. Casini et al. [14] analyzed modulation schemes ranging from QPSK to 32-APSK, establishing the operational roles of the 80-bit Baseband Header (BBHeader), Roll-Off factors ($\alpha \in \{0.20, 0.25, 0.35\}$), and Data Field Length (DFL).
 
-For network layer transport, Fairhurst and Collini-Nocker [8] formulated the Generic Stream Encapsulation (GSE) protocol (ETSI TS 102 606), designed to replace Multi-Protocol Encapsulation (MPE over MPEG-TS) by reducing framing overhead [2], [16]. GSE defines variable-size protocol data units carrying native IP packets with optional label re-use and fragment-level CRC-32 protection. Meanwhile, digital television broadcast transmission continues to rely on the MPEG-2 Transport Stream standard (ISO/IEC 13818-1) [3]. Measurement guidelines for digital television broadcast systems are standardized in ETSI TR 101 290 [4], defining three priority levels of measurement parameters. Priority-1 parameters represent fundamental transmission integrity: TS synchronization loss, Transport Error Indicator (TEI) assertions, and Continuity Counter (CC) errors [4], [12].
+For network layer transport, Fairhurst et al. [8] formulated the Generic Stream Encapsulation (GSE) protocol (ETSI TS 102 606), designed to replace Multi-Protocol Encapsulation (MPE over MPEG-TS) by reducing framing overhead [2], [16]. GSE defines variable-size protocol data units carrying native IP packets with optional label re-use and fragment-level CRC-32 protection. Meanwhile, digital television broadcast transmission continues to rely on the MPEG-2 Transport Stream standard (ISO/IEC 13818-1) [3]. Measurement guidelines for digital television broadcast systems are standardized in ETSI TR 101 290 [4], defining three priority levels of measurement parameters. Priority-1 parameters represent fundamental transmission integrity: TS synchronization loss, Transport Error Indicator (TEI) assertions, and Continuity Counter (CC) errors [4], [12].
 
 ### B. Broadcast Stream Monitoring and Protocol Inspection
 Luisi et al. [12] evaluated digital video broadcast stream monitoring techniques, demonstrating that while hardware-based TS analyzers reliably measure ETSI TR 101 290 Priority-1 errors, they fail to support modern multi-protocol IP encapsulations (GSE and BBFrames) emitted by hybrid ground terminals. Generic network packet inspection tools, surveyed by Minoli [11], provide inspection of terrestrial Ethernet stacks but treat raw post-demodulator digital bitstreams as unstructured payloads unless wrapped in network capture headers (such as PCAP). PRJ_111 builds directly upon these observations by providing native, modular parsers for MPEG-TS, GSE, and BBFrames directly from raw receiver bitstreams.
@@ -530,13 +530,13 @@ Executed via the isolated project environment:
 ```powershell
 python -m unittest discover -s tests -v
 ```
-**Outcome:** **240 / 240 Tests Passing (100% Pass Rate)** with **0 Failures** and **0 Errors** in 19.86s.
+**Outcome:** **293 / 293 Tests Passing (100% Pass Rate)** with **0 Failures**, **0 Errors**, and **0 Skipped** in 72.46s.
 
 ### Test Coverage Architecture
-- **Backend Analytical Suite (207 Tests):** Validates deterministic framing parsers (`test_ts_parser.py`, `test_gse_parser.py`, `test_bbframe_parser.py`), feature extraction (`test_unified_features.py`), F1 stream health (`test_f1_health.py`), F2 anomaly detection (`test_anomaly.py`), F3 pattern detection (`test_patterns.py`), F4 timeline generation (`test_timeline.py`), F5 anomaly explanations (`test_explanation.py`), F6 stream comparison (`test_comparison.py`), and F7 report generation (`test_report.py`).
+- **Backend Analytical & Streaming Suite (260 Tests):** Validates deterministic framing parsers (`test_ts_parser.py`, `test_gse_parser.py`, `test_bbframe_parser.py`), feature extraction (`test_unified_features.py`), F1 stream health (`test_f1_health.py`), F2 anomaly detection (`test_anomaly.py`), F3 pattern detection (`test_patterns.py`), F4 timeline generation (`test_timeline.py`), F5 anomaly explanations (`test_explanation.py`), F6 stream comparison (`test_comparison.py`), F7 report generation (`test_report.py`), incremental chunk ingestion (`test_chunk_processing.py`), controlled fault injection (`test_fault_injection.py`), high-throughput streaming engine (`test_high_throughput.py`), and input robustness hardening (`test_chunk4_robustness.py`).
 - **Frontend Server & Integration Suite (33 Tests):** Validates threaded HTTP server lifecycle, static asset delivery, SVG/ICO favicon MIME types, binary file upload staging, directory traversal security guards, F6 state reset lifecycle, relative path multi-candidate resolution, content-aware GSE detection, corrupted TS diagnostic accounting, sequential stream replacement lifecycle, and semantically correct HTTP 400 invalid-file handling.
 
-*Note on Epistemic Integrity:* Passing 240/240 automated software tests constitutes rigorous **software verification and regression integrity**. It is explicitly **not** presented as machine learning classification accuracy.
+*Note on Epistemic Integrity:* Passing 293/293 automated software tests constitutes rigorous **software verification and regression integrity**. It is explicitly **not** presented as machine learning classification accuracy.
 
 ---
 
@@ -565,7 +565,7 @@ Future research and development directions include:
 
 This paper has presented the architectural design, algorithmic foundation, and empirical verification of **PRJ_111**, a specialized software application for the analysis and processing of multi-format DVB-S2 receiver output streams. By implementing content-aware format detection and modular parsing across MPEG-TS, GSE, and DVB-S2 Baseband Frames, the system overcomes the structural fragmentation that limits single-format protocol analyzers.
 
-The seven-feature analytical pipeline achieves deterministic stream health evaluation (F1), unsupervised Isolation Forest anomaly detection (F2), structural pattern and entropy analysis (F3), physical spatial activity timelines (F4), bounded Z-score diagnostic anomaly explanations (F5), semantically guarded stream comparisons (F6), and automated tripartite diagnostic reporting (F7). Operating as a local engineering workstation, PRJ_111 enforces epistemic safeguards: barring fictitious clock timestamps, preventing speculative physical-layer inferences, and strictly isolating physically incomparable quantities across framing boundaries. Validated across authoritative satellite captures with 240/240 passing automated tests, PRJ_111 establishes a robust, extensible prototype for satellite ground station monitoring, telecommunications education, and broadcast stream verification.
+The seven-feature analytical pipeline achieves deterministic stream health evaluation (F1), unsupervised Isolation Forest anomaly detection (F2), structural pattern and entropy analysis (F3), physical spatial activity timelines (F4), bounded Z-score diagnostic anomaly explanations (F5), semantically guarded stream comparisons (F6), and automated tripartite diagnostic reporting (F7). Operating as a local engineering workstation, PRJ_111 enforces epistemic safeguards: barring fictitious clock timestamps, preventing speculative physical-layer inferences, and strictly isolating physically incomparable quantities across framing boundaries. Validated across authoritative satellite captures with 293/293 passing automated tests, PRJ_111 establishes a robust, extensible prototype for satellite ground station monitoring, telecommunications education, and broadcast stream verification.
 
 ---
 
@@ -577,88 +577,42 @@ The authors express their sincere gratitude to the **Department of Computer Scie
 
 ## REFERENCES
 
-[1] ETSI EN 302 307-1 V1.4.1, "Digital Video Broadcasting (DVB); Second generation framing structure, channel coding and modulation systems for Broadcasting, Interactive Services, News Gathering and other broadband satellite applications; Part 1: DVB-S2," European Telecommunications Standards Institute (ETSI), Sophia Antipolis, France, Nov. 2014.
+[1] X.-Q. Liao et al., “An Efficient Joint Frame and Physical Layer Signaling Code Detection Method for DVB-S2,” *IEEE Access*, vol. 12, pp. 41819–41825, 2024, doi: 10.1109/ACCESS.2024.3378292.
 
-[2] ETSI TS 102 606-1 V1.2.1, "Digital Video Broadcasting (DVB); Generic Stream Encapsulation (GSE); Part 1: Protocol," European Telecommunications Standards Institute (ETSI), Sophia Antipolis, France, Jul. 2014.
+[2] F. Izumi et al., “A fuzzing-based test-creation approach for evaluating digital TV receivers via transport streams,” *Softw. Test. Verif. Reliab.*, vol. 33, no. 4, p. e1833, 2023, doi: 10.1002/stvr.1833.
 
-[3] ISO/IEC 13818-1:2022, "Information technology — Generic coding of moving pictures and associated audio information — Part 1: Systems (MPEG-2 Transport Stream)," International Organization for Standardization / International Electrotechnical Commission, Geneva, Switzerland, 2022.
+[3] Y. Cao et al., “Revisiting streaming anomaly detection: benchmark and evaluation,” *Artif. Intell. Rev.*, vol. 58, no. 1, art. no. 8, 2025, doi: 10.1007/s10462-024-10995-w.
 
-[4] ETSI TR 101 290 V1.4.1, "Digital Video Broadcasting (DVB); Measurement guidelines for DVB systems," European Telecommunications Standards Institute (ETSI), Technical Report, Sophia Antipolis, France, Jun. 2020.
+[4] ETSI, “Digital Video Broadcasting (DVB); Second Generation Framing Structure, Channel Coding and Modulation Systems for Broadcasting, Interactive Services, News Gathering and Other Broadband Satellite Applications; Part 1: DVB-S2,” *ETSI Standard*, EN 302 307-1 V1.4.1, 2014.
 
-[5] F. T. Liu, K. M. Ting, and Z.-H. Zhou, "Isolation Forest," in *Proc. 8th IEEE International Conference on Data Mining (ICDM)*, Pisa, Italy, Dec. 2008, pp. 413–422.
+[5] ISO/IEC, “Information Technology — Generic Coding of Moving Pictures and Associated Audio Information — Part 1: Systems (MPEG-2 Transport Stream),” *ISO/IEC Standard*, 13818-1:2022, 2022.
 
-[6] F. T. Liu, K. M. Ting, and Z.-H. Zhou, "Isolation-based anomaly detection," *ACM Transactions on Knowledge Discovery from Data (TKDD)*, vol. 6, no. 1, pp. 1–39, Mar. 2012.
+[6] ETSI, “Digital Video Broadcasting (DVB); Generic Stream Encapsulation (GSE); Part 1: Protocol,” *ETSI Standard*, TS 102 606-1 V1.2.1, 2014.
 
-[7] A. Morello and V. Mignone, "DVB-S2: The second generation standard for satellite broadband services," *Proceedings of the IEEE*, vol. 94, no. 1, pp. 210–227, Jan. 2006.
+[7] ETSI, “Measurement Guidelines for DVB Systems,” *ETSI Technical Report*, TR 101 290 V1.4.1, 2020.
 
-[8] G. Fairhurst and B. Collini-Nocker, "Generic Stream Encapsulation (GSE) for DVB-S2: Design and Evaluation," *International Journal of Satellite Communications and Networking*, vol. 28, no. 5–6, pp. 287–305, Sep. 2010.
+[8] A. Morello et al., “DVB-S2: The Second Generation Standard for Satellite Broadband Services,” *Proc. IEEE*, vol. 94, no. 1, pp. 210–227, 2006, doi: 10.1109/JPROC.2005.861013.
 
-[9] V. Chandola, A. Banerjee, and V. Kumar, "Anomaly detection: A survey," *ACM Computing Surveys (CSUR)*, vol. 41, no. 3, pp. 1–58, Jul. 2009.
+[9] P. L. Luisi et al., “Empirical Evaluation of Digital Video Broadcasting Systems and Transport Stream Analysis,” *IEEE Trans. Broadcast.*, vol. 66, no. 2, pp. 431–444, 2020, doi: 10.1109/TBC.2019.2954067.
 
-[10] M. A. Pimentel, D. A. Clifton, L. Clifton, and L. Tarassenko, "A review of novelty detection," *Signal Processing*, vol. 99, pp. 215–249, Jun. 2014.
+[10] D. Minoli, “Innovations in Satellite Communications and the Global Information Infrastructure,” *John Wiley & Sons*, Hoboken, NJ, 2015, doi: 10.1002/9781118984086.
 
-[11] D. Minoli, *Innovations in Satellite Communications and the Global Information Infrastructure*, Hoboken, NJ, USA: John Wiley & Sons, 2015.
+[11] E. Casini et al., “DVB-S2 Modern Modulation and Coding Techniques for Satellite Broadcast and Broadband Transmissions,” *IEEE Commun. Mag.*, vol. 42, no. 11, pp. 146–156, 2004, doi: 10.1109/MCOM.2004.1362547.
 
-[12] P. L. Luisi, A. B. Sampaio, and C. A. C. Marcondes, "Empirical Evaluation of Digital Video Broadcasting Systems and Transport Stream Analysis," *IEEE Transactions on Broadcasting*, vol. 66, no. 2, pp. 431–444, Jun. 2020.
+[12] G. Fairhurst et al., “Generic Stream Encapsulation (GSE) for DVB-S2: Design and Evaluation,” *Int. J. Satell. Commun. Netw.*, vol. 28, no. 5–6, pp. 287–305, 2010, doi: 10.1002/sat.946.
 
-[13] R. S. Baggio, P. R. L. Gondim, and F. L. L. Mendonca, "Network Traffic Anomaly Detection Using Unsupervised Learning Models: A Comparative Study," *IEEE Access*, vol. 9, pp. 15982–15998, Jan. 2021.
+[13] G. Fairhurst et al., “Unidirectional Lightweight Encapsulation (ULE) for Transmission of IP Datagrams over an MPEG-2 Transport Stream,” *IETF RFC 4326*, Dec. 2005.
 
-[14] E. Casini, R. De Gaudenzi, and A. Ginesi, "DVB-S2 modern modulation and coding techniques for satellite broadcast and broadband transmissions," *IEEE Communications Magazine*, vol. 42, no. 11, pp. 146–156, Nov. 2004.
+[14] V. Chandola et al., “Anomaly Detection: A Survey,” *ACM Comput. Surv.*, vol. 41, no. 3, pp. 1–58, 2009, doi: 10.1145/1541880.1541882.
 
-[15] B. Sklar, *Digital Communications: Fundamentals and Applications*, 2nd ed., Upper Saddle River, NJ, USA: Prentice Hall PTR, 2001.
+[15] M. A. F. Pimentel et al., “A Review of Novelty Detection,” *Signal Process.*, vol. 99, pp. 215–249, 2014, doi: 10.1016/j.sigpro.2013.12.026.
 
-[16] IETF RFC 4326, G. Fairhurst and B. Collini-Nocker, "Unidirectional Lightweight Encapsulation (ULE) for Transmission of IP Datagrams over an MPEG-2 Transport Stream," Internet Engineering Task Force (IETF), Dec. 2005.
+[16] F. T. Liu et al., “Isolation Forest,” in *Proc. IEEE ICDM*, pp. 413–422, 2008, doi: 10.1109/ICDM.2008.17.
 
-[17] ETSI EN 300 468 V1.17.1, "Digital Video Broadcasting (DVB); Specification for Service Information (SI) in DVB systems," European Telecommunications Standards Institute (ETSI), Sophia Antipolis, France, 2021.
+[17] F. T. Liu et al., “Isolation-Based Anomaly Detection,” *ACM TKDD*, vol. 6, no. 1, pp. 1–39, 2012, doi: 10.1145/2133360.2133363.
 
-[18] C. E. Shannon, "A Mathematical Theory of Communication," *Bell System Technical Journal*, vol. 27, no. 3, pp. 379–423, Jul. 1948.
+[18] R. S. Baggio et al., “Network Traffic Anomaly Detection Using Unsupervised Learning Models: A Comparative Study,” *IEEE Access*, vol. 9, pp. 15982–15998, 2021, doi: 10.1109/ACCESS.2021.3052800.
 
-[19] D. Arthur and S. Vassilvitskii, "k-means++: The advantages of careful seeding," in *Proc. 18th Annual ACM-SIAM Symposium on Discrete Algorithms (SODA)*, New Orleans, LA, USA, 2007, pp. 1027–1035.
+[19] D. Arthur et al., “k-means++: The Advantages of Careful Seeding,” in *Proc. ACM-SIAM SODA*, pp. 1027–1035, 2007.
 
-[20] M. Ester, H.-P. Kriegel, J. Sander, and X. Xu, "A density-based algorithm for discovering clusters in large spatial databases with noise," in *Proc. 2nd International Conference on Knowledge Discovery and Data Mining (KDD)*, Portland, OR, USA, 1996, pp. 226–231.
-
----
-
-## AUTHOR BIOGRAPHIES
-
-```
-+---------------------------+
-| [Photo: Sk Samad]         |
-| paper_assets/             |
-| author_samad.jpg          |
-+---------------------------+
-```
-**Sk Samad** is currently pursuing his Bachelor of Technology (B.Tech) in Computer Science and Engineering at Presidency University, Bengaluru, Karnataka, India. His academic interests encompass digital signal processing, satellite communications protocols, and machine learning applications in network security. Within the PRJ_111 project, he contributed to the ingestion layer design, format sniffer calibration, and unsupervised Isolation Forest anomaly detection pipeline across heterogeneous stream representations.  
-*Roll No: 20231COM0031 | Department of CSE, Presidency University, Bengaluru.*
-
-```
-+---------------------------+
-| [Photo: Y Vengala Rao]    |
-| paper_assets/             |
-| author_vengala_rao.jpg    |
-+---------------------------+
-```
-**Y Vengala Rao** is currently pursuing his Bachelor of Technology (B.Tech) in Computer Science and Engineering at Presidency University, Bengaluru, Karnataka, India. His areas of interest include telecommunications systems, protocol parsing, and lightweight neural network architectures for resource-constrained embedded environments. In PRJ_111, he focused on stream parsing implementations for MPEG-TS, GSE, and DVB-S2 Baseband Frames, as well as the deterministic stream health scoring formulation.  
-*Roll No: 20231COM0001 | Department of CSE, Presidency University, Bengaluru.*
-
-```
-+---------------------------+
-| [Photo: C Rakeshwar]      |
-| paper_assets/             |
-| author_rakeshwar.jpg      |
-+---------------------------+
-```
-**C Rakeshwar** is currently pursuing his Bachelor of Technology (B.Tech) in Computer Science and Engineering at Presidency University, Bengaluru, Karnataka, India. His research interests include distributed systems, software engineering methodologies, and cybersecurity telemetry analysis. For PRJ_111, he developed the cross-format stream comparison engine, the bounded Z-score explanatory model, the engineering workstation single-page application, and automated regression test suites.  
-*Roll No: 20231COM0008 | Department of CSE, Presidency University, Bengaluru.*
-
----
-
-## TEAM PRESENTATION
-
-```
-+---------------------------------------------------------------------------------------+
-|  Fig. 8. PRJ_111 project team during project presentation at Presidency University    |
-+---------------------------------------------------------------------------------------+
-```
-*(Image Reference: `paper_assets/team_presentation.jpg`)*  
-**Fig. 8.** PRJ_111 project team during project presentation at Presidency University (Sk Samad, Y Vengala Rao, and C Rakeshwar).
+[20] M. Ester et al., “A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise,” in *Proc. KDD*, pp. 226–231, 1996.

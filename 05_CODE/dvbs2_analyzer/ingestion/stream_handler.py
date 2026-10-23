@@ -14,7 +14,7 @@ appropriate parser.
 from dataclasses import dataclass
 import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Iterable, Iterator, Optional, Union
 
 from dvbs2_analyzer.config import (
     CODE_DIR,
@@ -213,3 +213,35 @@ class StreamHandler:
             return BBFrameParser(strict_mode=strict_mode)
         else:
             raise ValueError(f"Cannot instantiate parser for unrecognized format: {self.format}")
+
+    def read_chunks(self, chunk_size: int = 65536):
+        """
+        Returns a ChunkReader yielding binary chunks from this stream file.
+
+        Args:
+            chunk_size: Size of each binary chunk in bytes.
+
+        Returns:
+            ChunkReader instance.
+        """
+        from dvbs2_analyzer.ingestion.chunk_reader import ChunkReader
+        return ChunkReader(self.path, chunk_size=chunk_size)
+
+    def parse_chunks(
+        self,
+        chunks: Iterable[bytes],
+        strict_mode: bool = False,
+    ) -> Iterator[Any]:
+        """
+        Parses an iterable of binary chunks incrementally using the appropriate format parser.
+
+        Args:
+            chunks: Iterable yielding binary byte slices.
+            strict_mode: Whether to raise exceptions on framing corruptions.
+
+        Yields:
+            Decoded framing units (TSPacket, GSEPDU, or BBFrame).
+        """
+        parser = self.get_parser(strict_mode=strict_mode)
+        yield from parser.parse_chunks(chunks)
+

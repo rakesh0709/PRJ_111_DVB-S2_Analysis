@@ -22,7 +22,7 @@ import json
 import logging
 import math
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 from dvbs2_analyzer.analysis.anomaly import (
     AnomalyConfig,
@@ -1135,24 +1135,84 @@ class TimelineGenerator:
         self,
         handler: StreamHandler,
         window_size: Optional[int] = None,
-        max_units: Optional[int] = None
+        max_units: Optional[int] = None,
+        stream_name: Optional[str] = None,
     ) -> StreamTimeline:
         """
         Universal gateway: executes timeline generation directly from a StreamHandler.
         """
         parser = handler.get_parser()
         fmt = handler.format
+        name = stream_name or (handler.path.name if handler.path else "Stream")
 
         if fmt == StreamFormat.MPEG_TS:
             packets = list(parser.parse_file(handler.path, max_packets=max_units))
-            return self.generate_ts_timeline(packets, window_size=window_size, stream_name=handler.path.name)
+            return self.generate_ts_timeline(packets, window_size=window_size, stream_name=name)
         elif fmt == StreamFormat.GSE:
             pdus = list(parser.parse_file(handler.path))
             if max_units:
                 pdus = pdus[:max_units]
-            return self.generate_gse_timeline(pdus, window_size=window_size, stream_name=handler.path.name)
+            return self.generate_gse_timeline(pdus, window_size=window_size, stream_name=name)
         elif fmt == StreamFormat.BB_FRAME:
             frames = list(parser.parse_file(handler.path, max_packets=max_units))
-            return self.generate_bbframe_timeline(frames, window_size=window_size, stream_name=handler.path.name)
+            return self.generate_bbframe_timeline(frames, window_size=window_size, stream_name=name)
         else:
             raise ValueError(f"Unsupported format for timeline generation: {fmt}")
+
+    def generate_from_chunks(
+        self,
+        chunks: Iterable[bytes],
+        format: StreamFormat,
+        window_size: Optional[int] = None,
+        stream_name: str = "Incremental Stream",
+        max_units: Optional[int] = None,
+        strict_mode: bool = False,
+    ) -> StreamTimeline:
+        """
+        Incremental gateway: generates a StreamTimeline directly from an iterable of binary chunks.
+        Reconstructs framing units incrementally across arbitrary chunk boundaries.
+
+        Args:
+            chunks: Iterable yielding binary chunks.
+            format: Target stream format (MPEG_TS, GSE, BB_FRAME).
+            window_size: Number of framing units per timeline window.
+            stream_name: Descriptive stream identifier.
+            max_units: Optional upper limit on decoded units.
+            strict_mode: Whether to fail on packet corruptions.
+
+        Returns:
+            StreamTimeline instance.
+        """
+        if format == StreamFormat.MPEG_TS:
+            from dvbs2_analyzer.parsers.ts_parser import TSParser
+            parser = TSParser(strict_mode=strict_mode)
+            packets = []
+            for pkt in parser.parse_chunks(chunks):
+                packets.append(pkt)
+                if max_units and len(packets) >= max_units:
+                    break
+            return self.generate_ts_timeline(packets, window_size=window_size, stream_name=stream_name)
+
+        elif format == StreamFormat.GSE:
+            from dvbs2_analyzer.parsers.gse_parser import GSEParser
+            parser = GSEParser(strict_mode=strict_mode)
+            pdus = []
+            for pdu in parser.parse_chunks(chunks):
+                pdus.append(pdu)
+                if max_units and len(pdus) >= max_units:
+                    break
+            return self.generate_gse_timeline(pdus, window_size=window_size, stream_name=stream_name)
+
+        elif format == StreamFormat.BB_FRAME:
+            from dvbs2_analyzer.parsers.bbframe_parser import BBFrameParser
+            parser = BBFrameParser(strict_mode=strict_mode)
+            frames = []
+            for frame in parser.parse_chunks(chunks):
+                frames.append(frame)
+                if max_units and len(frames) >= max_units:
+                    break
+            return self.generate_bbframe_timeline(frames, window_size=window_size, stream_name=stream_name)
+
+        else:
+            raise ValueError(f"Unsupported format for chunked timeline generation: {format}")
+

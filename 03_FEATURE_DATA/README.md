@@ -3,11 +3,8 @@
 ## Purpose
 This directory is designated for holding extracted quantitative metrics, statistical indicators, structural features, and tabular datasets derived from processed stream data.
 
-## Current Status
-* **Status:** Planned / Future Implementation
-* Feature extraction algorithms are currently in design; no feature tables exist at this stage.
-
-## Intended Contents
-* **Stream Health Metrics:** Packet loss rates, Continuity Counter error frequencies, PCR/PTS jitter, Sync byte corruption rates, null packet ratios.
-* **Structural Metrics:** PID entropy, bandwidth consumption per PID/stream, GSE fragment ratios, BBFrame MODCOD distributions.
-* **Temporal Series:** Windowed statistical features (mean, variance, packet arrival time delta) formatted for AI/ML anomaly detection pipelines.
+## Operational Model & Architecture
+In the verified PRJ_111 streaming architecture:
+- Feature extraction across sliding/hopping windows is performed dynamically in-memory by `05_CODE/dvbs2_analyzer/features/` during stream ingestion.
+- Extracted window features feed directly into the Feature F1 health assessment, Feature F2 Isolation Forest anomaly model, Feature F3 pattern analyzer, and Feature F4 timeline generator.
+- Persisted feature metrics and spatial window representations are serialized as structured outputs within `06_RESULTS/timelines/` and `06_RESULTS/reports/`.
